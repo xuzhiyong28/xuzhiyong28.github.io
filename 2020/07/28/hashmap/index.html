@@ -16,12 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>Mysql-InnoDB索引之索引结构详解(一) - 咕噜咕噜的博客</title>
+    <title>HashMap原理浅析 - 咕噜咕噜的博客</title>
   
-    <meta name="keywords" content="mysql">
+    <meta name="keywords" content="java集合">
   
   
-    <meta name="description" content="Mysql-InnoDB索引详解(一)">
+    <meta name="description" content="HashMap原理浅析">
   
 
   <!-- feed -->
@@ -353,8 +353,8 @@
         
           
   <h1 class="title">
-    <a href="/2019/07/18/mysql-index/">
-      Mysql-InnoDB索引之索引结构详解(一)
+    <a href="/2020/07/28/hashmap/">
+      HashMap原理浅析
     </a>
   </h1>
 
@@ -379,9 +379,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/mysql/' rel="nofollow">
+    <a href='/categories/java/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>mysql</p>
+      <p>java</p>
     </a>
   </div>
 
@@ -392,7 +392,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
+    <p>发布于：Jul 28, 2020</p>
   </a>
 </div>
 
@@ -415,127 +415,7 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <h2 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h2><p>页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Records是真实存储我们插入的记录部分。<br><img src="/2019/07/18/mysql-index/1.png" alt></p>
-<table>
-<thead>
-<tr>
-<th>字段</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>File Header</td>
-<td>表示⻚的⼀些通⽤信息，占固定的38字节</td>
-</tr>
-<tr>
-<td>Page Header</td>
-<td>表示数据⻚专有的⼀些信息，占固定的56个字节</td>
-</tr>
-<tr>
-<td>Infimum + Supremum</td>
-<td>两个虚拟的伪记录，分别表示⻚中的最⼩和最⼤记录，占固定的26个字节</td>
-</tr>
-<tr>
-<td>User Records</td>
-<td>真实存储我们插⼊的记录的部分，⼤⼩不固定</td>
-</tr>
-<tr>
-<td>Free Space</td>
-<td>⻚中尚未使⽤的部分，⼤⼩不确定</td>
-</tr>
-<tr>
-<td>Page Directory</td>
-<td>⻚中的某些记录相对位置，也就是各个槽在⻚⾯中的地址偏移量，⼤⼩不固定，插⼊的记录越多，这个部分占⽤的空间越多</td>
-</tr>
-<tr>
-<td>File Trailer</td>
-<td>⽤于检验⻚是否完整的部分，占⽤固定的8个字节</td>
-</tr>
-</tbody></table>
-<p><img src="/2019/07/18/mysql-index/2.png" alt></p>
-<ul>
-<li>页与页之间在存储上是不连续的，而是通过双向链表关联起来</li>
-<li>每个页只有16KB的大小</li>
-<li>每个数据页中的记录会按照主键值从到大的顺序组成一个单向链表</li>
-</ul>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><h3 id="没有索引怎么查找"><a href="#没有索引怎么查找" class="headerlink" title="没有索引怎么查找?"></a>没有索引怎么查找?</h3><p>索引类似我们书的目录，例如查字典，先通过目录确定要查的字所在页数，然后可以快速找到。如果没有目录则需要一页一页查找。</p>
-<pre><code>SELECT    [列名列表]    FROM    表名    WHERE    列名    =    xxx;</code></pre><p>例如上面的语句，在没有索引的情况下，结合图我们可以知道。在没有索引的情况下，不论是根据主键列或者其他列的值进⾏查找，由于我们并不能快速的定位到记录所在的⻚，所以只能从第⼀个⻚沿着双向链表⼀直往下 找，<strong>在每⼀个⻚中根据我们刚刚唠叨过的查找⽅式去查找指定的记录</strong>。</p>
-<h3 id="InnoDB中的索引方案"><a href="#InnoDB中的索引方案" class="headerlink" title="InnoDB中的索引方案"></a>InnoDB中的索引方案</h3><pre class=" language-sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token punctuation">`</span>index_demo<span class="token punctuation">`</span> <span class="token punctuation">(</span>
-  <span class="token punctuation">`</span><span class="token number">c1</span><span class="token punctuation">`</span> <span class="token keyword">int</span><span class="token punctuation">(</span><span class="token number">11</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
-  <span class="token punctuation">`</span><span class="token number">c2</span><span class="token punctuation">`</span> <span class="token keyword">int</span><span class="token punctuation">(</span><span class="token number">11</span><span class="token punctuation">)</span> <span class="token keyword">DEFAULT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
-  <span class="token punctuation">`</span><span class="token number">c3</span><span class="token punctuation">`</span> char<span class="token punctuation">(</span><span class="token number">11</span><span class="token punctuation">)</span> <span class="token keyword">DEFAULT</span> <span class="token boolean">NULL</span><span class="token punctuation">,</span>
-  <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span><span class="token punctuation">`</span><span class="token number">c1</span><span class="token punctuation">`</span><span class="token punctuation">)</span>
-<span class="token punctuation">)</span> <span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span>
-<span class="token keyword">INSERT</span> <span class="token keyword">INTO</span> index_demo <span class="token keyword">VALUES</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">4</span><span class="token punctuation">,</span><span class="token string">'u'</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token number">9</span><span class="token punctuation">,</span><span class="token string">'d'</span><span class="token punctuation">)</span><span class="token punctuation">,</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">,</span><span class="token string">'y'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span></code></pre>
-<p>InnoDB索引采用B+树做为索引。如下图所示。<br><img src="/2019/07/18/mysql-index/4.png" alt></p>
-<p>下面分别解释下图中的信息。</p>
-<p><strong>B+树叶子节点</strong></p>
-<p><img src="/2019/07/18/mysql-index/5.png" alt></p>
-<ul>
-<li>第一行的 2 0 3 表示的是record_type(参考前面的头信息中的record_type属性，2-最小记录;3-最大记录;0-普通用户记录;1-目录项记录)</li>
-<li>(1,4,u),(3,9,d),(4,4,a)表示的是用户记录。橙色方格表示主键，所以页中用户记录按照主键排序。</li>
-<li>B+树索引叶子节点存放的是用户的数据页。每个数据页按照主键值排序并组成一个双向链表。</li>
-</ul>
-<p><strong>非叶子节点</strong></p>
-<p>B+树索引的非叶子节点作为目录页。</p>
-<p><img src="/2019/07/18/mysql-index/6.png" alt></p>
-<ul>
-<li>第一行的 1 表示的是record_type(参考前面的头信息中的record_type属性，2-最小记录;3-最大记录;0-普通用户记录;1-目录项记录)</li>
-<li>橙色方格代表的是每一个数据页中最小的主键值。绿色表示对应的页。例如(1,10)目录项表示指向页10，页10的最小主键索引是1。</li>
-<li>目录页也遵循数据页的规则，按照主键值的大小排序，且形成一个双向链表</li>
-</ul>
-<p><strong>总结</strong></p>
-<p>从图中可以看出来，⼀个B+树的节点其实可以分成好多层。实际⽤户记录其实都存放在B+树的最底层的节点上。非最底层存放的是目录。假设所有存放⽤户记录的叶⼦节点代表的数据⻚可以存放100条⽤户记录，所有存放⽬录项记录的内节点代表的数据⻚ 可以存放1000条⽬录项记录,那么</p>
-<ul>
-<li>如果B+树只有1层，也就是只有1个⽤于存放⽤户记录的节点，最多能存放100条记录</li>
-<li>如果B+树有2层，最多能存放1000×100=100000条记录</li>
-<li>如果B+树有3层，最多能存放1000×1000×100=100000000条记录</li>
-<li>如果B+树有4层，最多能存放1000×1000×1000×100=100000000000条记录</li>
-</ul>
-<p>所以一般来说B+数索引不会超过4层。</p>
-<h3 id="根据索引方案，如何快速查找到一条数据"><a href="#根据索引方案，如何快速查找到一条数据" class="headerlink" title="根据索引方案，如何快速查找到一条数据"></a>根据索引方案，如何快速查找到一条数据</h3><p>例如现在我们要查找主键为20的记录(在页9上)。</p>
-<ul>
-<li>首先先从根节点(页33)查找，由于主键是20，采用二分法查找(1,30)(320,32)判断，1 &lt; 20 &lt; 320。所以往下查找页30</li>
-<li>如法炮制，12 &lt; 20 &lt; 209，所以往下查找页9</li>
-<li>页9是最底层节点，存放的是实际用户记录。所以我们直接可以在页中通过二分查找法查到对应的主键为20的记录</li>
-</ul>
-<h2 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h2><p>我们上边介绍的B+树本身就是⼀个⽬录，或者说本身就是⼀个索引,它有两个特点</p>
-<ol>
-<li>使⽤记录主键值的⼤⼩进⾏记录和⻚的排序，这包括三个⽅⾯的含义：<ul>
-<li>⻚内的记录是按照主键的⼤⼩顺序排成⼀个单向链表。</li>
-<li>各个存放⽤户记录的⻚也是根据⻚中⽤户记录的主键⼤⼩顺序排成⼀个双向链表。</li>
-<li>存放⽬录项记录的⻚分为不同的层次，在同⼀层次中的⻚也是根据⻚中⽬录项记录的主键⼤⼩顺序排成⼀个双向链表。</li>
-</ul>
-</li>
-<li>B+树的叶⼦节点存储的是完整的⽤户记录</li>
-</ol>
-<p>我们把具有这两种特性的B+树称为<strong>聚簇索引</strong>，所有完整的⽤户记录都存放在这个聚簇索引的叶⼦节点处。这种聚簇索引并不需要我们在MySQL语句中显式的使⽤INDEX 语句去创建，<strong>InnoDB存储引擎会⾃动的为我们创建聚簇索引</strong>。另外有趣的⼀点是，在InnoDB存储引擎中，聚簇索引就是数据的存储 ⽅式（所有的⽤户记录都存储在了叶⼦节点），也就是所谓的<font color="#FF0000">索引即数据，数据即索引</font>。</p>
-<h2 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h2><p>我们上面介绍的索引其实是<strong>聚簇索引</strong>，只有在有主键值的使用才发挥所用。因为B+树中的数据都是按照主键进⾏排序的。那如果我们想以别的列作为搜索条 件该咋办呢？难道只能从头到尾沿着链表依次遍历记录么？<br>其实不是，InnoDB在我们创建一张表时会提示我们创建主键，其实就是为了生成聚簇索引，聚簇索引存储了所有的用户数据，就是所谓的数据即索引。但是我们可以为其他非主键创建索引。</p>
-<p>例如我们为c2创建索引，按照c2列的大小作为数据页，则创建的索引如下。</p>
-<p><img src="/2019/07/18/mysql-index/7.png" alt></p>
-<p><strong>这个B+树与上边介绍的聚簇索引有⼏处不同：</strong></p>
-<ol>
-<li>使⽤记录c2列的⼤⼩进⾏记录和⻚的排序，这包括三个⽅⾯的含义：<ul>
-<li>⻚内的记录是按照c2列的⼤⼩顺序排成⼀个单向链表。</li>
-<li>各个存放⽤户记录的⻚也是根据⻚中记录的c2列⼤⼩顺序排成⼀个双向链表。</li>
-<li>存放⽬录项记录的⻚分为不同的层次，在同⼀层次中的⻚也是根据⻚中⽬录项记录的c2列⼤⼩顺序排成⼀个双向链表。</li>
-</ul>
-</li>
-<li>B+树的叶⼦节点存储的并不是完整的⽤户记录，⽽只是c2列+主键这两个列的值</li>
-<li>⽬录项记录中不再是主键+⻚号的搭配，⽽变成了c2列+⻚号的搭配</li>
-</ol>
-<p><strong>如何通过二级索引查找数据？</strong></p>
-<pre><code>SELECT * FROM index_demo WHERE C2 = 4</code></pre><ol>
-<li>确定⽬录项记录⻚,根据根⻚⾯。也就是⻚44，可以快速定位到⽬录项记录所在的⻚为⻚42（因为2 &lt; 4 &lt; 9）</li>
-<li>通过⽬录项记录⻚确定⽤户记录真实所在的⻚。在⻚42中可以快速定位到实际存储⽤户记录的⻚，但是由于c2列并没有唯⼀性约束，所以c2列值为4的记录可能分布在多个数据⻚中，⼜因为2 &lt; 4 ≤ 4，所 以确定实际存储⽤户记录的⻚在⻚34和⻚35中</li>
-<li>到⻚34和⻚35中定位到具体的记录</li>
-<li>但是这个B+树的叶⼦节点中的记录只存储了c2和c1（也就是主键）两个列，所以<strong>我们必须再根据主键值去聚簇索引中再查找⼀遍完整的⽤户记录</strong>，这个再去查一次聚簇索引的方式叫做<font color="#FF0000">回表</font>。</li>
-</ol>
-<h2 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h2><p>联合索引的方式与二级索引差不多，例如以c2,c3作为联合索引。再索引的结构上就是按照c2先排序然后再排序c3。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>本文参考《MYSQL高性能》，《MySQL 是怎样运行的：从根儿上理解 MySQL》</li>
-</ul>
+          <p>xxxx</p>
 
           
             <div class='article_footer'>
@@ -577,7 +457,7 @@
           
         
           
-            <p>本文永久链接是：<a href=http://yoursite.com/2019/07/18/mysql-index/>http://yoursite.com/2019/07/18/mysql-index/</a></p>
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/07/28/hashmap/>http://yoursite.com/2020/07/28/hashmap/</a></p>
           
         
       </blockquote>
@@ -628,10 +508,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-27T16:07:27+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T17:14:08+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 27, 2020</p>
+    <p>更新于：Jul 28, 2020</p>
   </a>
 </div>
 
@@ -640,7 +520,7 @@
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/mysql/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>mysql</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java%E9%9B%86%E5%90%88/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java集合</p></a></div>
 
 
         
@@ -660,22 +540,10 @@
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/design-pattern-singleton/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>设计模式之单例模式</p>
-                <p class='content'>单例模式概念单例模式(Singleton Pattern)：确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例，这个类称为单例类，它提供全局访问的方法。单例模式是一种对象创建型模式...</p>
-              </a>
             
-            
-              <a class='next' href='/2019/07/18/mysql-index-use/'>
-                <p class='title'>Mysql-InnoDB索引之索引使用和优化原则(二)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>提出问题
-什么是回表？
-索引是不是可以无限建？
-什么是索引的最左匹配原则？
-什么是覆盖索引？
-如何建立高效的索引？
-
-索引的代价通过上文《Mysql-InnoDB索引之索引结构详解(一)》我们了...</p>
+              <a class='next' href='/2020/07/20/sharding-student/'>
+                <p class='title'>ShardingJdbc学习之按年月分库分表<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>sharding-jdbc官方文档:https://shardingsphere.apache.org/document/current/cn/overview/本文采用当当的shardingj...</p>
               </a>
             
           </div>
@@ -720,7 +588,7 @@
 
   <script>
     window.subData = {
-      title: 'Mysql-InnoDB索引之索引结构详解(一)',
+      title: 'HashMap原理浅析',
       tools: true
     }
   </script>
@@ -735,20 +603,6 @@
     
     
 
-
-  <section class="widget toc-wrapper shadow desktop mobile">
-    
-  <header>
-    
-      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
-    
-  </header>
-
-
-    <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDB数据页结构"><span class="toc-text">InnoDB数据页结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#索引"><span class="toc-text">索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#没有索引怎么查找"><span class="toc-text">没有索引怎么查找?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InnoDB中的索引方案"><span class="toc-text">InnoDB中的索引方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#根据索引方案，如何快速查找到一条数据"><span class="toc-text">根据索引方案，如何快速查找到一条数据</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聚簇索引"><span class="toc-text">聚簇索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二级索引"><span class="toc-text">二级索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#联合索引"><span class="toc-text">联合索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
-    </div>
-  </section>
 
 
   

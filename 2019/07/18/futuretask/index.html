@@ -18,7 +18,7 @@
   
     <title>Future、FutureTask实现原理浅析 - 咕噜咕噜的博客</title>
   
-    <meta name="keywords" content="java,java并发">
+    <meta name="keywords" content="java并发">
   
   
     <meta name="description" content="Future、FutureTask实现原理浅析">
@@ -666,6 +666,7 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
 <h3 id="FutureTask-finishCompletion方法"><a href="#FutureTask-finishCompletion方法" class="headerlink" title="FutureTask#finishCompletion方法"></a>FutureTask#finishCompletion方法</h3><p>从上面代码分析，我们知道调用get方法的线程被LockSupport.park阻塞了，并将线程存到了WaitNode。所以当run执行成功后需要唤醒。</p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">finishCompletion</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment" spellcheck="true">// assert state > COMPLETING;</span>
+    <span class="token comment" spellcheck="true">//遍历waitNode队列并执行LockSupport.unpark唤醒阻塞的线程</span>
     <span class="token keyword">for</span> <span class="token punctuation">(</span>WaitNode q<span class="token punctuation">;</span> <span class="token punctuation">(</span>q <span class="token operator">=</span> waiters<span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span>UNSAFE<span class="token punctuation">.</span><span class="token function">compareAndSwapObject</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> waitersOffset<span class="token punctuation">,</span> q<span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
             <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token punctuation">;</span><span class="token punctuation">;</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -684,7 +685,7 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
             <span class="token keyword">break</span><span class="token punctuation">;</span>
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
-    <span class="token function">done</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">done</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//预留给用户自己实现</span>
     callable <span class="token operator">=</span> null<span class="token punctuation">;</span>        <span class="token comment" spellcheck="true">// to reduce footprint</span>
 <span class="token punctuation">}</span></code></pre>
 
@@ -755,7 +756,7 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
       
     
       
-        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
         
           height='64px'
         ></div>
@@ -779,10 +780,10 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-27T10:00:26+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T14:54:13+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 27, 2020</p>
+    <p>更新于：Jul 28, 2020</p>
   </a>
 </div>
 
@@ -791,7 +792,7 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java%E5%B9%B6%E5%8F%91/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java并发</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java%E5%B9%B6%E5%8F%91/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java并发</p></a></div>
 
 
         
@@ -811,18 +812,16 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/volatile/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>java并发之volatile</p>
-                <p class='content'>Java内存模型(jmm)看个例子
-public class VolatileExample extends Thread{
-    //设置类静态变量,各线程访问这同一共享变量
-    pri...</p>
+              <a class='prev' href='/2020/07/20/db-w-r-dynamic/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>读写分离设计与思考</p>
+                <p class='content'>读写分离基本原理高性能数据库集群的第一种方式是“读写分离”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。
+读...</p>
               </a>
             
             
-              <a class='next' href='/2019/07/18/mysql-index/'>
-                <p class='title'>Mysql-InnoDB索引之索引结构详解(一)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>InnoDB数据页结构页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Reco...</p>
+              <a class='next' href='/2019/07/18/design-pattern-singleton/'>
+                <p class='title'>设计模式之单例模式<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>单例模式概念单例模式(Singleton Pattern)：确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例，这个类称为单例类，它提供全局访问的方法。单例模式是一种对象创建型模式...</p>
               </a>
             
           </div>
@@ -915,7 +914,7 @@ public class VolatileExample extends Thread{
   
     <meting-js
       theme='#1BCDFC'
-      autoplay='true'
+      autoplay='false'
       volume='0.7'
       loop='all'
       order='list'
