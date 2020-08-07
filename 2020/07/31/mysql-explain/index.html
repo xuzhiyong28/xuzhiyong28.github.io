@@ -592,7 +592,29 @@
 <h4 id="Using-temporary"><a href="#Using-temporary" class="headerlink" title="Using temporary"></a>Using temporary</h4><p>MySQL 中需要创建一张内部临时表来处理查询，一般出现这种情况就需要考虑进行优化了，首先是想到用索引来优化。</p>
 <h4 id="Using-filesort"><a href="#Using-filesort" class="headerlink" title="Using filesort"></a>Using filesort</h4><p>使用一个外部索引排序。一般来说我们根据索引的顺序排序是最优的，而这种情况指的是没办法根据索引的顺序直接排序，所以数据被放到了内存或磁盘中排序，这种在内存中或者磁盘上进⾏排序的⽅式统称为⽂件排序。<br><font color="red">一般出现这个需要看下是否可以根据索引来排序优化。</font></p>
 <h4 id="Using-join-buffer"><a href="#Using-join-buffer" class="headerlink" title="Using join buffer"></a>Using join buffer</h4><p>在获取连接条件时没有使用索引，并且需要连接缓冲区来存储中间结果。出现该值，应该注意，根据查询的具体情况可能需要添加索引来改进性能。</p>
-<h2 id="SQL优化常用规则"><a href="#SQL优化常用规则" class="headerlink" title="SQL优化常用规则"></a>SQL优化常用规则</h2><p>待续。。。</p>
+<h2 id="SQL优化常用规则"><a href="#SQL优化常用规则" class="headerlink" title="SQL优化常用规则"></a>SQL优化常用规则</h2><ol>
+<li><p>对于联合索引，在写SQL查询条件时要遵守最左前缀法则。从索引的最左前列开始并且不跳过索引中的列。</p>
+</li>
+<li><p>索引上尽量避免做函数计算等操作，会导致索引失效而转向全表扫描。</p>
+</li>
+<li><p>尽量使用覆盖索引。简单理解就是只访问建了索引的列，减少使用 <code>SELECT *</code> 语句查询。</p>
+</li>
+<li><p>IS NOT NULL 无法使用索引。索引列建议时候NOT NULL做约束，防止使用到IS NOT NULL查询导致没有用到索引</p>
+</li>
+<li><p>模糊条件查询以通配符开头索引失效</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token operator">like</span> <span class="token string">'%xx'</span> <span class="token comment" spellcheck="true">-- 无法用到索引</span>
+<span class="token operator">like</span> <span class="token string">'%xx%'</span> <span class="token comment" spellcheck="true">-- 无法用到索引</span>
+<span class="token operator">like</span> <span class="token string">'xx%'</span> <span class="token comment" spellcheck="true">-- 可以用到索引</span></code></pre>
+</li>
+<li><p>OR使用多数情况下索引会失效。例如OR前后有两个条件，第一个条件用到了索引，第二个没有用到索引。那不会走索引。</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">SELECT</span> <span class="token operator">*</span> <span class="token keyword">FROM</span> <span class="token keyword">TABLE</span> KEY1 <span class="token operator">=</span> <span class="token string">'XXX'</span> <span class="token operator">OR</span> KEY2 <span class="token operator">=</span> <span class="token string">'XXX'</span><span class="token punctuation">;</span> 
+<span class="token comment" spellcheck="true">--如果key1是索引，key2不是索引，那这个SQL不走索引。因为是OR，后面的条件是需要满足的，所以没必要在走一次聚簇索引。可以使用UNION 进行优化，这样能保证KEY1走索引。</span></code></pre>
+</li>
+<li><p>负向查询条件不能使用索引。负向查询条件包括：<code>!=、&lt;&gt;、NOT IN、NOT EXISTS、NOT LIKE</code> 等</p>
+</li>
+<li><p>ORDER BY排序也需要遵循最左前缀列的原则，不然容易用到文件排序</p>
+</li>
+</ol>
 <h2 id="图示"><a href="#图示" class="headerlink" title="图示"></a>图示</h2><p><img src="/2020/07/31/mysql-explain/1.jpg" alt></p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a href="https://mp.weixin.qq.com/s/rem7Ds_QSnyhlrtNPByQcg" target="_blank" rel="noopener">一本彻底搞懂MySQL索引优化EXPLAIN百科全书</a></li>
@@ -689,10 +711,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-03T17:19:07+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-04T11:11:05+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 3, 2020</p>
+    <p>更新于：Aug 4, 2020</p>
   </a>
 </div>
 
@@ -720,6 +742,12 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/2020/08/04/linux-top/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop)</p>
+                <p class='content'>top命令详解各项指标详解
+第一行：系统运行时间和平均负载top - 14:46:47 up 909 days,  3:15,  1 user,  load average: 1.80, 1.5...</p>
+              </a>
             
             
               <a class='next' href='/2020/07/31/mysql-index-single/'>
