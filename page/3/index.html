@@ -5,6 +5,10 @@
   <!-- SEO相关 -->
   
     
+      
+        <meta name="robots" content="noindex,follow">
+      
+    
   
   <!-- 渲染优化 -->
   <meta name="renderer" content="webkit">
@@ -16,12 +20,8 @@
 
   <!-- 页面元数据 -->
   
-    <title>限流原理与guava单机限流 - 咕噜咕噜的博客</title>
+    <title>咕噜咕噜的博客</title>
   
-    <meta name="keywords" content="项目实践">
-  
-  
-    <meta name="description" content="介绍两种限流算法(漏桶算法/令牌桶算法)与guava单机限流使用">
   
 
   <!-- feed -->
@@ -340,10 +340,14 @@
 
 <div class='l_main'>
   
-
-  
-    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+  <section class="post-list ">
+    
+    
       
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
 
 
   <section class='meta'>
@@ -353,11 +357,11 @@
       <div class="meta" id="header-meta">
         
           
-  <h1 class="title">
-    <a href="/2019/02/18/limit-single/">
-      限流原理与guava单机限流
+  <h2 class="title">
+    <a href="/2018/01/18/executorservice/">
+      JAVA线程池详解
     </a>
-  </h1>
+  </h2>
 
 
         
@@ -393,9 +397,14 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Feb 18, 2019</p>
+    <p>发布于：Jan 18, 2018</p>
   </a>
 </div>
+
+            
+          
+            
+              
 
             
           
@@ -413,309 +422,196 @@
   </section>
 
 
-      <section class="article typo">
-        <div class="article-entry" itemprop="articleBody">
-          
-          <h2 id="限流算法"><a href="#限流算法" class="headerlink" title="限流算法"></a>限流算法</h2><p>常见限流算法常用的限流算法有：令牌桶，漏桶、滑动窗口算法。</p>
-<h3 id="漏桶算法"><a href="#漏桶算法" class="headerlink" title="漏桶算法"></a>漏桶算法</h3><h4 id="算法介绍"><a href="#算法介绍" class="headerlink" title="算法介绍"></a>算法介绍</h4><p>漏桶算法的描述如下：</p>
-<ul>
-<li>一个固定容量的漏桶，按照常量固定速率流出水滴</li>
-<li>如果桶是空的，则不需流出水滴</li>
-<li>可以以任意速率流入水滴到漏桶</li>
-<li>如果流入水滴超出了桶的容量，则流入的水滴溢出了（被丢弃），而漏桶容量是不变的</li>
-</ul>
-<p><img src="/2019/02/18/limit-single/1.png" alt></p>
-<p>漏桶算法思路很简单，水（请求）先进入到漏桶里，漏桶以一定的速度出水，当水流入速度过大会直接溢出，可以看出漏桶算法能强行限制数据的传输速率。<br>我们将请求比喻成图上的流入水滴，水桶的容量表示最大能容纳的请求数，因为桶下面的流出率是固定的，当流入水滴(请求)过大时会造成水溢出，溢出的水滴(请求)则直接丢弃。<br>可见这里有两个变量,一个是桶的大小,支持流量突发增多时可以存多少的水(burst),另一个是水桶漏洞的大小(rate)。</p>
-<h4 id="特点和局限性"><a href="#特点和局限性" class="headerlink" title="特点和局限性"></a>特点和局限性</h4><p>由于漏桶算法的流出速率是固定的，所以对于一些业务场景下要求能够突发传输，这时候漏桶算法就不适用了。</p>
-<h3 id="令牌桶算法"><a href="#令牌桶算法" class="headerlink" title="令牌桶算法"></a>令牌桶算法</h3><h4 id="算法介绍-1"><a href="#算法介绍-1" class="headerlink" title="算法介绍"></a>算法介绍</h4><p>令牌桶算法是一个存放固定容量令牌的桶，按照固定速率往桶里添加令牌。</p>
-<ul>
-<li>假设限制2r/s，则按照500毫秒的固定速率往桶中添加令牌；</li>
-<li>桶中最多存放b个令牌，当桶满时，新添加的令牌被丢弃或拒绝；</li>
-<li>当一个n个字节大小的数据包到达，将从桶中删除n个令牌，接着数据包被发送到网络上；</li>
-<li>如果桶中的令牌不足n个，则不会删除令牌，且该数据包将被限流（要么丢弃，要么缓冲区等待）。<br><img src="/2019/02/18/limit-single/2.png" alt></li>
-</ul>
-<h4 id="特点和局限性-1"><a href="#特点和局限性-1" class="headerlink" title="特点和局限性"></a>特点和局限性</h4><p>令牌桶限制的是平均流入速率（允许突发请求，只要有令牌就可以处理，支持一次拿3个令牌，4个令牌），并允许一定程度突发流量</p>
-<h2 id="Guava-限流"><a href="#Guava-限流" class="headerlink" title="Guava 限流"></a>Guava 限流</h2><p>Guava RateLimiter提供了令牌桶算法实现：平滑突发限流(SmoothBursty)和平滑预热限流(SmoothWarmingUp)实现。</p>
-<pre><code>//表示消费permits个令牌,如果桶中令牌足够则返回0.0,如果令牌不足则需要阻塞等待到令牌足够后才执行。
-limiter.acquire(int permits)
-//表示一次性获取permits个令牌，判断如果在timeout秒内能获取得到令牌则阻塞直到获取到令牌，如果不行就直接返回false
-limiter.tryAcquire(int permits,long timeout, TimeUnit unit)</code></pre><h3 id="平滑突发限流"><a href="#平滑突发限流" class="headerlink" title="平滑突发限流"></a>平滑突发限流</h3><p>这种实现将突发请求速率平均为了固定请求速率</p>
-<pre><code>//表示桶容量初始为5，每秒5个的速率新增令牌，即每隔200毫秒新增一个令牌
-RateLimiter limiter = RateLimiter.create(5);</code></pre><pre><code>RateLimiter limiter = RateLimiter.create(5);
-System.out.println(limiter.acquire());
-System.out.println(limiter.acquire());
-System.out.println(limiter.acquire());
-System.out.println(limiter.acquire());
-System.out.println(limiter.acquire());
-System.out.println(limiter.acquire());
-//输出
-0.0
-0.185957
-0.19372
-0.197661
-0.199752
-0.174605</code></pre><p>首先初始化了一个速率为5r/s的令牌桶，接下去每次获取一个，按照200ms生成一个的话，每次获取需要阻塞0.19=200ms的时间</p>
-<pre><code>RateLimiter limiter = RateLimiter.create(5);
-System.out.println(limiter.acquire(200));
-long start = System.currentTimeMillis();
-System.out.println(limiter.acquire(1));
-System.out.println((System.currentTimeMillis() - start) + &quot; ms&quot;);
-//输出结果
-//0.0
-//39.973065
-//39980 ms</code></pre><p>首先创建了一个容量初始为5，且每秒5个的速率新增令牌，即每隔200毫秒新增一个令牌。<br>第一次调用acquire(200)从桶中获取200个令牌，由于令牌桶是支持突发的，所以第一次允许获取200个，当第二次调用acquire(1)从桶中获取1个令牌时，由于前面透支了，按照每秒5个的速率则需要在40秒后才能获得令牌，所以需要<strong>阻塞等待</strong>桶中补充令牌。</p>
-<p><strong>tryAcquire方法使用</strong></p>
-<pre><code>//RateLimiter.create(5) 表示桶容量为5且每秒新增5个令牌，即每隔200毫秒新增一个令牌；
-RateLimiter limiter = RateLimiter.create(5);
-//因为允许突发，第一次取100个，那么接下去20秒的请求都会被拒绝
-System.out.println(limiter.tryAcquire(100));
-long start = System.currentTimeMillis();
-System.out.println(limiter.tryAcquire(5,60,TimeUnit.SECONDS));
-System.out.println((System.currentTimeMillis() - start) + &quot; ms&quot;);
-//到这一步已经桶里面已经没有令牌了,所以接下去返回false
-System.out.println(limiter.tryAcquire(1));
-TimeUnit.SECONDS.sleep(1);
-//等待1秒后，桶里新生成了5个令牌，所以接下去获取返回true
-System.out.println(limiter.tryAcquire(5));
-输出结果
-true
-true
-19999 ms
-false
-true</code></pre><p>平滑方式自己感觉会有一点点担心，例如是允许突发的，如果突发的数量太多一瞬间就压垮服务器了，所以Guava还提供了<strong>平滑预热限流</strong></p>
-<h3 id="平滑预热限流"><a href="#平滑预热限流" class="headerlink" title="平滑预热限流"></a>平滑预热限流</h3><pre><code>permitsPerSecond表示每秒新增的令牌数，warmupPeriod表示在从冷启动速率过渡到平均速率的时间间隔
-RateLimiter limiter = RateLimiter.create(5, 1000, TimeUnit.MILLISECONDS);</code></pre><pre><code>RateLimiter limiter = RateLimiter.create(5, 1000, TimeUnit.MILLISECONDS);
-for(int i = 0; i &lt; 5;i++) {
-    System.out.println(limiter.acquire());
-}
-Thread.sleep(1000L);
-for(int i = 0; i &lt; 5;i++) {
-    System.out.println(limiter.acquire());
-}
-//输出结果:
-0.0
-0.5156
-0.353969
-0.219001
-0.200086
-0.0
-0.3806
-0.229003
-0.199237
-0.200266</code></pre><p>速率是梯形上升速率的，也就是说冷启动时会以一个比较大的速率慢慢到平均速率；然后趋于平均速率（梯形下降到平均速率）。可以通过调节warmupPeriod参数实现一开始就是平滑固定速率。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="https://blog.csdn.net/John8169/article/details/81125706" target="_blank" rel="noopener">https://blog.csdn.net/John8169/article/details/81125706</a></li>
-<li><a href="https://my.oschina.net/hanchao/blog/1833612?appinstall=0" target="_blank" rel="noopener">https://my.oschina.net/hanchao/blog/1833612?appinstall=0</a></li>
-</ul>
-
-          
-            <div class='article_footer'>
-              
-                
-  
-    
-    
-
-
-
-  
-
-  
-    
-    
-
-
-
-  
-
-  
-    
-    
-
-<section class="widget copyright  desktop mobile">
-  <div class='content'>
-    
-      <blockquote>
-        
-          
-            <p>本文作者：咕噜。咕噜</p>
-
-          
-        
-          
-            <p>感谢阅读。每天进步一点点。。。。 </p>
-
-          
-        
-          
-            <p>本文永久链接是：<a href=http://yoursite.com/2019/02/18/limit-single/>http://yoursite.com/2019/02/18/limit-single/</a></p>
-          
-        
-      </blockquote>
-    
-  </div>
-</section>
-
-  
-
-  
-    
-    
-
-<section class="widget qrcode  desktop mobile">
-  
-
-  <div class='content article-entry'>
-    
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
       
-        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
-        
-          height='64px'
-        ></div>
-      
-    
-      
-        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
-        
-          height='64px'
-        ></div>
-      
-    
-  </div>
-</section>
-
-  
-
-
-              
-            </div>
-          
-        </div>
-        
-          
-
-
-  <section class='meta' id="footer-meta">
-    <div class='new-meta-box'>
-      
-        
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T14:47:50+08:00">
-  <a class='notlink'>
-    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 28, 2020</p>
-  </a>
-</div>
-
-        
-      
-        
-          
-  
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>项目实践</p></a></div>
-
-
-        
-      
-        
-          
-
-        
-      
-        
+        <p>详解线程池用法和原理</p>
       
     </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2018/01/18/executorservice/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
   </section>
+</article>
 
-
-        
-        
-          <div class="prev-next">
-            
-              <a class='prev' href='/2019/02/18/redis-aop-limit-boot/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>基于springBoot-aop实现redis分布式限流</p>
-                <p class='content'>项目介绍原理通过给api-url设置一个redis-key并设置过期时间。当每次url被请求时key的值加一，如果在过期时间内增加到一定数量后则进行限流。在原理上通过使用redis键值过期时间作...</p>
-              </a>
-            
-            
-              <a class='next' href='/2018/08/07/mysql-log/'>
-                <p class='title'>MySQL-binlog、redolog、undolog日志详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>MySQL三种重要的日志MySQL有三种重要的日志，分别是 binlog(归档日志)、redolog(重做日志)、redolog(撤销日志)。
-
-binlog归档日志是数据库层面上的日志，主要用...</p>
-              </a>
-            
           </div>
         
-      </section>
-    </article>
+      
+    
+  </section>
   
-
-  
-    <!-- 显示推荐文章和评论 -->
-
-
-
-  <article class="post white-box reveal comments shadow">
-    <section class="article typo">
-      <p ct><i class='fas fa-comments'></i> 评论</p>
-      
-      
-      
-      
-      
-      
-        <section id="comments">
-          <div id="valine_container" class="valine_thread">
-            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
-          </div>
-        </section>
-      
-      
-    </section>
-  </article>
-
+    
+      <br>
+      <div class="prev-next">
+        
+          <a class="prev" rel="prev" href="/page/2/">
+            <section class="post prev white-box shadow" >
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;Previous&nbsp;
+            </section>
+          </a>
+        
+        <p class="current">
+          3 / 3
+        </p>
+        
+      </div>
+    
+    <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
+    
+    
 
   
-
-
-
-
-<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
-
-
-
-  <script>
-    window.subData = {
-      title: '限流原理与guava单机限流',
-      tools: true
-    }
-  </script>
 
 
 </div>
 <aside class='l_side'>
   
   
+    
+    
+
+<section class="widget blogger shadow desktop mobile">
+  <div class='content'>
+    
+      
+        <a class='avatar flat-box' href='/about/'>
+          <img no-lazy src='https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg'/>
+        </a>
+      
+    
+    
+      <div class='text'>
+        
+        
+        
+          <p><span id="jinrishici-sentence">咕噜咕噜的博客</span></p>
+          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="/atom.xml"
+              class="social fas fa-rss flat-btn"
+              target="_blank"
+              rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="mailto:jip0574@qq.com"
+              class="social fas fa-envelope flat-btn"
+              target="_blank"
+              rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/xuzhiyong28"
+              class="social fab fa-github flat-btn"
+              target="_blank"
+              rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://music.163.com/#/user/home?id=272192685"
+              class="social fas fa-headphones-alt flat-btn"
+              target="_blank"
+              rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+  
 
   
     
     
+  
 
-
-  <section class="widget toc-wrapper shadow desktop mobile">
+  <section class="widget category shadow desktop">
     
   <header>
     
-      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+      <a href='/blog/categories/'><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span></a>
     
   </header>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#限流算法"><span class="toc-text">限流算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#漏桶算法"><span class="toc-text">漏桶算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#算法介绍"><span class="toc-text">算法介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#特点和局限性"><span class="toc-text">特点和局限性</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#令牌桶算法"><span class="toc-text">令牌桶算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#算法介绍-1"><span class="toc-text">算法介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#特点和局限性-1"><span class="toc-text">特点和局限性</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Guava-限流"><span class="toc-text">Guava 限流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#平滑突发限流"><span class="toc-text">平滑突发限流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#平滑预热限流"><span class="toc-text">平滑预热限流</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ul class="entry navigation">
+        
+          <li><a class="flat-box"
+            title="/categories/java/" href="/categories/java/"
+            id="categoriesjava"
+            ><div class='name'>java</div><div class='badge'>(11)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/linux/" href="/categories/linux/"
+            id="categorieslinux"
+            ><div class='name'>linux</div><div class='badge'>(1)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/mysql/" href="/categories/mysql/"
+            id="categoriesmysql"
+            ><div class='name'>mysql</div><div class='badge'>(5)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/redis/" href="/categories/redis/"
+            id="categoriesredis"
+            ><div class='name'>redis</div><div class='badge'>(1)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/shardingjdbc/" href="/categories/shardingjdbc/"
+            id="categoriesshardingjdbc"
+            ><div class='name'>shardingjdbc</div><div class='badge'>(2)</div></a></li>
+        
+          <li><a class="flat-box"
+            title="/categories/%E6%9E%B6%E6%9E%84/" href="/categories/%E6%9E%B6%E6%9E%84/"
+            id="categoriesE69EB6E69E84"
+            ><div class='name'>架构</div><div class='badge'>(1)</div></a></li>
+        
+      </ul>
     </div>
   </section>
 
+
+  
+
+  
+    
+    
+  
+
+  <section class="widget tagcloud shadow desktop mobile">
+    
+  <header>
+    
+      <a href='/blog/tags/'><i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span></a>
+    
+  </header>
+
+
+    <div class='content'>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 19px; color: #777">jvm</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 24px; color: #555">mysql</a> <a href="/tags/redis/" style="font-size: 14px; color: #999">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 19px; color: #777">shardingjdbc</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 19px; color: #777">项目实践</a>
+    </div>
+  </section>
+
+
+  
 
   
 
@@ -928,60 +824,6 @@ binlog归档日志是数据库层面上的日志，主要用...</p>
 
 
 
-
-  
-    
-<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
-
-  
-  <script>
-  var GUEST_INFO = ['nick','mail','link'];
-  var meta = 'nick,mail,link'.split(',').filter(function(item){
-    return GUEST_INFO.indexOf(item) > -1
-  });
-  var REQUIRED_FIELDS = ['nick','mail','link'];
-  var requiredFields = 'nick,mail'.split(',').filter(function(item){
-    return REQUIRED_FIELDS.indexOf(item) > -1
-  });
-  var valine = new Valine();
-  function emoji(path, idx, ext) {
-      return path + "/" + path + "-" + idx + "." + ext;
-  }
-  var emojiMaps = {};
-  for (var i = 1; i <= 54; i++) {
-    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
-  }
-  for (var i = 1; i <= 101; i++) {
-    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
-  }
-  for (var i = 1; i <= 116; i++) {
-    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
-  }
-  for (var i = 1; i <= 125; i++) {
-    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
-  }
-  for (var i = 1; i <= 4; i++) {
-    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
-  }
-  valine.init({
-    el: '#valine_container',
-    meta: meta,
-    
-    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
-    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
-    placeholder: "快来评论吧~",
-    pageSize:'10',
-    avatar:'robohash',
-    lang:'zh-cn',
-    visitor: 'true',
-    highlight: 'true',
-    mathJax: 'false',
-    enableQQ: 'true',
-    requiredFields: requiredFields,
-    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
-    emojiMaps: emojiMaps
-  })
-  </script>
 
 
 
