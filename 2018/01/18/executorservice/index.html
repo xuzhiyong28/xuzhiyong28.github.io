@@ -600,7 +600,7 @@
               new DelayedWorkQueue());
     }
 
-</code></pre><h2 id="ThreadPoolExecutor源码分析"><a href="#ThreadPoolExecutor源码分析" class="headerlink" title="ThreadPoolExecutor源码分析"></a>ThreadPoolExecutor源码分析</h2><h3 id="executre和submit方法"><a href="#executre和submit方法" class="headerlink" title="executre和submit方法"></a>executre和submit方法</h3><p>首先先来看下两个方法如何使用。线程池支持无返回值的execute方法，和有返回值的submit方法。有返回值的其实是将task封装成一个FutureTask。关于FutureTask可以看另外篇博客《<a href="https://xuzhiyong28.github.io/2020/07/30/fork-join/" target="_blank" rel="noopener">Fork/join框架你会用吗？</a>》。</p>
+</code></pre><h2 id="ThreadPoolExecutor源码分析"><a href="#ThreadPoolExecutor源码分析" class="headerlink" title="ThreadPoolExecutor源码分析"></a>ThreadPoolExecutor源码分析</h2><h3 id="executre和submit方法"><a href="#executre和submit方法" class="headerlink" title="executre和submit方法"></a>executre和submit方法</h3><p>首先先来看下两个方法如何使用。线程池支持无返回值的execute方法，和有返回值的submit方法。有返回值的其实是将task封装成一个FutureTask。关于FutureTask可以看另外篇博客《<a href="http://xuzyblog.top/2020/07/30/fork-join/" target="_blank" rel="noopener">Fork/join框架你会用吗？</a>》。</p>
 <pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">testError</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> InterruptedException<span class="token punctuation">,</span> ExecutionException <span class="token punctuation">{</span>
     ThreadPoolExecutor threadPoolExecutor <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ThreadPoolExecutor</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span> <span class="token number">20</span><span class="token punctuation">,</span> 60L<span class="token punctuation">,</span> TimeUnit<span class="token punctuation">.</span>MINUTES<span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">LinkedBlockingQueue</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1055,10 +1055,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-12T09:03:51+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T15:19:59+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 12, 2020</p>
+    <p>更新于：Aug 19, 2020</p>
   </a>
 </div>
 

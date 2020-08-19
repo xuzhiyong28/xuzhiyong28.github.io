@@ -552,6 +552,59 @@
 <span class="token punctuation">}</span></code></pre>
 <p><font size="4" color="red">第五步：调用HandlerAdapter(处理器适配器)执行handler并返回ModelAndView</font></p>
 <pre class=" language-java"><code class="language-java">mv <span class="token operator">=</span> ha<span class="token punctuation">.</span><span class="token function">handle</span><span class="token punctuation">(</span>processedRequest<span class="token punctuation">,</span> response<span class="token punctuation">,</span> mappedHandler<span class="token punctuation">.</span><span class="token function">getHandler</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>分析RequestMappingHandlerAdapter的执行逻辑如下：</p>
+<p><img src="/2020/01/04/springmvc2/15.png" alt="执行handler"></p>
+<p><img src="/2020/01/04/springmvc2/16.png" alt="hanlder结果封装成ModelAndView"></p>
+<p><font size="4" color="red">第六步：执行拦截器后置拦截</font></p>
+<pre><code>//如果没有视图，设置默认视图
+applyDefaultViewName(processedRequest, mv)
+//执行后置拦截
+mappedHandler.applyPostHandle(processedRequest, response, mv)</code></pre><p><font size="4" color="red">第七步：前端控制器请求视图解析器（ViewResolver）去进行视图解析</font></p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//获取视图并进行渲染</span>
+<span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">render</span><span class="token punctuation">(</span>ModelAndView mv<span class="token punctuation">,</span> HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
+        Locale locale <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>localeResolver <span class="token operator">!=</span> null <span class="token operator">?</span> <span class="token keyword">this</span><span class="token punctuation">.</span>localeResolver<span class="token punctuation">.</span><span class="token function">resolveLocale</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span> <span class="token operator">:</span> request<span class="token punctuation">.</span><span class="token function">getLocale</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        response<span class="token punctuation">.</span><span class="token function">setLocale</span><span class="token punctuation">(</span>locale<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        View view<span class="token punctuation">;</span>
+        String viewName <span class="token operator">=</span> mv<span class="token punctuation">.</span><span class="token function">getViewName</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>viewName <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//遍历视图解析器解析当前view对应的视图</span>
+            view <span class="token operator">=</span> <span class="token function">resolveViewName</span><span class="token punctuation">(</span>viewName<span class="token punctuation">,</span> mv<span class="token punctuation">.</span><span class="token function">getModelInternal</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> locale<span class="token punctuation">,</span> request<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>view <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">ServletException</span><span class="token punctuation">(</span><span class="token string">"Could not resolve view with name '"</span> <span class="token operator">+</span> mv<span class="token punctuation">.</span><span class="token function">getViewName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span>
+                        <span class="token string">"' in servlet with name '"</span> <span class="token operator">+</span> <span class="token function">getServletName</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"'"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">else</span> <span class="token punctuation">{</span>
+            view <span class="token operator">=</span> mv<span class="token punctuation">.</span><span class="token function">getView</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>mv<span class="token punctuation">.</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                response<span class="token punctuation">.</span><span class="token function">setStatus</span><span class="token punctuation">(</span>mv<span class="token punctuation">.</span><span class="token function">getStatus</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">value</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token comment" spellcheck="true">//渲染视图</span>
+            view<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span>mv<span class="token punctuation">.</span><span class="token function">getModelInternal</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> ex<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>logger<span class="token punctuation">.</span><span class="token function">isDebugEnabled</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                logger<span class="token punctuation">.</span><span class="token function">debug</span><span class="token punctuation">(</span><span class="token string">"Error rendering view ["</span> <span class="token operator">+</span> view <span class="token operator">+</span> <span class="token string">"]"</span><span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">throw</span> ex<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">protected</span> View <span class="token function">resolveViewName</span><span class="token punctuation">(</span>String viewName<span class="token punctuation">,</span> <span class="token annotation punctuation">@Nullable</span> Map<span class="token operator">&lt;</span>String<span class="token punctuation">,</span> Object<span class="token operator">></span> model<span class="token punctuation">,</span>
+        Locale locale<span class="token punctuation">,</span> HttpServletRequest request<span class="token punctuation">)</span> <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>viewResolvers <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//遍历所有的视图列表并选择一个合适的视图</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span>ViewResolver viewResolver <span class="token operator">:</span> <span class="token keyword">this</span><span class="token punctuation">.</span>viewResolvers<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            View view <span class="token operator">=</span> viewResolver<span class="token punctuation">.</span><span class="token function">resolveViewName</span><span class="token punctuation">(</span>viewName<span class="token punctuation">,</span> locale<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>view <span class="token operator">!=</span> null<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">return</span> view<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> null<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
 
           
             <div class='article_footer'>
@@ -644,7 +697,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T10:43:31+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T15:13:19+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Aug 19, 2020</p>
@@ -676,10 +729,9 @@
         
           <div class="prev-next">
             
-              <a class='prev' href='/2020/07/20/db-w-r-dynamic/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>读写分离设计与思考</p>
-                <p class='content'>读写分离基本原理高性能数据库集群的第一种方式是“读写分离”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。
-读...</p>
+              <a class='prev' href='/2020/07/20/sharding-student/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>ShardingJdbc学习之按年月分库分表</p>
+                <p class='content'>sharding-jdbc官方文档:https://shardingsphere.apache.org/document/current/cn/overview/本文采用当当的shardingj...</p>
               </a>
             
             

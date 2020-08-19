@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta name="renderer" content="webkit">
@@ -18,8 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: spring - 咕噜咕噜的博客</title>
+    <title>记一次MySQL主从同步延迟排查 - 咕噜咕噜的博客</title>
   
+    <meta name="keywords" content="mysql">
+  
+  
+    <meta name="description" content="记一次MySQL主从同步延迟排查和解决">
   
 
   <!-- feed -->
@@ -336,27 +338,12 @@
     <div class='body-wrapper'>
       
 
-
 <div class='l_main'>
   
-    
-      
-  <section class="post-list ">
-    
-      
-        
-          
-        
-          
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
+
   
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
 
 
   <section class='meta'>
@@ -366,11 +353,11 @@
       <div class="meta" id="header-meta">
         
           
-  <h2 class="title">
-    <a href="/2020/01/04/springmvc2/">
-      SpringMVC详细解析之工作流程（二）
+  <h1 class="title">
+    <a href="/2020/08/19/mysql-masterslave-solve/">
+      记一次MySQL主从同步延迟排查
     </a>
-  </h2>
+  </h1>
 
 
         
@@ -393,9 +380,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/spring/' rel="nofollow">
+    <a href='/categories/mysql/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>spring</p>
+      <p>mysql</p>
     </a>
   </div>
 
@@ -406,14 +393,9 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jan 4, 2020</p>
+    <p>发布于：Aug 19, 2020</p>
   </a>
 </div>
-
-            
-          
-            
-              
 
             
           
@@ -431,201 +413,156 @@
   </section>
 
 
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>SpringMVC详细解析之工作流程</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/01/04/springmvc2/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
           
-  <h2 class="title">
-    <a href="/2020/01/01/springmvc/">
-      SpringMVC详细解析之初始化（一）
-    </a>
-  </h2>
+          <h2 id="问题分析和定位"><a href="#问题分析和定位" class="headerlink" title="问题分析和定位"></a>问题分析和定位</h2><p>线上环境这几天在凌晨4点时报主从延迟。虽然我们项目对数据的时效性不是要求很高，但是出现了主从延迟肯定是哪个地方除了问题，为了保证稳定性需要排查一下问题原因。</p>
+<h3 id="主从同步原理"><a href="#主从同步原理" class="headerlink" title="主从同步原理"></a>主从同步原理</h3><p><img src="/2020/08/19/mysql-masterslave-solve/1.jpg" alt></p>
+<ol>
+<li>主库对所有DDL和DML产生的日志写进binlog；</li>
+<li>主库生成一个 log dump 线程，用来给从库I/O线程读取binlog；</li>
+<li>从库的I/O Thread去请求主库的binlog，并将得到的binlog日志写到relay log文件中；</li>
+<li>从库的SQL Thread会读取relay log文件中的日志解析成具体操作，将主库的DDL和DML操作事件重放。</li>
+</ol>
+<p>SQL语言共分为四大类：查询语言DQL，控制语言DCL，操纵语言DML，定义语言DD</p>
+<ul>
+<li>DQL：可以简单理解为SELECT语句；</li>
+<li>DCL：GRANT、ROLLBACK和COMMIT一类语句；</li>
+<li>DML：可以理解为CREATE一类的语句；</li>
+<li>DDL：INSERT、UPDATE和DELETE语句都是；</li>
+</ul>
+<h3 id="主从延迟可能原因"><a href="#主从延迟可能原因" class="headerlink" title="主从延迟可能原因"></a>主从延迟可能原因</h3><p>从上面的原理分析，可以知道导致的原因可能是以下几种。</p>
+<ul>
+<li>网络原因。从库请求主库binlog延迟</li>
+<li>主库单位时间内产生DDL数量超过从库所能执行的范围</li>
+<li>从库执行大型的query语句导致锁表，从而导致执行同步过来的DDL语句延迟</li>
+<li>从库机器性能原因</li>
+</ul>
+<p>个人觉得是<font color="red">主库单位时间内产生DDL数量超过从库所能执行的范围</font>这个原因比较大。所以从这开始排查。</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>首先登录从库查看</p>
+<pre><code>mysql -h 从库IP -u 用户名 -p密码 -P 端口</code></pre><pre><code>#执行查看主从同步情况
+show slave status\G;
+*************************** 1. row ***************************
+              #当前slave I/O状态
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 主库IP
+                  Master_User: repl_user
+                  Master_Port: 主库端口
+                Connect_Retry: 60
+              #当前I/O线程正在读取的主服务器二进制日志文件的名称
+              Master_Log_File: mysql-bin.000231
+          #当前I/O线程正在读取的二进制日志的位置
+          Read_Master_Log_Pos: 211281725
+                 #当前slave SQL线程正在读取并执行的relay log的文件名
+               Relay_Log_File: mysql-relay-bin.000230
+                #当前slave SQL线程正在读取并执行的relay log文件中的位置
+                Relay_Log_Pos: 10270447
+        Relay_Master_Log_File: mysql-bin.000231
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: wsportal
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: root.domain_info,root.certificate
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          #slave SQL线程当前执行的事件，对应在master相应的二进制日志中的position
+          Exec_Master_Log_Pos: 211281725
+              Relay_Log_Space: 10270667
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        #slave当前的时间戳和master记录该事件时的时间戳的差值
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+  Replicate_Ignore_Server_Ids: 
+             Master_Server_Id: 12918051
+                  Master_UUID: 8ef54a4c-d0e5-11e7-aa5f-047d7bb918b6
+             Master_Info_File: mysql.slave_master_info
+                    SQL_Delay: 0
+          SQL_Remaining_Delay: NULL
+      Slave_SQL_Running_State: Slave has read all relay log; waiting for the slave I/O thread to update it
+           Master_Retry_Count: 86400
+                  Master_Bind: 
+      Last_IO_Error_Timestamp: 
+     Last_SQL_Error_Timestamp: 
+               Master_SSL_Crl: 
+           Master_SSL_Crlpath: 
+           Retrieved_Gtid_Set: 
+            Executed_Gtid_Set: 
+                Auto_Position: 0</code></pre><p>一般主从同步问题可以通过这几个点排查</p>
+<ul>
+<li>Slave_IO_State 从库当前状态，用来判断从库是否断掉</li>
+<li>Read_Master_Log_Pos 和 Exec_Master_Log_Pos  这个值如果相差太大表示主从出现了延迟</li>
+<li>Seconds_Behind_Master 当前salve和master记录事件的时间戳，这个值如果越大证明延迟越严重</li>
+</ul>
+<p>通过看show slave status发现一切正常，因为延迟是发生在凌晨4点。所以有可能的原因就是凌晨4点执行了大量的DDL导致的，之后恢复正常了。所以我们只能通过binlog日志查看凌晨4点时执行了什么语句。</p>
+<p>通过上面我们知道了从库是从主库的 mysql-bin.000231日志中同步过来的。所以看下这个binlog日志在凌晨4点时执行的所有DDL语句。</p>
+<p>导出主库上凌晨4:00~4:02的binlog日志。</p>
+<pre><code>#--base64-output=decode-rows -v 表示格式化DDL语句，因为binlog是二进制的
+mysqlbinlog --base64-output=decode-rows -v --start-datetime=&#39;2020-08-17 04:00:00&#39; --stop-datetime=&#39;2020-08-17 04:02:00&#39; -d wsportal mysql-bin.000231 &gt; /home/xuzy/log/mysql_bin_231_4.log</code></pre><pre><code>cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | wc -l
+结果 : 99412
+cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39; | wc -l
+结果 : 43695</code></pre><p>通过查看binlog日志，发现在2分钟内主库插入数据到表dir_visit_report一共执行了4万多次。感觉原因就是这个，然后继续查了下业务代码，发现是同事一个入库定时器写错了写成每天凌晨4点执行，其实是一个月执行一次，所以导致每天都报延迟。</p>
+<h2 id="如何避免"><a href="#如何避免" class="headerlink" title="如何避免"></a>如何避免</h2><p>待续。。。</p>
 
-
-        
-        <div class='new-meta-box'>
           
-            
-          
-            
+            <div class='article_footer'>
               
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/spring/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>spring</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jan 1, 2020</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>SpringMVC详细解析之初始化</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/01/01/springmvc/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-    
-  </section>
-  
-    
-    <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
-    
-    
-
-  
-
-
-    
-  
-</div>
-<aside class='l_side'>
-  
+                
   
     
     
 
-<section class="widget blogger shadow desktop mobile">
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
   <div class='content'>
     
-      
-        <a class='avatar flat-box' href='/about/'>
-          <img no-lazy src='https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-        
-        
-          <p><span id="jinrishici-sentence">咕噜咕噜的博客</span></p>
-          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
+      <blockquote>
         
           
-            <a href="/atom.xml"
-              class="social fas fa-rss flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
+            <p>本文作者：咕噜。咕噜</p>
+
           
         
           
-            <a href="mailto:jip0574@qq.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
           
         
           
-            <a href="https://github.com/xuzhiyong28"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/08/19/mysql-masterslave-solve/>http://yoursite.com/2020/08/19/mysql-masterslave-solve/</a></p>
           
         
-          
-            <a href="https://music.163.com/#/user/home?id=272192685"
-              class="social fas fa-headphones-alt flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
-          
-        
-      </div>
+      </blockquote>
     
   </div>
 </section>
@@ -635,83 +572,155 @@
   
     
     
+
+<section class="widget qrcode  desktop mobile">
   
 
-  <section class="widget category shadow desktop">
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T16:51:23+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Aug 19, 2020</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/mysql/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>mysql</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/2020/08/14/redis-sentinel/'>
+                <p class='title'>redis哨兵原理解析<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Redis哨兵概述Redis Sentinel是一个分布式系统，为Redis提供高可用性解决方案，通过监控各个Redis节点(主从服务器)实现自动障迁移。
+Redis Sentinel功能包括 ...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: '记一次MySQL主从同步延迟排查',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
     
   <header>
     
-      <a href='/blog/categories/'><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span></a>
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
     
   </header>
 
 
     <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/java/" href="/categories/java/"
-            id="categoriesjava"
-            ><div class='name'>java</div><div class='badge'>(12)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/linux/" href="/categories/linux/"
-            id="categorieslinux"
-            ><div class='name'>linux</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/mysql/" href="/categories/mysql/"
-            id="categoriesmysql"
-            ><div class='name'>mysql</div><div class='badge'>(6)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/redis/" href="/categories/redis/"
-            id="categoriesredis"
-            ><div class='name'>redis</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/shardingjdbc/" href="/categories/shardingjdbc/"
-            id="categoriesshardingjdbc"
-            ><div class='name'>shardingjdbc</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/spring/" href="/categories/spring/"
-            id="categoriesspring"
-            ><div class='name'>spring</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E6%9E%B6%E6%9E%84/" href="/categories/%E6%9E%B6%E6%9E%84/"
-            id="categoriesE69EB6E69E84"
-            ><div class='name'>架构</div><div class='badge'>(1)</div></a></li>
-        
-      </ul>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a></li></ol>
     </div>
   </section>
 
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <a href='/blog/tags/'><i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span></a>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 19px; color: #777">jvm</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 24px; color: #555">mysql</a> <a href="/tags/redis/" style="font-size: 19px; color: #777">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 19px; color: #777">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 19px; color: #777">项目实践</a>
-    </div>
-  </section>
-
-
-  
 
   
 
@@ -924,6 +933,60 @@
 
 
 
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
 
 
