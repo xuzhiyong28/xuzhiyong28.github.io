@@ -518,6 +518,9 @@ mysqlbinlog --base64-output=decode-rows -v --start-datetime=&#39;2020-08-17 04:0
 cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39; | wc -l
 结果 : 43695</code></pre><p>通过查看binlog日志，发现在2分钟内主库插入数据到表dir_visit_report一共执行了4万多次。感觉原因就是这个，然后继续查了下业务代码，发现是同事一个入库定时器写错了写成每天凌晨4点执行，其实是一个月执行一次，所以导致每天都报延迟。</p>
 <h2 id="如何避免"><a href="#如何避免" class="headerlink" title="如何避免"></a>如何避免</h2><p>待续。。。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://www.cnblogs.com/paul8339/p/7615310.html" target="_blank" rel="noopener">https://www.cnblogs.com/paul8339/p/7615310.html</a></li>
+</ul>
 
           
             <div class='article_footer'>
@@ -610,7 +613,7 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T16:51:23+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T16:54:41+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Aug 19, 2020</p>
@@ -717,7 +720,7 @@ Redis Sentinel功能包括 ...</p>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 
