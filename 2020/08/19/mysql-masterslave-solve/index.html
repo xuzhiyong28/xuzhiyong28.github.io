@@ -517,10 +517,24 @@ mysqlbinlog --base64-output=decode-rows -v --start-datetime=&#39;2020-08-17 04:0
 结果 : 99412
 cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39; | wc -l
 结果 : 43695</code></pre><p>通过查看binlog日志，发现在2分钟内主库插入数据到表dir_visit_report一共执行了4万多次。感觉原因就是这个，然后继续查了下业务代码，发现是同事一个入库定时器写错了写成每天凌晨4点执行，其实是一个月执行一次，所以导致每天都报延迟。</p>
-<h2 id="如何避免"><a href="#如何避免" class="headerlink" title="如何避免"></a>如何避免</h2><p>待续。。。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="https://www.cnblogs.com/paul8339/p/7615310.html" target="_blank" rel="noopener">https://www.cnblogs.com/paul8339/p/7615310.html</a></li>
+<h2 id="如何避免"><a href="#如何避免" class="headerlink" title="如何避免"></a>如何避免</h2><ul>
+<li>升级MySQL版本到5.7，使用并行复制</li>
+<li>升级Slave硬件配置</li>
+<li>优化网络</li>
+<li>业务上防止统一时间点大量更新操作</li>
+<li>修改binlog配置sync_binlog，innodb_flush_log_at_trx_commit (redo日志)</li>
 </ul>
+<h3 id="sync-binlog"><a href="#sync-binlog" class="headerlink" title="sync_binlog"></a>sync_binlog</h3><ul>
+<li><p>sync_binlog = 0 ，表示MySQL不控制binlog的刷新，由文件系统自己控制它的缓存的刷新</p>
+</li>
+<li><p>sync_binlog &gt; 0 ，指定了两次刷新到磁盘的动作之间间隔多少次二进制日志写操作</p>
+</li>
+<li><p>sync_binlog = 1 ，表示每次事务提交，MySQL都会把binlog刷下去，是最安全但是性能损耗最大的设置</p>
+</li>
+</ul>
+<h3 id="innodb-flush-log-at-trx-commit"><a href="#innodb-flush-log-at-trx-commit" class="headerlink" title="innodb_flush_log_at_trx_commit"></a>innodb_flush_log_at_trx_commit</h3><p>0 ： 提交事务的时候，不立即把 redo log buffer 里的数据刷入磁盘文件的，而是依靠 InnoDB 的主线程每秒执行一次刷新到磁盘</p>
+<p>1 ： 提交事务的时候，就必须把 redo log 从内存刷入到磁盘文件里去，只要事务提交成功，那么 redo log 就必然在磁盘里了</p>
+<p>2 ：提交事务的时候，把 redo 日志写入磁盘文件对应的 os cache 缓存里去，而不是直接进入磁盘文件，可能 1 秒后才会把 os cache 里的数据写入到磁盘文件里去</p>
 
           
             <div class='article_footer'>
@@ -613,10 +627,10 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-19T16:54:41+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-20T09:05:54+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 19, 2020</p>
+    <p>更新于：Aug 20, 2020</p>
   </a>
 </div>
 
@@ -644,6 +658,14 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/2020/08/20/redis-master-slave/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>redis主从复制原理</p>
+                <p class='content'>Redis主从复制配置127.0.0.1:6380> SLAVEOF 127.0.0.1 6379
+原理详解redis的复制功能分为完整重同步和部分重同步两个操作。
+
+完整重同步操作，将从服务器...</p>
+              </a>
             
             
               <a class='next' href='/2020/08/14/redis-sentinel/'>
@@ -720,7 +742,7 @@ Redis Sentinel功能包括 ...</p>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sync-binlog"><span class="toc-text">sync_binlog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb-flush-log-at-trx-commit"><span class="toc-text">innodb_flush_log_at_trx_commit</span></a></li></ol></li></ol>
     </div>
   </section>
 
