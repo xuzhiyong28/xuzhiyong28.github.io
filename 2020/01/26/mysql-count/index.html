@@ -5,8 +5,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta name="renderer" content="webkit">
@@ -18,8 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: redis - 咕噜咕噜的博客</title>
+    <title>MySQL之count(*)、count(1)、count(字段) - 咕噜咕噜的博客</title>
   
+    <meta name="keywords" content="mysql">
+  
+  
+    <meta name="description" content="详解MySQL之count(*)、count(1)、count(字段)">
   
 
   <!-- feed -->
@@ -336,29 +338,12 @@
     <div class='body-wrapper'>
       
 
-
 <div class='l_main'>
   
-    
-      
-  <section class="post-list ">
-    
-      
-        
-          
-        
-          
-        
-          
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
+
   
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
 
 
   <section class='meta'>
@@ -368,11 +353,11 @@
       <div class="meta" id="header-meta">
         
           
-  <h2 class="title">
-    <a href="/2020/08/20/redis-master-slave/">
-      redis主从复制原理
+  <h1 class="title">
+    <a href="/2020/01/26/mysql-count/">
+      MySQL之count(*)、count(1)、count(字段)
     </a>
-  </h2>
+  </h1>
 
 
         
@@ -395,9 +380,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/redis/' rel="nofollow">
+    <a href='/categories/mysql/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>redis</p>
+      <p>mysql</p>
     </a>
   </div>
 
@@ -408,14 +393,9 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Aug 20, 2020</p>
+    <p>发布于：Jan 26, 2020</p>
   </a>
 </div>
-
-            
-          
-            
-              
 
             
           
@@ -433,300 +413,78 @@
   </section>
 
 
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>redis主从复制原理</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/08/20/redis-master-slave/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
           
-  <h2 class="title">
-    <a href="/2020/08/14/redis-sentinel/">
-      redis哨兵原理解析
-    </a>
-  </h2>
+          <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。</p>
+<h3 id="InnoDB下的count"><a href="#InnoDB下的count" class="headerlink" title="InnoDB下的count"></a>InnoDB下的count</h3><p>count(*)、count(主键 id) 、 count(1) 都表示返回满足条件的结果集的总行数。而count(字段)则表示返回满足条件的数据行里面，参数“字段”不为 NULL 的总个数。</p>
+<ul>
+<li><strong>对于count(主键id)来说</strong>，InnoDB引擎会遍历整张表，把每一行的id值取出来，返回给server层。server 层拿到 id 后，判断是不可能为空的，就按行累加。由于主键是不可能为NULL的，所以count(主键id)是忽略NULL的。</li>
+</ul>
+<ul>
+<li><strong>对于 count(1) 来说</strong>，InnoDB 引擎遍历整张表，<font color="red">但不取值</font>。server层对于返回的每一行，放一个数字”1”进去，判断是不可能为空，按行累加。所以count(主键id)是忽略NULL的。</li>
+</ul>
+<ul>
+<li><p><strong>对于 count(字段) 来说</strong>，所以count(字段)根据字段是否定义为not null来判断是否忽略NULL。</p>
+<ul>
+<li>如果这个“字段”是定义为 not null 的话，一行行地从记录里面读出这个字段，判断不能为 null，按行累加</li>
+<li>如果这个“字段”定义允许为 null，那么执行的时候，判断到有可能是 null，还要把值取出来再判断一下，不是 null 才累加</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><strong>但是 count(*) 是例外</strong>，并不会把全部字段取出来，而是专门做了优化，不取值。count(*) 肯定不是 null，按行累加。</li>
+</ul>
+<p>所以结论是：按照效率排序的话，<font size="5" color="red">count(字段) &lt; count(主键 id) &lt; count(1) ≈ count(*)</font>，所以我建议你，尽量使用  count(*)。</p>
+<h3 id="MyISAM下的count"><a href="#MyISAM下的count" class="headerlink" title="MyISAM下的count"></a>MyISAM下的count</h3><p>MyISAM 引擎把一个表的总行数存在了磁盘上，因此执行 count(*) 的时候会直接返回这个数，效率很高。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>《MYSQL实战45讲》</li>
+</ul>
 
-
-        
-        <div class='new-meta-box'>
           
-            
-          
-            
+            <div class='article_footer'>
               
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/redis/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>redis</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Aug 14, 2020</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>redis哨兵原理解析</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/08/14/redis-sentinel/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/02/18/redis-aop-limit-boot/">
-      基于springBoot-aop实现redis分布式限流
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/redis/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>redis</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Feb 18, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>基于springBoot+redis+aop+自定义标签实现分布式限流</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/02/18/redis-aop-limit-boot/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-    
-  </section>
-  
-    
-    <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
-    
-    
-
-  
-
-
-    
-  
-</div>
-<aside class='l_side'>
-  
+                
   
     
     
 
-<section class="widget blogger shadow desktop mobile">
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
   <div class='content'>
     
-      
-        <a class='avatar flat-box' href='/about/'>
-          <img no-lazy src='https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-        
-        
-          <p><span id="jinrishici-sentence">咕噜咕噜的博客</span></p>
-          <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
+      <blockquote>
         
           
-            <a href="/atom.xml"
-              class="social fas fa-rss flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
+            <p>本文作者：咕噜。咕噜</p>
+
           
         
           
-            <a href="mailto:jip0574@qq.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
           
         
           
-            <a href="https://github.com/xuzhiyong28"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/01/26/mysql-count/>http://yoursite.com/2020/01/26/mysql-count/</a></p>
           
         
-          
-            <a href="https://music.163.com/#/user/home?id=272192685"
-              class="social fas fa-headphones-alt flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-            </a>
-          
-        
-      </div>
+      </blockquote>
     
   </div>
 </section>
@@ -736,83 +494,162 @@
   
     
     
+
+<section class="widget qrcode  desktop mobile">
   
 
-  <section class="widget category shadow desktop">
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-26T09:05:50+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Aug 26, 2020</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/mysql/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>mysql</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2020/07/20/db-w-r-dynamic/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>读写分离设计与思考</p>
+                <p class='content'>读写分离基本原理高性能数据库集群的第一种方式是“读写分离”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。
+读...</p>
+              </a>
+            
+            
+              <a class='next' href='/2020/01/04/springmvc2/'>
+                <p class='title'>SpringMVC详细解析之工作流程（二）<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>SpringMVC工作流程工作流程概述
+客户端（浏览器）发送请求，直接请求到 DispatcherServlet
+DispatcherServlet 根据请求信息调用 HandlerMappin...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'MySQL之count(*)、count(1)、count(字段)',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
     
   <header>
     
-      <a href='/blog/categories/'><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>文章分类</span></a>
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
     
   </header>
 
 
     <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/java/" href="/categories/java/"
-            id="categoriesjava"
-            ><div class='name'>java</div><div class='badge'>(12)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/linux/" href="/categories/linux/"
-            id="categorieslinux"
-            ><div class='name'>linux</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/mysql/" href="/categories/mysql/"
-            id="categoriesmysql"
-            ><div class='name'>mysql</div><div class='badge'>(7)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/redis/" href="/categories/redis/"
-            id="categoriesredis"
-            ><div class='name'>redis</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/shardingjdbc/" href="/categories/shardingjdbc/"
-            id="categoriesshardingjdbc"
-            ><div class='name'>shardingjdbc</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/spring/" href="/categories/spring/"
-            id="categoriesspring"
-            ><div class='name'>spring</div><div class='badge'>(2)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/%E6%9E%B6%E6%9E%84/" href="/categories/%E6%9E%B6%E6%9E%84/"
-            id="categoriesE69EB6E69E84"
-            ><div class='name'>架构</div><div class='badge'>(1)</div></a></li>
-        
-      </ul>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#InnoDB下的count"><span class="toc-text">InnoDB下的count</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MyISAM下的count"><span class="toc-text">MyISAM下的count</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow desktop mobile">
-    
-  <header>
-    
-      <a href='/blog/tags/'><i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>热门标签</span></a>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 21.5px; color: #666">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 16.5px; color: #888">jvm</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 24px; color: #555">mysql</a> <a href="/tags/redis/" style="font-size: 19px; color: #777">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 16.5px; color: #888">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 16.5px; color: #888">spring</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 16.5px; color: #888">项目实践</a>
-    </div>
-  </section>
-
-
-  
 
   
 
@@ -1025,6 +862,60 @@
 
 
 
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
 
 
 
