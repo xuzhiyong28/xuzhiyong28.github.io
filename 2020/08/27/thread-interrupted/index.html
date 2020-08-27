@@ -16,12 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>设计模式之单例模式 - 咕噜咕噜的博客</title>
+    <title>java并发之中断详解 - 咕噜咕噜的博客</title>
   
-    <meta name="keywords" content="设计模式">
+    <meta name="keywords" content="java并发">
   
   
-    <meta name="description" content="设计模式之单例模式">
+    <meta name="description" content="详解java中断线程的几种方式和方法interrupt()，Thread.interrupt()，isInterrupted()区别">
   
 
   <!-- feed -->
@@ -354,8 +354,8 @@
         
           
   <h1 class="title">
-    <a href="/2019/07/18/design-pattern-singleton/">
-      设计模式之单例模式
+    <a href="/2020/08/27/thread-interrupted/">
+      java并发之中断详解
     </a>
   </h1>
 
@@ -393,7 +393,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
+    <p>发布于：Aug 27, 2020</p>
   </a>
 </div>
 
@@ -416,106 +416,131 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <h2 id="单例模式"><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h2><h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>单例模式(Singleton Pattern)：确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例，这个类称为单例类，它提供全局访问的方法。单例模式是一种对象创建型模式</p>
-<h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><p>单例模式有三个特性：</p>
+          <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>java中提供了多种方式来实现线程的中断。本文通过列举其中的方式。并对方法interrupt()，Thread.interrupt()，isInterrupted()进行区分。</p>
+<h2 id="中断方法分析"><a href="#中断方法分析" class="headerlink" title="中断方法分析"></a>中断方法分析</h2><p>涉及中断的方法有如下三个，</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>方法类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>interrupt()</td>
+<td>Thread类下的实例方法</td>
+<td>作用是中断线程，只是改变中断状态不会中断线程，后续就是根据这个中断状态去调用isInterrupted()或Thread.interrupted()或抛出interruptedException异常来结束中断</td>
+</tr>
+<tr>
+<td>isInterrupted()</td>
+<td>Thread类下的实例方法</td>
+<td>测试线程是否已经中断，不会重置当前线程的中断状态</td>
+</tr>
+<tr>
+<td>Thread.interrupted()</td>
+<td>Thread类下的静态方法</td>
+<td>测试当前线程(内部用的是currentThread())是否已经中断，会重置当前线程的中断状态</td>
+</tr>
+</tbody></table>
+<p>说明：</p>
 <ul>
-<li>单例类只能有一个实例</li>
-<li>单例类必须自行创建自己的唯一的实例</li>
-<li>单例类必须给所有其他对象提供这一实例</li>
+<li>会不会重置当前线程的中断状态指的是如果原来是中断，调用Thread.interrupted()就重新设置成不中断了</li>
+<li>两个判断中断的方法最终都是调用本地方法boolean isInterrupted(boolean ClearInterrupted)</li>
 </ul>
-<h3 id="单例模式的几种实现"><a href="#单例模式的几种实现" class="headerlink" title="单例模式的几种实现"></a>单例模式的几种实现</h3><h4 id="懒汉式单例模式"><a href="#懒汉式单例模式" class="headerlink" title="懒汉式单例模式"></a>懒汉式单例模式</h4><pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SingletonOne</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> SingletonOne singletonOne<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token function">SingletonOne</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> SingletonOne <span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>singletonOne <span class="token operator">==</span> null<span class="token punctuation">)</span>
-            singletonOne <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SingletonOne</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> singletonOne<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//Thread.interrupted();</span>
+<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> <span class="token function">interrupted</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">currentThread</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">isInterrupted</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    SingletonOne singletonOne <span class="token operator">=</span> SingletonOne<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>缺陷 ：</p>
-<ul>
-<li>不支持多线程，在并发环境下会导致创建多个实例</li>
-</ul>
-<h4 id="懒汉式线程安全单例模式"><a href="#懒汉式线程安全单例模式" class="headerlink" title="懒汉式线程安全单例模式"></a>懒汉式线程安全单例模式</h4><pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SingletonTwo</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> SingletonTwo singletonTwo<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token function">SingletonTwo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
-    <span class="token keyword">private</span> <span class="token keyword">synchronized</span> <span class="token keyword">static</span> SingletonTwo <span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>singletonTwo <span class="token operator">==</span> null<span class="token punctuation">)</span>
-            singletonTwo <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SingletonTwo</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> singletonTwo<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//this.isInterrupted</span>
+<span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">isInterrupted</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token function">isInterrupted</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    SingletonTwo singletonOne <span class="token operator">=</span> SingletonTwo<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>这种方式是在懒汉式单例模式下加了synchronized关键字保证线程安全</p>
-<p>缺陷：</p>
-<ul>
-<li>虽然能保证线程安全，但是用了synchronized，加锁影响效率</li>
-</ul>
-<h4 id="饿汉式单例模式"><a href="#饿汉式单例模式" class="headerlink" title="饿汉式单例模式"></a>饿汉式单例模式</h4><pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SingletonThree</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> SingletonThree singletonThree <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SingletonThree</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token function">SingletonThree</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
+<span class="token keyword">private</span> <span class="token keyword">native</span> <span class="token keyword">boolean</span> <span class="token function">isInterrupted</span><span class="token punctuation">(</span><span class="token keyword">boolean</span> ClearInterrupted<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<h2 id="stop方法中断"><a href="#stop方法中断" class="headerlink" title="stop方法中断"></a>stop方法中断</h2><p><font color="red">不推荐使用</font>。使用stop方法虽然可以<code>强行终止</code>正在运行或挂起的线程，但使用stop方法是很<code>危险</code>的，就象突然关闭计算机电源，而不是按正常程序关机一样，可能会产生不可预料的结果，因此，并不推荐使用stop方法来终止线程。</p>
+<h2 id="代码上使用标志位中断"><a href="#代码上使用标志位中断" class="headerlink" title="代码上使用标志位中断"></a>代码上使用标志位中断</h2><p>在线程执行方法run中使用一个循环体，如果想使while循环在某一特定条件下退出，最直接的方法就是设一个boolean类型的标志，并通过设置这个标志为true或false来控制while循环是否退出。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">myTest</span> <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">//这里必须使用volatile修饰保证可见性</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">volatile</span> <span class="token keyword">boolean</span> exit <span class="token operator">=</span><span class="token boolean">false</span><span class="token punctuation">;</span>  <span class="token comment" spellcheck="true">//退出标志</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"线程启动了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>exit<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"模拟运行很长的代码段............"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"线程结束了"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-    <span class="token keyword">private</span> <span class="token keyword">static</span> SingletonThree <span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">return</span> singletonThree<span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">1000</span> <span class="token operator">*</span> <span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        exit <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span><span class="token comment" spellcheck="true">//5秒后更改退出标志的值,没有这段代码，线程就一直不能停止</span>
     <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    SingletonThree singletonOne <span class="token operator">=</span> SingletonThree<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span></code></pre>
-<p>特点与缺陷：</p>
-<ul>
-<li>没有加锁，执行效率高</li>
-<li>类加载时就初始化，浪费内存</li>
-</ul>
-<h4 id="双检查锁单例模式"><a href="#双检查锁单例模式" class="headerlink" title="双检查锁单例模式"></a>双检查锁单例模式</h4><pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SingletonFour</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">volatile</span> SingletonFour singletonFour<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token function">SingletonFour</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> SingletonFour <span class="token function">getSingleton</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">if</span><span class="token punctuation">(</span>singletonFour <span class="token operator">==</span> null<span class="token punctuation">)</span><span class="token punctuation">{</span>  <span class="token comment" spellcheck="true">//第一次检查</span>
-            <span class="token keyword">synchronized</span> <span class="token punctuation">(</span>SingletonFour<span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-                <span class="token keyword">if</span><span class="token punctuation">(</span>singletonFour <span class="token operator">==</span> null<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">//第二次检查</span>
-                    singletonFour <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SingletonFour</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 标注1</span>
+<h2 id="interrupt-InterruptedException中断线程"><a href="#interrupt-InterruptedException中断线程" class="headerlink" title="interrupt()+InterruptedException中断线程"></a>interrupt()+InterruptedException中断线程</h2><p>线程处于阻塞状态，如Thread.sleep、wait、IO阻塞等情况时，调用interrupt方法后，sleep等方法将会抛出一个InterruptedException。通过异常退出的方式</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Interrupt2</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Thread thread <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">MyThread</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token string">"testThread"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        thread<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">5000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token punctuation">}</span>
+        MyThread<span class="token punctuation">.</span>on <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+        thread<span class="token punctuation">.</span><span class="token function">interrupt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">MyThread</span> <span class="token keyword">extends</span> <span class="token class-name">Thread</span> <span class="token punctuation">{</span>
+        <span class="token keyword">private</span> <span class="token keyword">volatile</span> <span class="token keyword">static</span> <span class="token keyword">boolean</span> on <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">//通过抛出异常结束阻塞中的代码块，然后通过标志判断退出循环</span>
+            <span class="token comment" spellcheck="true">//好像中断都需要写在循环里比较安全</span>
+            <span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>on<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"begin Sleep"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    Thread<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">10000000</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"end Sleep"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">InterruptedException</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"Oh, myGod!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token punctuation">}</span>
         <span class="token punctuation">}</span>
-        <span class="token keyword">return</span> singletonFour<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    SingletonFour singletonOne <span class="token operator">=</span> SingletonFour<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span></code></pre>
-<p>这种方式采用了二次检查+ synchronized的方式，且采用了volatile修饰单例。第一次检查可以保证大部分线程不进入synchronized判断，第二次检查保证了少部分进入synchronized的线程不重新new 对象。</p>
-<p><strong>那为什么要用volatile修饰？</strong></p>
-<p>因为singletonFour = new SingletonFour() 包含了如下三步操作。</p>
-<pre class=" language-java"><code class="language-java">memory <span class="token operator">=</span> <span class="token function">allocate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>　　<span class="token comment" spellcheck="true">// 1.分配对象的内存空间</span>
-<span class="token function">ctorInstance</span><span class="token punctuation">(</span>memory<span class="token punctuation">)</span><span class="token punctuation">;</span>　　<span class="token comment" spellcheck="true">// 2.初始化对象</span>
-sInstance <span class="token operator">=</span> memory<span class="token punctuation">;</span>　　<span class="token comment" spellcheck="true">// 3.设置sInstance指向刚分配的内存地址</span></code></pre>
-<p>上述伪代码中的2和3之间可能会发生重排序，重排序后的执行顺序如下</p>
-<pre class=" language-java"><code class="language-java">memory <span class="token operator">=</span> <span class="token function">allocate</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>　　<span class="token comment" spellcheck="true">// 1.分配对象的内存空间</span>
-sInstance <span class="token operator">=</span> memory<span class="token punctuation">;</span>　　<span class="token comment" spellcheck="true">// 2.设置sInstance指向刚分配的内存地址，此时对象还没有被初始化</span>
-<span class="token function">ctorInstance</span><span class="token punctuation">(</span>memory<span class="token punctuation">)</span><span class="token punctuation">;</span>　　<span class="token comment" spellcheck="true">// 3.初始化对象</span></code></pre>
-<p>所以在多线程下，如果发生重排序，singletonFour == null会返回ture，导致进行了两次初始化对象。</p>
-<h4 id="静态内部类单例模式"><a href="#静态内部类单例模式" class="headerlink" title="静态内部类单例模式"></a>静态内部类单例模式</h4><pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SingletonFive</span> <span class="token punctuation">{</span>
-    <span class="token keyword">private</span> <span class="token function">SingletonFive</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span><span class="token punctuation">}</span>
-    <span class="token comment" spellcheck="true">//创建一个内部静态类</span>
-    <span class="token keyword">private</span> <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">SingletonHolder</span><span class="token punctuation">{</span>
-        <span class="token keyword">private</span> <span class="token keyword">final</span> <span class="token keyword">static</span> SingletonFive sinleton <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">SingletonFive</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<h2 id="interrupt-isInterrupted-中断线程"><a href="#interrupt-isInterrupted-中断线程" class="headerlink" title="interrupt()+isInterrupted()中断线程"></a>interrupt()+isInterrupted()中断线程</h2><p>通过设置中断状态+判断中断标志来中断线程。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">Interrupt</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> agrs<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span><span class="token punctuation">{</span>
+            MyThread myThread <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MyThread</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            myThread<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            TimeUnit<span class="token punctuation">.</span>SECONDS<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//休眠两秒</span>
+            myThread<span class="token punctuation">.</span><span class="token function">interrupt</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//请求中断</span>
+        <span class="token punctuation">}</span><span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"main catch"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
-    <span class="token keyword">public</span> <span class="token keyword">static</span> SingletonFive <span class="token function">getSingleton</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
-        <span class="token keyword">return</span> SingletonHolder<span class="token punctuation">.</span>sinleton<span class="token punctuation">;</span>
+
+    <span class="token keyword">static</span> <span class="token keyword">class</span> <span class="token class-name">MyThread</span> <span class="token keyword">extends</span> <span class="token class-name">Thread</span> <span class="token punctuation">{</span>
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">500000</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">isInterrupted</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"should be stopped and exit"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token keyword">break</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"i="</span> <span class="token operator">+</span> <span class="token punctuation">(</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"this line is also executed. thread does not stopped"</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//尽管线程被中断,但并没有结束运行。这行代码还是会被执行</span>
+        <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
-    SingletonFive singletonOne <span class="token operator">=</span> SingletonFive<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span></code></pre>
-<p>我们在单例类中增加一个静态(static)内部类，在该内部类中创建单例对象，再将该单例对象通过getInstance()方法返回给外部使用。由于静态单例对象没有作为Singleton的成员变量直接实例化，因此类加载时不会实例化Singleton，第一次调用getInstance()时将加载内部类SingletonHolder，在该内部类中定义了一个static类型的变量instance，此时会首先初始化这个成员变量，由Java虚拟机来保证其线程安全性，确保该成员变量只能初始化一次。由于getInstance()方法没有任何线程锁定，因此其性能不会造成任何影响。通过使用IoDH，我们既可以实现延迟加载，又可以保证线程安全，不影响系统性能，不失为一种最好的Java语言单例模式实现方式（其缺点是与编程语言本身的特性相关，很多面向对象语言不支持IoDH）</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li><a href="http://tengj.top/2016/04/06/sjms4singleton/" target="_blank" rel="noopener">http://tengj.top/2016/04/06/sjms4singleton/</a></li>
-</ul>
 
           
             <div class='article_footer'>
@@ -557,7 +582,7 @@ sInstance <span class="token operator">=</span> memory<span class="token punctua
           
         
           
-            <p>本文永久链接是：<a href=http://yoursite.com/2019/07/18/design-pattern-singleton/>http://yoursite.com/2019/07/18/design-pattern-singleton/</a></p>
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/08/27/thread-interrupted/>http://yoursite.com/2020/08/27/thread-interrupted/</a></p>
           
         
       </blockquote>
@@ -608,10 +633,10 @@ sInstance <span class="token operator">=</span> memory<span class="token punctua
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T15:30:04+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-27T15:14:07+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 28, 2020</p>
+    <p>更新于：Aug 27, 2020</p>
   </a>
 </div>
 
@@ -620,7 +645,7 @@ sInstance <span class="token operator">=</span> memory<span class="token punctua
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>设计模式</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java%E5%B9%B6%E5%8F%91/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java并发</p></a></div>
 
 
         
@@ -640,25 +665,12 @@ sInstance <span class="token operator">=</span> memory<span class="token punctua
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/volatile/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>java并发之volatile</p>
-                <p class='content'>Java内存模型(jmm)看个例子
-public class VolatileExample extends Thread{
-    //设置类静态变量,各线程访问这同一共享变量
-    pri...</p>
-              </a>
             
-            
-              <a class='next' href='/2019/07/18/mysql-index-use/'>
-                <p class='title'>Mysql-InnoDB索引之索引使用和优化原则(二)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>提出问题
-什么是回表？
-索引是不是可以无限建？
-什么是索引的最左匹配原则？
-什么是覆盖索引？
-如何建立高效的索引？
-
-索引的代价通过上文《Mysql-InnoDB索引之索引结构详解(一)》我们了...</p>
+              <a class='next' href='/2020/08/26/redis-rdb-aop/'>
+                <p class='title'>redis持久化详解RDB,AOP<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Redis两种持久化方案
+RDB方式，生成指定时间间隔内的 Redis 内存中数据快照，是一个二进制文件 dumpr.rdb。
+AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中...</p>
               </a>
             
           </div>
@@ -703,7 +715,7 @@ public class VolatileExample extends Thread{
 
   <script>
     window.subData = {
-      title: '设计模式之单例模式',
+      title: 'java并发之中断详解',
       tools: true
     }
   </script>
@@ -729,7 +741,7 @@ public class VolatileExample extends Thread{
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#单例模式"><span class="toc-text">单例模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概念"><span class="toc-text">概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#特性"><span class="toc-text">特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单例模式的几种实现"><span class="toc-text">单例模式的几种实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#懒汉式单例模式"><span class="toc-text">懒汉式单例模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#懒汉式线程安全单例模式"><span class="toc-text">懒汉式线程安全单例模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#饿汉式单例模式"><span class="toc-text">饿汉式单例模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#双检查锁单例模式"><span class="toc-text">双检查锁单例模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#静态内部类单例模式"><span class="toc-text">静态内部类单例模式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#中断方法分析"><span class="toc-text">中断方法分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#stop方法中断"><span class="toc-text">stop方法中断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码上使用标志位中断"><span class="toc-text">代码上使用标志位中断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#interrupt-InterruptedException中断线程"><span class="toc-text">interrupt()+InterruptedException中断线程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#interrupt-isInterrupted-中断线程"><span class="toc-text">interrupt()+isInterrupted()中断线程</span></a></li></ol>
     </div>
   </section>
 

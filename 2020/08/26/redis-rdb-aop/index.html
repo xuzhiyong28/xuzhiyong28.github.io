@@ -469,17 +469,52 @@
 <span class="token attr-name">appendfsync</span> <span class="token attr-value">everysec #每秒钟同步一次，该策略为AOF的缺省策略。</span></code></pre>
 <h3 id="bgrewriteaof重写"><a href="#bgrewriteaof重写" class="headerlink" title="bgrewriteaof重写"></a>bgrewriteaof重写</h3><p><img src="/2020/08/26/redis-rdb-aop/2.png" alt></p>
 <ol>
-<li>执行bgrewritedaof进行重写</li>
-<li>子进程对当前内存中的数据进行遍历，转换成一系列的redis操作指令，并序列化到一个新的AOF日志中</li>
-<li>对于所有新执行的写入命令，父进程一边将它们累积到一个内存缓存中，一边将这些改动追加到现有 AOF 文件的末尾： 这样即使在重写的中途发生停机，现有的 AOF 文件也还是安全的</li>
-<li>当子进程完成重写工作时，它给父进程发送一个信号，父进程在接收到信号之后，将内存缓存中的所有数据追加到新 AOF 文件的末尾</li>
+<li>开始bgrewriteaof，判断当前有没有bgsave命令(RDB持久化)/bgrewriteaof在执行，倘若有，则这些命令执行完成以后再执行。</li>
+<li>主进程fork出子进程，在这一个短暂的时间内，redis是阻塞的。</li>
+<li>主进程fork完子进程继续接受客户端请求，所有写命令依然写入AOF文件缓冲区并根据appendfsync策略同步到磁盘，保证原有AOF文件完整和正确。由于fork的子进程仅仅只共享主进程fork时的内存，因此Redis使用采用重写缓冲区(aof_rewrite_buf)机制保存fork之后的客户端的写请求，防止新AOF文件生成期间丢失这部分数据。此时，客户端的写请求不仅仅写入原来aof_buf缓冲，还写入重写缓冲区(aof_rewrite_buf)。</li>
+<li>子进程通过内存快照，按照命令重写策略写入到新的AOF文件。<ul>
+<li>子进程写完新的AOF文件后，向主进程发信号，父进程更新统计信息。</li>
+<li>主进程把aof_rewrite_buf中的数据写入到新的AOF文件。</li>
+</ul>
+</li>
+<li>使用新的AOF文件覆盖旧的AOF文件，标志AOF重写完成。</li>
 </ol>
+<p>可以看出整个重写过程是安全的。因为 Redis 重写是创建新 AOF 文件，重写的过程中会继续将命令追加到现有旧的 AOF 文件里面，即使重写过程中发生停机，现有旧的 AOF 文件也不会丢失。 而一旦新 AOF 文件创建完毕，Redis 就会从旧 AOF 文件切换到新 AOF 文件，并开始对新 AOF 文件进行追加操作。</p>
+<p><strong>AOF重写机制的触发条件</strong>：</p>
+<ul>
+<li>手动触发：客户端执行bgrewriteaof命令。</li>
+<li>自动触发：自动触发通过以下两个配置协作生效，auto-aof-rewrite-min-size 和 auto-aof-rewrite-percentage</li>
+</ul>
+<pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true">#AOF文件最小重写大小，只有当AOF文件大小大于该值时候才可能重写，4.0默认配置64mb</span>
+<span class="token attr-name">auto-aof-rewrite-min-size</span> <span class="token attr-value">64mb</span>
+<span class="token comment" spellcheck="true">#当前AOF文件大小和最后一次重写后的大小之间的比率等于或者等于指定的增长百分比，</span>
+<span class="token comment" spellcheck="true">#如100代表当前AOF文件是上次重写的两倍时候才重写</span>
+<span class="token attr-name">auto-aof-rewrite-percentage</span> <span class="token attr-value">100</span></code></pre>
 <h3 id="优缺点-1"><a href="#优缺点-1" class="headerlink" title="优缺点"></a>优缺点</h3><ul>
 <li>速度快，秒级持久化。恢复数据时能实现全部数据恢复。</li>
 <li>AOF 文件的体积通常要大于 RDB 文件的体积。</li>
 <li>恢复速速慢。</li>
 </ul>
-<h2 id="混合持久化"><a href="#混合持久化" class="headerlink" title="混合持久化"></a>混合持久化</h2><p>xxx</p>
+<h3 id="启动时优先使用AOF恢复"><a href="#启动时优先使用AOF恢复" class="headerlink" title="启动时优先使用AOF恢复"></a>启动时优先使用AOF恢复</h3><p><img src="/2020/08/26/redis-rdb-aop/3.png" alt></p>
+<h2 id="混合持久化"><a href="#混合持久化" class="headerlink" title="混合持久化"></a>混合持久化</h2><p>混合持久化是Redis 4.0才有的功能。混合持久化同样也是通过bgrewriteaof完成的。</p>
+<p><strong>混合持久化过程</strong>：</p>
+<ol>
+<li>fork出的子进程先将共享的内存副本以RDB方式写入AOF文件。</li>
+<li>然后在将重写缓冲区的增量命令以AOF方式写入到文件。</li>
+<li>写入完成后通知主进程更新统计信息，并将新的AOF文件替换旧的的AOF文件。</li>
+</ol>
+<p>使用混合持久化后，Redis<font color="red">依然优先加载AOF文件</font>。可能有两种情况：</p>
+<ul>
+<li>AOF文件开头是RDB的格式，先加载RDB部分的内容，再加载剩余的AOF</li>
+<li>AOF文件开头不是RDB的格式，直接加载整个AOF文件</li>
+</ul>
+<p>混合持久化需要配置上确认是否开启</p>
+<pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true">#yes表示开启混合持久化</span>
+<span class="token attr-name">aof-use-rdb-preamble</span> <span class="token attr-value">yes</span></code></pre>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&amp;mid=2452965797&amp;idx=1&amp;sn=dc1cc6dad0d589148d5d6147705cfc38&amp;chksm=88ede4cdbf9a6ddb775e3861ce6fc9a50eefe2d00eed69877e5ecf9cef94a6342fecaa3979c2&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&amp;mid=2452965797&amp;idx=1&amp;sn=dc1cc6dad0d589148d5d6147705cfc38&amp;chksm=88ede4cdbf9a6ddb775e3861ce6fc9a50eefe2d00eed69877e5ecf9cef94a6342fecaa3979c2&amp;scene=21#wechat_redirect</a></li>
+<li><a href="https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&amp;mid=2452965876&amp;idx=1&amp;sn=8e652ab31b628af89b275cf8f25544ef&amp;chksm=88ede49cbf9a6d8a10231e1dde14976a6cfdfd08778783bfede076c935158895fa99159ec754&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&amp;mid=2452965876&amp;idx=1&amp;sn=8e652ab31b628af89b275cf8f25544ef&amp;chksm=88ede49cbf9a6d8a10231e1dde14976a6cfdfd08778783bfede076c935158895fa99159ec754&amp;scene=21#wechat_redirect</a></li>
+</ul>
 
           
             <div class='article_footer'>
@@ -572,10 +607,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-26T17:41:37+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-27T09:32:28+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 26, 2020</p>
+    <p>更新于：Aug 27, 2020</p>
   </a>
 </div>
 
@@ -603,6 +638,12 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/2020/08/27/thread-interrupted/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>java并发之中断详解</p>
+                <p class='content'>概述java中提供了多种方式来实现线程的中断。本文通过列举其中的方式。并对方法interrupt()，Thread.interrupt()，isInterrupted()进行区分。
+中断方法分析...</p>
+              </a>
             
             
               <a class='next' href='/2020/08/20/redis-master-slave/'>
@@ -681,7 +722,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis两种持久化方案"><span class="toc-text">Redis两种持久化方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB持久化"><span class="toc-text">RDB持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB介绍和使用"><span class="toc-text">RDB介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgsave方式持久化"><span class="toc-text">bgsave方式持久化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点"><span class="toc-text">优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF持久化"><span class="toc-text">AOF持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF介绍和使用"><span class="toc-text">AOF介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgrewriteaof重写"><span class="toc-text">bgrewriteaof重写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点-1"><span class="toc-text">优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合持久化"><span class="toc-text">混合持久化</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis两种持久化方案"><span class="toc-text">Redis两种持久化方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB持久化"><span class="toc-text">RDB持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB介绍和使用"><span class="toc-text">RDB介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgsave方式持久化"><span class="toc-text">bgsave方式持久化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点"><span class="toc-text">优缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF持久化"><span class="toc-text">AOF持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF介绍和使用"><span class="toc-text">AOF介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgrewriteaof重写"><span class="toc-text">bgrewriteaof重写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点-1"><span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动时优先使用AOF恢复"><span class="toc-text">启动时优先使用AOF恢复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合持久化"><span class="toc-text">混合持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 
