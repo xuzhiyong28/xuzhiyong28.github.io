@@ -858,7 +858,74 @@
         executorService<span class="token punctuation">.</span><span class="token function">awaitTermination</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span>TimeUnit<span class="token punctuation">.</span>MINUTES<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span></code></pre>
 <h2 id="Curator提供的分布式锁"><a href="#Curator提供的分布式锁" class="headerlink" title="Curator提供的分布式锁"></a>Curator提供的分布式锁</h2><p>Curator是Zookeeper的一个工具类，他为我们提供了简便好用的分布式锁工具。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<ul>
+<li>InterProcessMutex：分布式可重入排它锁</li>
+<li>InterProcessSemaphoreMutex：分布式排它锁</li>
+<li>InterProcessReadWriteLock：分布式读写锁</li>
+<li>InterProcessMultiLock：将多个锁作为单个实体管理的容器</li>
+</ul>
+<h3 id="不可重入锁—-InterProcessSemaphoreMutex"><a href="#不可重入锁—-InterProcessSemaphoreMutex" class="headerlink" title="不可重入锁—  InterProcessSemaphoreMutex"></a>不可重入锁—  InterProcessSemaphoreMutex</h3><p>InterProcessSemaphoreMutex是一种不可重入的互斥锁，也就意味着即使是同一个线程也无法在持有锁的情况下再次获得锁，所以需要注意，不可重入的锁很容易在一些情况导致死锁。</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">curtorLock001</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> InterruptedException <span class="token punctuation">{</span>
+    ExecutorService executorService <span class="token operator">=</span> Executors<span class="token punctuation">.</span><span class="token function">newFixedThreadPool</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        executorService<span class="token punctuation">.</span><span class="token function">submit</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Runnable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                CuratorFramework cf <span class="token operator">=</span> CuratorFrameworkFactory<span class="token punctuation">.</span><span class="token function">newClient</span><span class="token punctuation">(</span><span class="token string">"localhost:2181"</span><span class="token punctuation">,</span><span class="token keyword">new</span> <span class="token class-name">ExponentialBackoffRetry</span><span class="token punctuation">(</span><span class="token number">2000</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                InterProcessLock lock <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">InterProcessSemaphoreMutex</span><span class="token punctuation">(</span>cf<span class="token punctuation">,</span> <span class="token string">"/curator/lock"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">try</span><span class="token punctuation">{</span>
+                    cf<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    lock<span class="token punctuation">.</span><span class="token function">acquire</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">//只能调用一次，不可重入</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"做事ing"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    TimeUnit<span class="token punctuation">.</span>SECONDS<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token keyword">finally</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                        lock<span class="token punctuation">.</span><span class="token function">release</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    executorService<span class="token punctuation">.</span><span class="token function">awaitTermination</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span>TimeUnit<span class="token punctuation">.</span>MINUTES<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="可重入锁—-InterProcessMutex"><a href="#可重入锁—-InterProcessMutex" class="headerlink" title="可重入锁—  InterProcessMutex"></a>可重入锁—  InterProcessMutex</h3><p>此锁可以重入，但是重入几次需要释放几次。</p>
+<p>InterProcessMutex通过在zookeeper的某路径节点下创建临时序列节点来实现分布式锁，即每个线程（跨进程的线程）获取同一把锁前，都需要在同样的路径下创建一个节点，节点名字由uuid + 递增序列组成。而通过对比自身的序列数是否在所有子节点的第一位，来判断是否成功获取到了锁。当获取锁失败时，它会添加watcher来监听前一个节点的变动情况，然后进行等待状态。直到watcher的事件生效将自己唤醒，或者超时时间异常返回。</p>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">curtorLock002</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> InterruptedException <span class="token punctuation">{</span>
+    ExecutorService executorService <span class="token operator">=</span> Executors<span class="token punctuation">.</span><span class="token function">newFixedThreadPool</span><span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span> <span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
+        executorService<span class="token punctuation">.</span><span class="token function">submit</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Runnable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token annotation punctuation">@Override</span>
+            <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">run</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                CuratorFramework cf <span class="token operator">=</span> CuratorFrameworkFactory<span class="token punctuation">.</span><span class="token function">newClient</span><span class="token punctuation">(</span><span class="token string">"localhost:2181"</span><span class="token punctuation">,</span><span class="token keyword">new</span> <span class="token class-name">ExponentialBackoffRetry</span><span class="token punctuation">(</span><span class="token number">2000</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                InterProcessLock lock <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">InterProcessMutex</span><span class="token punctuation">(</span>cf<span class="token punctuation">,</span> <span class="token string">"/curator/lock"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token keyword">try</span><span class="token punctuation">{</span>
+                    cf<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    lock<span class="token punctuation">.</span><span class="token function">acquire</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    lock<span class="token punctuation">.</span><span class="token function">acquire</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"做事ing"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    TimeUnit<span class="token punctuation">.</span>SECONDS<span class="token punctuation">.</span><span class="token function">sleep</span><span class="token punctuation">(</span><span class="token number">5</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span><span class="token punctuation">{</span>
+                    e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span><span class="token keyword">finally</span> <span class="token punctuation">{</span>
+                    <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                        lock<span class="token punctuation">.</span><span class="token function">release</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                        lock<span class="token punctuation">.</span><span class="token function">release</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                        e<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    <span class="token punctuation">}</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    executorService<span class="token punctuation">.</span><span class="token function">awaitTermination</span><span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">,</span>TimeUnit<span class="token punctuation">.</span>MINUTES<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<h3 id="可重入读写锁-—-InterProcessReadWriteLock"><a href="#可重入读写锁-—-InterProcessReadWriteLock" class="headerlink" title="可重入读写锁 — InterProcessReadWriteLock"></a>可重入读写锁 — InterProcessReadWriteLock</h3><h3 id="多个锁—-InterProcessMultiLock"><a href="#多个锁—-InterProcessMultiLock" class="headerlink" title="多个锁— InterProcessMultiLock"></a>多个锁— InterProcessMultiLock</h3><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a href="https://www.jianshu.com/p/6e20e65f301a" target="_blank" rel="noopener">https://www.jianshu.com/p/6e20e65f301a</a></li>
 <li><a href="http://www.tianxiaobo.com/2018/01/20/%E5%9F%BA%E4%BA%8E-Zookeeper-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/" target="_blank" rel="noopener">http://www.tianxiaobo.com/2018/01/20/%E5%9F%BA%E4%BA%8E-Zookeeper-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</a></li>
 <li><a href="https://www.jianshu.com/p/7fe495c93290" target="_blank" rel="noopener">https://www.jianshu.com/p/7fe495c93290</a></li>
@@ -955,10 +1022,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-29T15:00:07+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-30T09:27:20+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 29, 2020</p>
+    <p>更新于：Aug 30, 2020</p>
   </a>
 </div>
 
@@ -986,6 +1053,15 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/2020/08/30/mysql-mvcc/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>MySQL事务隔离级别原理和MVCC详解</p>
+                <p class='content'>事务概述先定义一个表，方便后面说明。
+CREATE    TABLE hero(
+       number    INT,
+       name    VARCHAR(100),
+     ...</p>
+              </a>
             
             
               <a class='next' href='/2020/08/27/thread-interrupted/'>
@@ -1062,7 +1138,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是分布式锁"><span class="toc-text">什么是分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式非公平分布式锁"><span class="toc-text">独占式非公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例"><span class="toc-text">代码实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缺点"><span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式公平分布式锁"><span class="toc-text">独占式公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述-1"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例-1"><span class="toc-text">代码实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Curator提供的分布式锁"><span class="toc-text">Curator提供的分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是分布式锁"><span class="toc-text">什么是分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式非公平分布式锁"><span class="toc-text">独占式非公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例"><span class="toc-text">代码实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缺点"><span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式公平分布式锁"><span class="toc-text">独占式公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述-1"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例-1"><span class="toc-text">代码实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Curator提供的分布式锁"><span class="toc-text">Curator提供的分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不可重入锁—-InterProcessSemaphoreMutex"><span class="toc-text">不可重入锁—  InterProcessSemaphoreMutex</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重入锁—-InterProcessMutex"><span class="toc-text">可重入锁—  InterProcessMutex</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重入读写锁-—-InterProcessReadWriteLock"><span class="toc-text">可重入读写锁 — InterProcessReadWriteLock</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多个锁—-InterProcessMultiLock"><span class="toc-text">多个锁— InterProcessMultiLock</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 
