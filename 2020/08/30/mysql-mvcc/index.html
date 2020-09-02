@@ -855,6 +855,7 @@
 <li>使用串行化读的隔离级别</li>
 <li>MVCC+next-key locks：next-key locks由record locks(索引加锁) 和 gap locks(间隙锁，每次锁住的不光是需要使用的数据，还会锁住这些数据附近的数据)</li>
 </ul>
+<p>所谓的next-key locks是记录锁加间隙(gap)锁的组合。只在REPEATABLE READ或以上的隔离级别下的特定操作才会取得gap lock或nextkey lock。</p>
 <p>实际上很多的项目中是不会使用到上面的两种方法的，串行化读的性能太差，而且其实幻读很多时候是我们完全可以接受的。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
 <li>MVCC（多版本并发控制）指的就是在使⽤ READ COMMITTD （读提交）、 REPEATABLE READ（可重复读）这两种隔离级别的事务在执⾏普通的 SEELCT 操作时访问记录的版本链的过程，这样⼦可以使不同事务的 读-写 、 写-读 操作并发执⾏，从⽽提升系统性能。</li>
@@ -954,7 +955,7 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-31T11:10:18+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-31T16:34:01+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Aug 31, 2020</p>
@@ -985,6 +986,13 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/2020/09/01/redis-cluster-build/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Redis5.0集群搭建和水平扩展（一）</p>
+                <p class='content'>概述redis集群是一个由多个主从节点群组成的分布式服务器群，它具有复制、高可用和分片特性。总结来说他的特点和好处包括：
+
+Redis的集群方式是无中心化的集群，每个KEY通过 虚拟槽分区算法 ...</p>
+              </a>
             
             
               <a class='next' href='/2020/08/27/zookeeper-lock/'>

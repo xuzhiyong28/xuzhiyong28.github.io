@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Redis5.0集群搭建和水平扩展（二） - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="redis">
+  
+  
+    <meta name="description" content="详解Redis5.0集群搭建和水平扩展">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2020/09/02/redis-cluster-build-2/">
+      Redis5.0集群搭建和水平扩展（二）
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/redis/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>redis</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Sep 2, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h2 id="Redis5-0集群水平扩展"><a href="#Redis5-0集群水平扩展" class="headerlink" title="Redis5.0集群水平扩展"></a>Redis5.0集群水平扩展</h2><p>上节介绍了集群的搭建，这节开始详解水平扩展。假设现在由于资源使用情况，我们需要增加一组主从（9857、9858）加入到集群中。</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/2.png" alt></p>
+<p>当前Redis集群情况如下，</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/1.png" alt></p>
+<ul>
+<li>槽（0 - 5460）           主：10.8.198.152:9851 从：  10.8.198.152.9856</li>
+<li>槽（5461 - 10922）   主：10.8.198.152:9852 从：  10.8.198.152.9854</li>
+<li>槽（10923 - 16381） 主：10.8.198.152:9853 从：  10.8.198.152.9855</li>
+</ul>
+<h3 id="增加9857、9858实例"><a href="#增加9857、9858实例" class="headerlink" title="增加9857、9858实例"></a><strong>增加9857、9858实例</strong></h3><p>新增两个目录并修改其配置文件，如何修改参照上一篇文章。此时启动9857、9858后还没有加入到集群中。</p>
+<pre><code>[root@Slave3 redis]# mkdir 9857
+[root@Slave3 redis]# mkdir 9858
+[root@Slave3 redis]# cp /etc/redis/9851/redis.conf /etc/redis/9857/
+[root@Slave3 redis]# cp /etc/redis/9851/redis.conf /etc/redis/9858/
+##修改9857、9858配置文件，并启动
+[root@Slave3 redis]# redis-server /etc/redis/9857/redis.conf
+[root@Slave3 redis]# redis-server /etc/redis/9858/redis.conf</code></pre><h3 id="配置9857为集群主节点"><a href="#配置9857为集群主节点" class="headerlink" title="配置9857为集群主节点"></a><strong>配置9857为集群主节点</strong></h3><pre><code>redis-cli --cluster add-node 10.8.198.152:9857 10.8.198.152:9851</code></pre><p><img src="/2020/09/02/redis-cluster-build-2/3.png" alt></p>
+<h3 id="为9857分配槽-空槽道迁移"><a href="#为9857分配槽-空槽道迁移" class="headerlink" title="为9857分配槽(空槽道迁移)"></a><strong>为9857分配槽(空槽道迁移)</strong></h3><h4 id="方案1"><a href="#方案1" class="headerlink" title="方案1"></a><strong>方案1</strong></h4><p>上面我们将9857加入到集群后还没分配槽，此时9857还没有作用。接下去需要为其分配槽。原来我们3个master已经将槽分配完了，此时加入一个新maser则需要将其中一台master的槽进行拆分。</p>
+<p><strong>重新分配集群上的槽给9857</strong></p>
+<pre><code>redis-cli --cluster reshard 10.8.198.152:9851</code></pre><p><img src="/2020/09/02/redis-cluster-build-2/4.png" alt></p>
+<p>此时会询问<strong>分出多少槽出来？分给哪个节点？</strong> 我们按照提示输入。<br>接下去会询问我们分配槽的方式，有两种方式</p>
+<ul>
+<li>all，以将所有节点用作散列槽的源节点</li>
+<li>done，选择从哪个节点上拿出来节点</li>
+</ul>
+<p>all是随机的，比如说我们要分出1000个，则3个主节点分别拿出333个，333个，334个节点分别9857，这里我们选择done，从9857拿1000个给9857。</p>
+<h4 id="方案2"><a href="#方案2" class="headerlink" title="方案2"></a><strong>方案2</strong></h4><p><font color="red">这种方案相对与上一种方案有缺陷，他只能迁移一个槽</font></p>
+<pre><code>redis-cli --cluster add-node 10.8.198.152:9857 10.8.198.152:9851</code></pre><p><img src="/2020/09/02/redis-cluster-build-2/3.png" alt></p>
+<p>（1）先登录9851查看下要迁移的槽上有没有存了KEY，没有才能迁移</p>
+<pre><code>#cluster getkeysinslot 槽道号 查找范围
+10.8.198.152:9851&gt;cluster getkeysinslot 1000 2000
+(empty list or set)</code></pre><p>（2）登录需要导入的节点9857，执行命令cluster setslot 槽道号 importing 源节点id，将9857节点上1000槽道的状态变更为importing</p>
+<pre><code>10.8.198.152:9857&gt;cluster setslot 1000 importing 419ff0823f0ff4cfb1ffc4c002665ad077911cc2</code></pre><p><img src="/2020/09/02/redis-cluster-build-2/8.png" alt></p>
+<p>（3）登录需要导出的节点9851，执行命令cluster setslot 槽道号 migrating 目标节点id，将9851节点上的460槽道的状态变更为migrating。</p>
+<pre><code>10.8.198.152:9851&gt;cluster setslot 1000 migrating 5e2af503c816eeff7ed2cfb2249f0ceb1f5306da</code></pre><p><img src="/2020/09/02/redis-cluster-build-2/9.png" alt></p>
+<p>（4）通知进行迁移的两个节点槽道迁移了，使用命令<strong>cluster setslot 槽道号 node 迁入节点id</strong>，需要在两个节点上均进行操作。槽号1000就被迁移了。</p>
+<pre><code># 迁出节点9851上执行命令，后面跟的id为迁入节点的id
+[root@Slave3 redis]# redis-cli -p 9851 -h 10.8.198.152
+10.8.198.152:9851&gt; cluster setslot 1000 node 5e2af503c816eeff7ed2cfb2249f0ceb1f5306da
+OK
+#迁入节点9857上执行命令，后面跟的id为迁入节点的id
+[root@Slave3 redis]# redis-cli -p 9857 -h 10.8.198.152
+10.8.198.152:9857&gt; cluster setslot 1000 node 5e2af503c816eeff7ed2cfb2249f0ceb1f5306da
+OK
+10.8.198.152:9857&gt; cluster nodes
+f08cdba85763f71de3a1cbac8a45962594ab09aa 10.8.198.152:9852@19852 master - 0 1599038877000 2 connected 5461-10922
+b8cc9aeca57e1332b6f42b7e183cce686033c2d6 10.8.198.152:9854@19854 slave 419ff0823f0ff4cfb1ffc4c002665ad077911cc2 0 1599038878000 1 connected
+286fe16d33dbbafa9f13e9a11d4351c37e085155 10.8.198.152:9853@19853 master - 0 1599038879000 3 connected 10923-16383
+af6115f83a145c63a75916608084712f96d44c34 10.8.198.152:9855@19855 slave f08cdba85763f71de3a1cbac8a45962594ab09aa 0 1599038879489 2 connected
+5e2af503c816eeff7ed2cfb2249f0ceb1f5306da 10.8.198.152:9857@19857 myself,master - 0 1599038878000 7 connected 1000
+14901a2ff5242f302103bbca4bfa6e2dade0a95b 10.8.198.152:9856@19856 slave 286fe16d33dbbafa9f13e9a11d4351c37e085155 0 1599038880000 3 connected
+419ff0823f0ff4cfb1ffc4c002665ad077911cc2 10.8.198.152:9851@19851 master - 0 1599038880492 1 connected 0-999 1001-5460</code></pre><h3 id="为9857分配槽-非空槽道迁移"><a href="#为9857分配槽-非空槽道迁移" class="headerlink" title="为9857分配槽(非空槽道迁移)"></a><strong>为9857分配槽(非空槽道迁移)</strong></h3><p><font color="red">正常情况下，到这一步应该要将9851上的1000个槽分配给9857成功，但是由于我们9851上要转移的槽上有存了key了导致我们转移失败。</font></p>
+<p><img src="/2020/09/02/redis-cluster-build-2/5.png" alt="当转移2号槽时失败"></p>
+<h4 id="解决方案1"><a href="#解决方案1" class="headerlink" title="解决方案1"></a><strong>解决方案1</strong></h4><p>解决方法：</p>
+<ol>
+<li>删除节点9851上的所有key，可以使用flushdb</li>
+<li>执行 redis-cli --cluster fix 10.8.198.152:9851 修复节点</li>
+<li>重新从 redis-cli --cluster reshard 10.8.198.152.9851 命令重新分配槽</li>
+</ol>
+<h4 id="解决方案2"><a href="#解决方案2" class="headerlink" title="解决方案2"></a><strong>解决方案2</strong></h4><p>假设要迁移9851上的槽654到9857</p>
+<p>首先先保证9857加入到集群了</p>
+<pre><code> redis-cli --cluster add-node 10.8.198.152：9857 10.8.198.152：9851</code></pre><p>当前cluster nodes信息</p>
+<pre><code>10.8.198.152:9851&gt; cluster nodes
+5bc658cd4d8cc35097e0a79e140069262161b827 10.8.198.152:9855@19855 slave bb3900b30983e0b41ed48ffe4be0e2d52b4d89b4 0 1599040212180 5 connected
+a26317d89a7b09c0c9d77139cd8be94588c9b127 10.8.198.152:9853@19853 master - 0 1599040210000 3 connected 10923-16383
+bb3900b30983e0b41ed48ffe4be0e2d52b4d89b4 10.8.198.152:9852@19852 master - 0 1599040210175 2 connected 5461-10922
+1f797b67ba0ae4966610d8596431980f5cce4858 10.8.198.152:9854@19854 slave 5015fbe7c523681a59e13f86f0ddc27b1ac542f8 0 1599040212000 4 connected
+5015fbe7c523681a59e13f86f0ddc27b1ac542f8 10.8.198.152:9851@19851 myself,master - 0 1599040211000 1 connected 0-5460
+0a286334e831f426de9e30c7990cffb40a1e4102 10.8.198.152:9857@19857 master - 0 1599040211000 0 connected
+150ef7fd331f57f3d11e8b2372ba991c41c850d7 10.8.198.152:9856@19856 slave a26317d89a7b09c0c9d77139cd8be94588c9b127 0 1599040213182 6 connected</code></pre><p>（1）检查654槽是否有数据</p>
+<pre><code>#cluster getkeysinslot 槽道号 查找范围
+[root@Slave3 redis]# redis-cli -p 9851 -h 10.8.198.152
+10.8.198.152:9851&gt; cluster getkeysinslot 654 2000
+1) &quot;\xac\xed\x00\x05t\x00\tkey_45618&quot;</code></pre><p>（2）登录需要导入的节点9857，执行命令cluster setslot 槽道号 importing 源节点id，将8000节点上654槽道的状态变更为importing。</p>
+<pre><code>[root@Slave3 redis]# redis-cli -p 9857 -h 10.8.198.152
+10.8.198.152:9857&gt; cluster setslot 654 importing 5015fbe7c523681a59e13f86f0ddc27b1ac542f8
+OK</code></pre><p>（3）登录需要导出的节点9851，执行命令cluster setslot 槽道号 migrating 目标节点id，将9851节点上的654槽道的状态变更为migrating。</p>
+<pre><code>[root@Slave3 redis]# redis-cli -p 9851 -h 10.8.198.152
+10.8.198.152:9851&gt; cluster setslot 654 migrating 0a286334e831f426de9e30c7990cffb40a1e4102
+OK</code></pre><p>（4）<strong>登录源节点9851</strong>，将741槽道对应的数据（一个个的key-value），以及槽道保存key信息的map（{槽道号:[age,…]}），一并迁入到9857节点，使用如下命令完成。</p>
+<ul>
+<li>host：目标Redis的IP地址</li>
+<li>port：目标Redis的端口</li>
+<li>key|””：Redis 3.0.6 后如果需要迁移多个键，此处为空字符串””</li>
+<li>destination-db：目标Redis的数据库索引</li>
+<li>timeout：迁移的超时时间（单位为毫秒）</li>
+<li>copy：如果添加此选项后，迁移后不删除源键。</li>
+<li>replace：如果添加此选项<code>migrate</code>不管目标Redis是否存在该键都会正常迁移进行数据覆盖</li>
+<li>keys：如果要删除多个建，填写<code>keys key1 key2 key3</code></li>
+</ul>
+<pre><code>10.8.198.152:9851&gt; migrate 10.8.198.152 9857 &quot;&quot; 0 1000 keys &quot;\xac\xed\x00\x05t\x00\tkey_45618&quot;
+OK</code></pre><p>（5）通知进行迁移的两个节点槽道迁移了，到了这一步这个和上面空槽道的迁移操作一样。</p>
+<pre><code>10.8.198.152:9851&gt; cluster setslot 654 node 0a286334e831f426de9e30c7990cffb40a1e4102
+OK
+10.8.198.152:9857&gt; cluster setslot 654 node 0a286334e831f426de9e30c7990cffb40a1e4102
+OK
+10.8.198.152:9857&gt; cluster nodes
+bb3900b30983e0b41ed48ffe4be0e2d52b4d89b4 10.8.198.152:9852@19852 master - 0 1599040905000 2 connected 5461-10922
+5bc658cd4d8cc35097e0a79e140069262161b827 10.8.198.152:9855@19855 slave bb3900b30983e0b41ed48ffe4be0e2d52b4d89b4 0 1599040909085 2 connected
+1f797b67ba0ae4966610d8596431980f5cce4858 10.8.198.152:9854@19854 slave 5015fbe7c523681a59e13f86f0ddc27b1ac542f8 0 1599040906000 1 connected
+a26317d89a7b09c0c9d77139cd8be94588c9b127 10.8.198.152:9853@19853 master - 0 1599040908083 3 connected 10923-16383
+5015fbe7c523681a59e13f86f0ddc27b1ac542f8 10.8.198.152:9851@19851 master - 0 1599040907082 1 connected 0-653 655-5460
+150ef7fd331f57f3d11e8b2372ba991c41c850d7 10.8.198.152:9856@19856 slave a26317d89a7b09c0c9d77139cd8be94588c9b127 0 1599040907000 3 connected
+0a286334e831f426de9e30c7990cffb40a1e4102 10.8.198.152:9857@19857 myself,master - 0 1599040907000 7 connected 654</code></pre><p><font color="red">这种方案其实是先保证了对应的槽上没有KEY了再进行迁移，如果有数据则需要通过migrate进行迁移。个人感觉太繁琐了。。。</font></p>
+<h3 id="为9857分配从节点9858"><a href="#为9857分配从节点9858" class="headerlink" title="为9857分配从节点9858"></a><strong>为9857分配从节点9858</strong></h3><p>此时9857上已经分配了槽，但是还没有为他分配从节点。我们需要将9858配置成9857的从节点</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/6.png" alt></p>
+<p>方法如下:</p>
+<p>将9858也加入到集群中。</p>
+<pre><code>redis-cli --cluster add-node 10.8.198.152:9858 10.8.198.152:9851</code></pre><p>登录9858客户端</p>
+<pre><code>redis-cli -p 9858 -h 10.8.198.152</code></pre><p>指定9858为9857的从节点</p>
+<pre><code>10.8.198.152:9858&gt; cluster replicate 9857的ID</code></pre><p>至此，扩容完成。</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/7.png" alt></p>
+<h2 id="小知识"><a href="#小知识" class="headerlink" title="小知识"></a>小知识</h2><h3 id="查看KEY在哪个槽上"><a href="#查看KEY在哪个槽上" class="headerlink" title="查看KEY在哪个槽上"></a>查看KEY在哪个槽上</h3><pre><code>10.8.198.152:9851&gt; cluster keyslot keyname</code></pre>
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/09/02/redis-cluster-build-2/>http://yoursite.com/2020/09/02/redis-cluster-build-2/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-02T18:06:38+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Sep 2, 2020</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/redis/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>redis</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+            
+              <a class='next' href='/2020/09/01/redis-cluster-build/'>
+                <p class='title'>Redis5.0集群搭建和水平扩展（一）<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>概述redis集群是一个由多个主从节点群组成的分布式服务器群，它具有复制、高可用和分片特性。总结来说他的特点和好处包括：
+
+Redis的集群方式是无中心化的集群，每个KEY通过 虚拟槽分区算法 ...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Redis5.0集群搭建和水平扩展（二）',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis5-0集群水平扩展"><span class="toc-text">Redis5.0集群水平扩展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#增加9857、9858实例"><span class="toc-text">增加9857、9858实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置9857为集群主节点"><span class="toc-text">配置9857为集群主节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为9857分配槽-空槽道迁移"><span class="toc-text">为9857分配槽(空槽道迁移)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#方案1"><span class="toc-text">方案1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方案2"><span class="toc-text">方案2</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为9857分配槽-非空槽道迁移"><span class="toc-text">为9857分配槽(非空槽道迁移)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方案1"><span class="toc-text">解决方案1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方案2"><span class="toc-text">解决方案2</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为9857分配从节点9858"><span class="toc-text">为9857分配从节点9858</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小知识"><span class="toc-text">小知识</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#查看KEY在哪个槽上"><span class="toc-text">查看KEY在哪个槽上</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
