@@ -477,7 +477,8 @@ redis-server /etc/redis/9855/redis.conf
 redis-server /etc/redis/9856/redis.conf</code></pre>
 <p><img src="/2020/09/01/redis-cluster-build/4.png" alt></p>
 <h3 id="配置集群"><a href="#配置集群" class="headerlink" title="配置集群"></a>配置集群</h3><p>Redis启动后，我们就可以开始配置集群，Redis高版本提供了–cluster命令可以很快速的的进行搭建和分槽</p>
-<pre><code>redis-cli --cluster create 10.8.198.152:9851 10.8.198.152:9852 10.8.198.152:9853 10.8.198.152:9854 10.8.198.152:9855 10.8.198.152:9856 --cluster-replicas 1</code></pre><p><img src="/2020/09/01/redis-cluster-build/5.png" alt></p>
+<pre class=" language-shell"><code class="language-shell">redis-cli --cluster create 10.8.198.152:9851 10.8.198.152:9852 10.8.198.152:9853 10.8.198.152:9854 10.8.198.152:9855 10.8.198.152:9856 --cluster-replicas 1</code></pre>
+<p><img src="/2020/09/01/redis-cluster-build/5.png" alt></p>
 <p>执行后，会打印出Master和Slave的信息并<strong>提示我们是否自动分槽</strong>，我们按照提示输入’YES’。</p>
 <p><font color="red">到这里。Redis集群搭建完成。</font></p>
 <p>我们可以通过如下这些命令查看集群信息。</p>
@@ -498,7 +499,8 @@ redis-server /etc/redis/9856/redis.conf</code></pre>
 <p>可以发现，值已经存入了主从机器上。</p>
 <p><strong>模拟9852机器宕机后是否能实现故障转移</strong></p>
 <p>通过命令杀掉9852机器</p>
-<pre><code>[root@Slave3 redis]# kill -9 PID(9852对应的PID)</code></pre><p><img src="/2020/09/01/redis-cluster-build/9.png" alt="9855成为新的master"></p>
+<pre class=" language-shell"><code class="language-shell">[root@Slave3 redis]# kill -9 PID(9852对应的PID)</code></pre>
+<p><img src="/2020/09/01/redis-cluster-build/9.png" alt="9855成为新的master"></p>
 <p>重新启动9852机器。</p>
 <p><img src="/2020/09/01/redis-cluster-build/10.png" alt="9852重新启动后成为9855的从服务器"></p>
 
@@ -593,10 +595,10 @@ redis-server /etc/redis/9856/redis.conf</code></pre>
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-02T11:11:17+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-03T09:21:28+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 2, 2020</p>
+    <p>更新于：Sep 3, 2020</p>
   </a>
 </div>
 
