@@ -523,6 +523,7 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
 <li>优化网络</li>
 <li>业务上防止统一时间点大量更新操作</li>
 <li>修改binlog配置sync_binlog，innodb_flush_log_at_trx_commit (redo日志)</li>
+<li>使用混合模式复制的方式，通过binlog-format配置。项目上作者使用的是行模式，行模式的有点是能保证主从完全一致，但速度会比较慢。具体可以参考《<a href="https://www.cnblogs.com/xingyunfashi/p/8431780.html" target="_blank" rel="noopener">MYSQL中BINLOG_FORMAT的三种模式</a>》</li>
 </ul>
 <h3 id="sync-binlog"><a href="#sync-binlog" class="headerlink" title="sync_binlog"></a>sync_binlog</h3><ul>
 <li><p>sync_binlog = 0 ，表示MySQL不控制binlog的刷新，由文件系统自己控制它的缓存的刷新</p>
@@ -627,10 +628,10 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-20T09:05:54+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-10T11:32:52+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 20, 2020</p>
+    <p>更新于：Sep 10, 2020</p>
   </a>
 </div>
 
