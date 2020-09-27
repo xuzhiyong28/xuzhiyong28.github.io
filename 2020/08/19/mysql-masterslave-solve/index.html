@@ -438,6 +438,14 @@
 <li>从库执行大型的query语句导致锁表，从而导致执行同步过来的DDL语句延迟</li>
 <li>从库机器性能原因</li>
 </ul>
+<p>线上常见的事例：</p>
+<ul>
+<li>主机执行了大事务，例如在一个事务中通过delete操作删除了100w的数据，从机大概率会出现同步延迟</li>
+<li>主机执行了大量操作，比如主机的QPS从100升到1000，从机可能就会同步延迟</li>
+<li>从机上执行了耗时的操作，比如进行了OLAP【一种数据处理技bai术，专门设计用于支持复杂的分du析操作】查询，占用大量机器资源导致同步延迟</li>
+<li>从机上执行的操作长时间占用锁资源，导致同步操作等待，进而产生同步延迟</li>
+<li>从机配置不如主机，或者配置相同但数据库安装在错误的磁盘上，常见于主机数据库运行在SSD硬盘上，从机没有SSD硬盘或者从机数据库不在SSD硬盘上导致同步延迟</li>
+</ul>
 <p>个人觉得是<font color="red">主库单位时间内产生DDL数量超过从库所能执行的范围</font>这个原因比较大。所以从这开始排查。</p>
 <h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><p>首先登录从库查看</p>
 <pre><code>mysql -h 从库IP -u 用户名 -p密码 -P 端口</code></pre><pre><code>#执行查看主从同步情况
@@ -628,10 +636,10 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-10T11:32:52+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-24T10:01:22+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 10, 2020</p>
+    <p>更新于：Sep 24, 2020</p>
   </a>
 </div>
 

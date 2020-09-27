@@ -501,6 +501,52 @@
 <li>EventListenerMethodProcessor</li>
 <li>DefaultEventListenerFactory</li>
 </ul>
+<h3 id="ApplicationContextAwareProcessor"><a href="#ApplicationContextAwareProcessor" class="headerlink" title="ApplicationContextAwareProcessor"></a>ApplicationContextAwareProcessor</h3><p>ApplicationContextAwareProcessor是Spring启动后自动加载进去的后处理器。该类本身并没有扩展点，但是该类内部却有6个扩展点可供实现 ，这些类触发的时机在bean实例化之后，初始化之前。例如我们常用的ApplicationContextAware（我们经常实现ApplicationContextAware类来编写SpringUtils工具类，用来getBean）。</p>
+<pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//ApplicationContextAwareProcessor类中postProcessBeforeInitialization方法中的执行逻辑</span>
+<span class="token keyword">private</span> <span class="token keyword">void</span> <span class="token function">invokeAwareInterfaces</span><span class="token punctuation">(</span>Object bean<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bean <span class="token keyword">instanceof</span> <span class="token class-name">EnvironmentAware</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>EnvironmentAware<span class="token punctuation">)</span> bean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setEnvironment</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>applicationContext<span class="token punctuation">.</span><span class="token function">getEnvironment</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bean <span class="token keyword">instanceof</span> <span class="token class-name">EmbeddedValueResolverAware</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>EmbeddedValueResolverAware<span class="token punctuation">)</span> bean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setEmbeddedValueResolver</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>embeddedValueResolver<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bean <span class="token keyword">instanceof</span> <span class="token class-name">ResourceLoaderAware</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>ResourceLoaderAware<span class="token punctuation">)</span> bean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setResourceLoader</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>applicationContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bean <span class="token keyword">instanceof</span> <span class="token class-name">ApplicationEventPublisherAware</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>ApplicationEventPublisherAware<span class="token punctuation">)</span> bean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setApplicationEventPublisher</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>applicationContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bean <span class="token keyword">instanceof</span> <span class="token class-name">MessageSourceAware</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>MessageSourceAware<span class="token punctuation">)</span> bean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setMessageSource</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>applicationContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token comment" spellcheck="true">//判断Bean中是否有实现ApplicationContextAware接口的类，如果有就将applicationContext赋值进去。</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>bean <span class="token keyword">instanceof</span> <span class="token class-name">ApplicationContextAware</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>ApplicationContextAware<span class="token punctuation">)</span> bean<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setApplicationContext</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span>applicationContext<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AppUtil</span> <span class="token keyword">implements</span> <span class="token class-name">ApplicationContextAware</span> <span class="token punctuation">{</span>
+    <span class="token keyword">private</span> <span class="token keyword">static</span> ApplicationContext applicationContext<span class="token punctuation">;</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">setApplicationContext</span><span class="token punctuation">(</span>ApplicationContext arg0<span class="token punctuation">)</span> <span class="token keyword">throws</span> BeansException <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//将ApplicationContext保存在静态变量中，后面就可以直接获取到spring上下文了。</span>
+        applicationContext <span class="token operator">=</span> arg0<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> Object <span class="token function">getBean</span><span class="token punctuation">(</span>String id<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        Object object <span class="token operator">=</span> null<span class="token punctuation">;</span>
+        object <span class="token operator">=</span> applicationContext<span class="token punctuation">.</span><span class="token function">getBean</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">return</span> object<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<ul>
+<li>EnvironmentAware，用于获取EnviromentAware的一个扩展类，这个变量非常有用， 可以获得系统内的所有参数。</li>
+<li>EmbeddedValueResolverAware，用于获取StringValueResolver的一个扩展类， StringValueResolver用于获取基于String类型的properties的变量，一般我们都用@Value的方式去获取。</li>
+<li>ResourceLoaderAware，用于获取ResourceLoader的一个扩展类，ResourceLoader可以用于获取classpath内所有的资源对象，可以扩展此类来拿到ResourceLoader对象。</li>
+<li>ApplicationEventPublisherAware，用于获取ApplicationEventPublisher的一个扩展类。</li>
+<li>MessageSourceAware，用于获取MessageSource的一个扩展类，MessageSource主要用来做国际化。</li>
+<li>ApplicationContextAware，用来获取ApplicationContext上下文的一个扩展类。</li>
+</ul>
 
           
             <div class='article_footer'>
@@ -593,10 +639,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-15T17:16:28+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-18T14:07:05+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 15, 2020</p>
+    <p>更新于：Sep 18, 2020</p>
   </a>
 </div>
 
@@ -624,6 +670,11 @@
         
         
           <div class="prev-next">
+            
+              <a class='prev' href='/2020/09/27/springboot-custom-start/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>SpringBoot自动配置原理和自定义起步依赖</p>
+                <p class='content'>概述SpringBoot采用了“习惯优于配置”的理念，没有了繁琐的配置，让我们开发起来变得更加快捷。例如我们需要在项目中使用Redis模块进行开发。只需要引入spring-boot-starte...</p>
+              </a>
             
             
               <a class='next' href='/2020/09/06/java-aqs/'>
@@ -699,7 +750,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanDefinitionRegistryPostProcessor"><span class="toc-text">BeanDefinitionRegistryPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanFactoryPostProcessor"><span class="toc-text">BeanFactoryPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InstantiationAwareBeanPostProcessor"><span class="toc-text">InstantiationAwareBeanPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SmartInstantiationAwareBeanPostProcessor"><span class="toc-text">SmartInstantiationAwareBeanPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MergedBeanDefinitionPostProcessor"><span class="toc-text">MergedBeanDefinitionPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanFactoryAware"><span class="toc-text">BeanFactoryAware</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanNameAware"><span class="toc-text">BeanNameAware</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InitializingBean"><span class="toc-text">InitializingBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DisposableBean"><span class="toc-text">DisposableBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NamespaceHandler"><span class="toc-text">NamespaceHandler</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#正文"><span class="toc-text">正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanDefinitionRegistryPostProcessor"><span class="toc-text">BeanDefinitionRegistryPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanFactoryPostProcessor"><span class="toc-text">BeanFactoryPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InstantiationAwareBeanPostProcessor"><span class="toc-text">InstantiationAwareBeanPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SmartInstantiationAwareBeanPostProcessor"><span class="toc-text">SmartInstantiationAwareBeanPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MergedBeanDefinitionPostProcessor"><span class="toc-text">MergedBeanDefinitionPostProcessor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanFactoryAware"><span class="toc-text">BeanFactoryAware</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanNameAware"><span class="toc-text">BeanNameAware</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#InitializingBean"><span class="toc-text">InitializingBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DisposableBean"><span class="toc-text">DisposableBean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NamespaceHandler"><span class="toc-text">NamespaceHandler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ApplicationContextAwareProcessor"><span class="toc-text">ApplicationContextAwareProcessor</span></a></li></ol></li></ol>
     </div>
   </section>
 

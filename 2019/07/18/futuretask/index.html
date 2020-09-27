@@ -417,16 +417,23 @@
         <div class="article-entry" itemprop="articleBody">
           
           <h2 id="什么是Future、FutureTask"><a href="#什么是Future、FutureTask" class="headerlink" title="什么是Future、FutureTask"></a>什么是Future、FutureTask</h2><p>future在字面上表示未来的意思，在Java中一般通过继承Thread类或者实现Runnable接口这两种方式来创建多线程，但是这两种方式都有个缺陷，就是不能在执行完成后获取执行的结果。然而JDK提供了一种类似ajax的方式，允许提交任务后去做自己的事，在任务执行完成后可以获得执行的结果。总的来说就是实现”任务的提交”和”任务的执行”相分离。</p>
-<pre><code>@Test
-    public void test2() throws ExecutionException, InterruptedException {
-        FutureTask&lt;String&gt; futureTask = new FutureTask&lt;&gt;(() -&gt; {
-            TimeUnit.SECONDS.sleep(5);
-            return &quot;success&quot;;
-        });
-        futureTask.run();
-        System.out.println(&quot;=====做自己想做的其他事情====&quot;);
-        System.out.println(futureTask.get());
-    }</code></pre><h3 id="线程池使用FutureTask获取结果"><a href="#线程池使用FutureTask获取结果" class="headerlink" title="线程池使用FutureTask获取结果"></a>线程池使用FutureTask获取结果</h3><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
+<pre class=" language-java"><code class="language-java">    <span class="token annotation punctuation">@Test</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> ExecutionException<span class="token punctuation">,</span> InterruptedException <span class="token punctuation">{</span>
+        FutureTask<span class="token operator">&lt;</span>String<span class="token operator">></span> futureTask <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FutureTask</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span>
+            System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"!!!!"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">return</span> <span class="token string">"success"</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        Thread thread <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Thread</span><span class="token punctuation">(</span>futureTask<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        thread<span class="token punctuation">.</span><span class="token function">start</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">boolean</span> isDone <span class="token operator">=</span> futureTask<span class="token punctuation">.</span><span class="token function">isDone</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"isDone ="</span> <span class="token operator">+</span> isDone<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">long</span> l <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        futureTask<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"isDone ="</span> <span class="token operator">+</span> isDone<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"耗时 ="</span> <span class="token operator">+</span> <span class="token punctuation">(</span>System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> l<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">" ms"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span></code></pre>
+<h3 id="线程池使用FutureTask获取结果"><a href="#线程池使用FutureTask获取结果" class="headerlink" title="线程池使用FutureTask获取结果"></a>线程池使用FutureTask获取结果</h3><pre class=" language-java"><code class="language-java"><span class="token annotation punctuation">@Test</span>
 <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">{</span>
     ExecutorService es <span class="token operator">=</span> Executors<span class="token punctuation">.</span><span class="token function">newCachedThreadPool</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     List<span class="token operator">&lt;</span>Future<span class="token operator">&lt;</span>String<span class="token operator">>></span> futureList <span class="token operator">=</span> Lists<span class="token punctuation">.</span><span class="token function">newArrayList</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -781,10 +788,10 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T14:54:13+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-16T10:44:11+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 28, 2020</p>
+    <p>更新于：Sep 16, 2020</p>
   </a>
 </div>
 
@@ -813,15 +820,22 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/completable-future/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>CompletableFuture使用详解</p>
-                <p class='content'>CompletableFuture介绍CompletableFuture是JDK8新出来一种异步组合式编程。Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结...</p>
+              <a class='prev' href='/2019/07/18/mysql-index-use/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Mysql-InnoDB索引之索引使用和优化原则(二)</p>
+                <p class='content'>提出问题
+什么是回表？
+索引是不是可以无限建？
+什么是索引的最左匹配原则？
+什么是覆盖索引？
+如何建立高效的索引？
+
+索引的代价通过上文《Mysql-InnoDB索引之索引结构详解(一)》我们了...</p>
               </a>
             
             
-              <a class='next' href='/2019/07/18/design-pattern-singleton/'>
-                <p class='title'>设计模式之单例模式<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>单例模式概念单例模式(Singleton Pattern)：确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例，这个类称为单例类，它提供全局访问的方法。单例模式是一种对象创建型模式...</p>
+              <a class='next' href='/2019/07/18/completable-future/'>
+                <p class='title'>CompletableFuture使用详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>CompletableFuture介绍CompletableFuture是JDK8新出来一种异步组合式编程。Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结...</p>
               </a>
             
           </div>
