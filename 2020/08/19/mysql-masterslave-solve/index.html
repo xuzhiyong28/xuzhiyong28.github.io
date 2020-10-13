@@ -424,6 +424,13 @@
 <li>从库的I/O Thread去请求主库的binlog，并将得到的binlog日志写到relay log文件中；</li>
 <li>从库的SQL Thread会读取relay log文件中的日志解析成具体操作，将主库的DDL和DML操作事件重放。</li>
 </ol>
+<p><strong>详细过程</strong></p>
+<ol>
+<li>Slave上的IO进程连接到Master，并请求从指定日志文件的指定位置（或者从最开始的日志）之后的日志内容。</li>
+<li>Master接收到Slave的IO请求后，负责复制的进程会根据请求信息读取日志指定位置之后的日志信息，返回给Slave的IO进程。返回信息包括：<strong>日志信息</strong>，<strong>Master的binlog文件名</strong>，<strong>本次返回的binlog的位置</strong></li>
+<li>Slave的IO进程接收到信息后，将接收到的日志内容依次添加到Slave端的relay-log文件的最末端。并且<strong>将读取到的Master端的 bin-log的文件名和位置记录到master-info文件中</strong>。</li>
+<li>Slave的SQL进程检测到relay-log中新增加了内容后，会马上解析relay-log的内容成为在Master端真实执行时候的那些可执行的内容，并在自身执行。</li>
+</ol>
 <p>SQL语言共分为四大类：查询语言DQL，控制语言DCL，操纵语言DML，定义语言DD</p>
 <ul>
 <li>DQL：可以简单理解为SELECT语句；</li>
@@ -456,10 +463,11 @@ show slave status\G;
                   Master_Host: 主库IP
                   Master_User: repl_user
                   Master_Port: 主库端口
+                #重试时间，单位秒 默认60秒
                 Connect_Retry: 60
               #当前I/O线程正在读取的主服务器二进制日志文件的名称
               Master_Log_File: mysql-bin.000231
-          #当前I/O线程正在读取的二进制日志的位置
+          #同步读取二进制日志的位置，大于等于Exec_Master_Log_Pos
           Read_Master_Log_Pos: 211281725
                  #当前slave SQL线程正在读取并执行的relay log的文件名
                Relay_Log_File: mysql-relay-bin.000230
@@ -493,7 +501,8 @@ show slave status\G;
         Seconds_Behind_Master: 0
 Master_SSL_Verify_Server_Cert: No
                 Last_IO_Errno: 0
-                Last_IO_Error: 
+                Last_IO_Error:
+                #代表最后一个执行的sql出错的原因
                Last_SQL_Errno: 0
                Last_SQL_Error: 
   Replicate_Ignore_Server_Ids: 
@@ -544,6 +553,23 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
 <h3 id="innodb-flush-log-at-trx-commit"><a href="#innodb-flush-log-at-trx-commit" class="headerlink" title="innodb_flush_log_at_trx_commit"></a>innodb_flush_log_at_trx_commit</h3><p>0 ： 提交事务的时候，不立即把 redo log buffer 里的数据刷入磁盘文件的，而是依靠 InnoDB 的主线程每秒执行一次刷新到磁盘</p>
 <p>1 ： 提交事务的时候，就必须把 redo log 从内存刷入到磁盘文件里去，只要事务提交成功，那么 redo log 就必然在磁盘里了</p>
 <p>2 ：提交事务的时候，把 redo 日志写入磁盘文件对应的 os cache 缓存里去，而不是直接进入磁盘文件，可能 1 秒后才会把 os cache 里的数据写入到磁盘文件里去</p>
+<h2 id="Mysql主从同步宕机恢复流程"><a href="#Mysql主从同步宕机恢复流程" class="headerlink" title="Mysql主从同步宕机恢复流程"></a>Mysql主从同步宕机恢复流程</h2><p>主从同步宕机是很常见的一种错误。下面分析几种情况的解决方法。</p>
+<h3 id="从机宕机恢复"><a href="#从机宕机恢复" class="headerlink" title="从机宕机恢复"></a>从机宕机恢复</h3><p>丛机宕机后不在主节点获取数据入库，造成数据不一致。如果要让从机重新同步需要分两种情况：</p>
+<p><strong>从节点宕机时间短，主节点的binlog日志没变</strong></p>
+<p>这种情况下，假设从节点没宕机前是从主节点的mysqlmaster-bin.0010的binlog文件上同步数据，在我们发现从节点宕机后准备重新同步时，可以观察下当前时刻主节点是否还是使用mysqlmaster-bin.0010文件记录日志。如果是则可以直接重启从机的同步命令。</p>
+<p>这种情况下Mysql的从节点是可以知道从哪个Position开始同步出错的，所以主要重启就可以重新同步。</p>
+<pre class=" language-shell"><code class="language-shell">start slave;</code></pre>
+<p>如何确定是否是同一个binlog。可以通过查看主节点和从节点当前使用的binlog信息。</p>
+<pre><code>mysql&gt; show slave status\G; #登陆从节点查看主从同步信息
+mysql&gt; show master status;  #登陆主节点查看binlog信息</code></pre><p><strong>从节点宕机时间长，主节点的binlog日志已变化</strong></p>
+<p>这种情况下从节点无法知道是从哪个binlog日志的哪个position上开始不执行同步的。这种情况下最好是<strong>重新做同步</strong>。步骤如下</p>
+<ol>
+<li>对主库锁表 flush tables with read lock;</li>
+<li>主库把数据备份到mysql.bak.sql文件（备份的时候可以指定重新刷新binlog文件,所以binlog文件就是最新的position很小）</li>
+<li>从库导入mysql.bak.sql</li>
+<li>从库重新设定同步</li>
+</ol>
+<pre class=" language-sql"><code class="language-sql">change master <span class="token keyword">to</span> master_host <span class="token operator">=</span> <span class="token string">'IP'</span><span class="token punctuation">,</span> master_user <span class="token operator">=</span> <span class="token string">'root'</span><span class="token punctuation">,</span> master_port<span class="token operator">=</span><span class="token number">3306</span><span class="token punctuation">,</span> master_password<span class="token operator">=</span><span class="token string">''</span><span class="token punctuation">,</span> master_log_file <span class="token operator">=</span> <span class="token string">'mysqld-bin.000001'</span><span class="token punctuation">,</span> master_log_pos<span class="token operator">=</span><span class="token number">3260</span><span class="token punctuation">;</span></code></pre>
 
           
             <div class='article_footer'>
@@ -636,10 +662,10 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-24T10:01:22+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-10-13T09:31:16+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 24, 2020</p>
+    <p>更新于：Oct 13, 2020</p>
   </a>
 </div>
 
@@ -751,7 +777,7 @@ Redis Sentinel功能包括 ...</p>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sync-binlog"><span class="toc-text">sync_binlog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb-flush-log-at-trx-commit"><span class="toc-text">innodb_flush_log_at_trx_commit</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析和定位"><span class="toc-text">问题分析和定位</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主从同步原理"><span class="toc-text">主从同步原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#主从延迟可能原因"><span class="toc-text">主从延迟可能原因</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题排查"><span class="toc-text">问题排查</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何避免"><span class="toc-text">如何避免</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sync-binlog"><span class="toc-text">sync_binlog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#innodb-flush-log-at-trx-commit"><span class="toc-text">innodb_flush_log_at_trx_commit</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mysql主从同步宕机恢复流程"><span class="toc-text">Mysql主从同步宕机恢复流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#从机宕机恢复"><span class="toc-text">从机宕机恢复</span></a></li></ol></li></ol>
     </div>
   </section>
 

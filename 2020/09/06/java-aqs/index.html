@@ -419,7 +419,7 @@
           <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Java中提供了AbstractQueuedSynchronizer类，简称抽象队列同步器。这个类封装了各种底层的同步细节程序员想自定义自己的同步工具的时候，只需要定义这个类的子类并覆盖它提供的一些方法就好了。<strong>ReentrantLock</strong>类就是借助AQS实现的。</p>
 <h3 id="AQS工作原理大概流程"><a href="#AQS工作原理大概流程" class="headerlink" title="AQS工作原理大概流程"></a>AQS工作原理大概流程</h3><p>AQS中维护了一个<strong><font color="red">state</font></strong>字段，我们可以通过修改<code>state</code>字段代表的<code>同步状态</code>来实现多线程的<code>独占模式</code>或者<code>共享模式</code>。</p>
 <p><strong>独占模式</strong></p>
-<p>在独占模式下，我们可以把state的初始值设置为0，每当一个线程要进行某项独占操作时，判断state==0？，如果是0则通过<strong>CAS</strong>操作将state改成1并进入操作。当另一个线程也需要独占操作时，由于state!=0，意味着已经有线程在进行独占模式，则该线程会被封装成一个Node存到一个同步队列中去并阻塞。当第一个线程完成独占操作后，会将state设置成0并通知同步队列里的线程。</p>
+<p>在独占模式下，我们可以把state的初始值设置为0，每当一个线程要进行某项独占操作时，判断state==0？，如果是0则通过<strong>CAS</strong>操作将state改成1并进入独占操作。当另一个线程也需要独占操作时，由于state!=0，意味着已经有线程在进行独占模式，则该线程会被封装成一个Node存到一个同步队列中去并阻塞。当第一个线程完成独占操作后，会将state设置成0并通知同步队列里的线程。这样同步队列里的线程就可以挨个进行独占操作。</p>
 <p><strong>共享模式</strong></p>
 <p>共享模式和独占模式差不多，也是判断state，需要阻塞的线程也是封装到同步队列中。比如说某项操作我们允许<code>10</code>个线程同时，那么就将state的初始值设置成10，线程需要独占操作时就将state减少1，当state小于0时，后续的线程才需要阻塞。</p>
 <h2 id="原理和源码解析"><a href="#原理和源码解析" class="headerlink" title="原理和源码解析"></a>原理和源码解析</h2><h3 id="通过AQS实现一个锁"><a href="#通过AQS实现一个锁" class="headerlink" title="通过AQS实现一个锁"></a>通过AQS实现一个锁</h3><pre class=" language-java"><code class="language-java"><span class="token keyword">import</span> com<span class="token punctuation">.</span>google<span class="token punctuation">.</span>common<span class="token punctuation">.</span>collect<span class="token punctuation">.</span>Maps<span class="token punctuation">;</span>
@@ -811,7 +811,8 @@
     <span class="token keyword">int</span> c <span class="token operator">=</span> <span class="token function">getState</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>c <span class="token operator">==</span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">//调用tryAcquire时判断下同步状态是不是为0，如果为0就CAS操作同步状态</span>
-        <span class="token comment" spellcheck="true">//这里就是为什么是不公平锁的体现。</span>
+        <span class="token comment" spellcheck="true">//这里就是为什么是不公平锁的体现。当一个新的线程过来获取锁时，他会尝试着先抢夺一下state</span>
+        <span class="token comment" spellcheck="true">//如果这时候恰好执行独占操作的线程释放了state，他刚好抢夺到后就直接进入独占操作。</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">compareAndSetState</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> acquires<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
             <span class="token function">setExclusiveOwnerThread</span><span class="token punctuation">(</span>current<span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token keyword">return</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
@@ -919,10 +920,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-07T14:46:44+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-10-12T11:16:17+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 7, 2020</p>
+    <p>更新于：Oct 12, 2020</p>
   </a>
 </div>
 
