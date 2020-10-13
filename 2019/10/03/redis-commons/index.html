@@ -16,12 +16,12 @@
 
   <!-- 页面元数据 -->
   
-    <title>Redis数据结构总结 - 咕噜咕噜的博客</title>
+    <title>Redis常用数据结构命令 - 咕噜咕噜的博客</title>
   
     <meta name="keywords" content="redis">
   
   
-    <meta name="description" content="Redis数据结构总结">
+    <meta name="description" content="主要用来记录Redis常用命令的记录，方便查询">
   
 
   <!-- feed -->
@@ -354,8 +354,8 @@
         
           
   <h1 class="title">
-    <a href="/2020/10/05/redis-data-type/">
-      Redis数据结构总结
+    <a href="/2019/10/03/redis-commons/">
+      Redis常用数据结构命令
     </a>
   </h1>
 
@@ -393,7 +393,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Oct 5, 2020</p>
+    <p>发布于：Oct 3, 2019</p>
   </a>
 </div>
 
@@ -416,63 +416,228 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>本文主要总结Redis几种数据结构的特点，Redis由于单线程和纯内存的特点，所以在数据结构上也做了很多优化，了解Redis的数据结构有利于我们更好的根据实际场景使用正确的数据结构。</p>
-<h3 id="字典"><a href="#字典" class="headerlink" title="字典"></a>字典</h3><p>字典是Redis中用来存储Key-Value的数据结构。Redis数据库使用字典来作为底层的实现，对数据库的增删改查也是构建在字典上。</p>
-<pre class=" language-shell"><code class="language-shell">redis>set name "xuzy"
-OK</code></pre>
-<p>除了用于表示数据库之外，字典也是哈希键的底层实现。</p>
-<pre class=" language-shell"><code class="language-shell">redis >hlen website
-(integer) 10086
-redis >hgetall website
-1)"xuzy"  //key
-2)"chen"  //value
-...</code></pre>
-<p>字典使用哈希表作为底层实现。数据结构如下</p>
-<pre class=" language-c"><code class="language-c"><span class="token keyword">typedef</span> <span class="token keyword">struct</span> dict <span class="token punctuation">{</span>
-    dictType <span class="token operator">*</span>type<span class="token punctuation">;</span>
-    <span class="token keyword">void</span> <span class="token operator">*</span>privdata<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//哈希表</span>
-    dictht ht<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-    <span class="token keyword">int</span> trehashidx<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-<span class="token keyword">typedef</span> <span class="token keyword">struct</span> dictht <span class="token punctuation">{</span>
-    <span class="token comment" spellcheck="true">//哈希表数组</span>
-    dictEntry <span class="token operator">*</span><span class="token operator">*</span>table<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//哈希表大小</span>
-    <span class="token keyword">unsigned</span> <span class="token keyword">long</span> size<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//哈希表大小掩码，用于计算索引值 总是等于size - 1</span>
-    <span class="token keyword">unsigned</span> <span class="token keyword">long</span> sizemask<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//哈希表已有节点的数量</span>
-    <span class="token keyword">unsigned</span> <span class="token keyword">long</span> used<span class="token punctuation">;</span>
-<span class="token punctuation">}</span> dictht<span class="token punctuation">;</span>
+          <h3 id="key常用操作"><a href="#key常用操作" class="headerlink" title="key常用操作"></a>key常用操作</h3><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># 查询指定key是否存在</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> EXISTS hash1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> EXISTS jjj</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">0</span>
 
-<span class="token comment" spellcheck="true">//哈希节点</span>
-<span class="token keyword">typedef</span> <span class="token keyword">struct</span> dictEntry<span class="token punctuation">{</span>
-    <span class="token keyword">void</span> <span class="token operator">*</span>key<span class="token punctuation">;</span>
-    <span class="token keyword">union</span> <span class="token punctuation">{</span>
-        <span class="token keyword">void</span> <span class="token operator">*</span>val<span class="token punctuation">;</span>
-        uint64_tu64<span class="token punctuation">;</span>
-        int64_ts64<span class="token punctuation">;</span>
-    <span class="token punctuation">}</span> v<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//指向下一个节点</span>
-    <span class="token keyword">struct</span> dictEntry <span class="token operator">*</span>next<span class="token punctuation">;</span>
-<span class="token punctuation">}</span>
-</code></pre>
-<p><img src="/2020/10/05/redis-data-type/1.png" alt></p>
-<ul>
-<li>字典采用哈希表的结构。初始化大小为4的哈希数组。使用<font color="red">链地址</font>法来解决冲突，被分配到同一个索引的多个键值会连接成一个单向链表。</li>
-<li>每个字典带有两个哈希表（ht[0]、ht[1]）。一个平时使用，一个在进行rehash使用。</li>
-<li>Redis字典的rehash并不是一次性完成的，试想一下一个哈希表中有上百万个键值，如果一次性rehash会拖慢Redis的速度，所以是<strong>渐进式</strong>完成的。</li>
-</ul>
-<h3 id="整数集合"><a href="#整数集合" class="headerlink" title="整数集合"></a>整数集合</h3><p>整数集合用于保存<strong>整数值</strong>的集合抽象数据结构，并且保证<strong>集合中不会出现重复元素</strong>。</p>
-<pre class=" language-c"><code class="language-c"><span class="token keyword">typedef</span> <span class="token keyword">struct</span> intset<span class="token punctuation">{</span>
-    uint32_t encoding<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//集合包含的元素数量</span>
-    uint32_t length<span class="token punctuation">;</span>
-    <span class="token comment" spellcheck="true">//保存元素的数组</span>
-    int8_t contents<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span></code></pre>
-<p>未完待续。。。</p>
+<span class="token comment" spellcheck="true"># 删除指定key</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> DEL hash1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> EXISTS hash1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">0</span>
+
+<span class="token comment" spellcheck="true"># 对指定key设置过期时间</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> set t1 value ex 5</span>
+OK
+
+<span class="token comment" spellcheck="true"># 查询指定key的过期时间</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> TTL t1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">7</span>
+
+<span class="token comment" spellcheck="true"># 查询指定key的类型</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> type t1</span>
+string</code></pre>
+<h3 id="kv结构"><a href="#kv结构" class="headerlink" title="kv结构"></a>kv结构</h3><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># 设置key 对应的value</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> set key1 value1</span>
+OK
+
+<span class="token comment" spellcheck="true"># 获取key对应的value</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> get key1</span>
+"value1"
+
+<span class="token comment" spellcheck="true"># Redis Setex 命令为指定的 key 设置值及其过期时间。如果 key 已经存在， SETEX 命令将会替换旧的值。</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SETEX mykey 60 redis</span>
+OK
+
+<span class="token comment" spellcheck="true"># 命令在指定的 key 不存在时，为 key 设置指定的值。</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> setnx key3 vlaue3</span>
+OK
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> setnx key3 value3</span>
+(nil)</code></pre>
+<h3 id="list结构"><a href="#list结构" class="headerlink" title="list结构"></a>list结构</h3><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># 从左侧插入元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> LPUSH list1 1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+
+<span class="token comment" spellcheck="true"># 从右侧插入元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> RPUSH list1 2</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">2</span>
+
+<span class="token comment" spellcheck="true"># 查看集合内的元素，-1 表示查看所有元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> LRANGE list1 0 -1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"1"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"2"</span>
+
+<span class="token comment" spellcheck="true"># 查看list的元素个数</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> LLEN list1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">2</span>
+
+<span class="token comment" spellcheck="true"># 根据索引查询对应的元素，如果指定的索引不存在，则返回'nil'</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> LINDEX list1 0</span>
+"2"
+
+<span class="token comment" spellcheck="true"># 从列表左侧移除一个元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">127.0.0.1:6379> LPOP list1</span>
+"5"
+
+<span class="token comment" spellcheck="true"># 从列表右侧移除一个元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">127.0.0.1:6379> RPOP list1</span>
+"1"
+
+<span class="token comment" spellcheck="true"># 从列表右侧移除一个元素添加到左侧</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> LRANGE list1 0 -1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"three"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"two"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"one"</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> RPOPLPUSH list1 list2</span>
+"one"
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> LRANGE list2 0 -1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"one"</span></code></pre>
+<h3 id="set结构"><a href="#set结构" class="headerlink" title="set结构"></a>set结构</h3><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># 向set中添加一个元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SADD set1 'one' 'two' 'three'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">3</span>
+
+<span class="token comment" spellcheck="true"># 获取set集合中的元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SMEMBERS set1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"one"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"three"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"two</span>
+
+<span class="token comment" spellcheck="true"># 从set集合中移除一个或多个元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SREM set1 'one'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+
+<span class="token comment" spellcheck="true"># 从set集合中移除一个或多个元素并返回被删除元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SPOP set1 1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"three"</span>
+
+<span class="token comment" spellcheck="true"># 获取当前set集合元素个数</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SCARD set1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">3</span>
+
+<span class="token comment" spellcheck="true"># 从set集合随机获取元素但不删除</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SRANDMEMBER set1 1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"one"</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SMEMBERS set1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"three"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"two"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"one"</span>
+
+<span class="token comment" spellcheck="true"># 判断set集合中是否存在指定元素，如果存在则返回1，不存在返回0</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SISMEMBER set1 'one'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> SISMEMBER set1 '4'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">0</span></code></pre>
+<h3 id="sorted-set-结构"><a href="#sorted-set-结构" class="headerlink" title="sorted set  结构"></a>sorted set  结构</h3><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># 向有序集合中添加元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZADD zset1 1 'one'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+
+<span class="token comment" spellcheck="true"># 获取有序集合中指定分数范围的元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZRANGE zset1 0 -1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"one"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"two"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"three"</span>
+
+<span class="token comment" spellcheck="true"># 删除有序集合中的元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZREM zset1 'one'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+
+<span class="token comment" spellcheck="true"># 获取有序集合元素个数</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZCARD zset1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">2</span>
+
+<span class="token comment" spellcheck="true"># 为有序集合中指定成员增加指定个数</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZINCRBY zset1 2 "one"</span>
+"4"
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZRANGE zset1 0 -1 WITHSCORES</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"two"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"2"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"three"</span>
+<span class="token attr-name">4)</span> <span class="token attr-value">"3"</span>
+<span class="token attr-name">5)</span> <span class="token attr-value">"one"</span>
+<span class="token attr-name">6)</span> <span class="token attr-value">"4"</span>
+
+<span class="token comment" spellcheck="true"># 获取有序集合指定分数范围内的元素数量</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZCOUNT zset1 0 2</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+
+<span class="token comment" spellcheck="true"># 获取元素在有序集合中的排名，分数越大，排名值越大</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZRANK zset1 'one'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">2</span>
+
+<span class="token comment" spellcheck="true"># 获取元素在有序集合中的排名。分数越大，排名值越小</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZREVRANK zset1 'one'</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">0</span>
+
+<span class="token comment" spellcheck="true"># 获取指定元素的分值</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> ZSCORE zset1 'one'</span>
+"4"</code></pre>
+<h3 id="hash结构"><a href="#hash结构" class="headerlink" title="hash结构"></a>hash结构</h3><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># 向hash集合中添加一个元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HSET hash1 field1 1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+
+<span class="token comment" spellcheck="true"># 向hash集合中添加多个元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HMSET hash1 field2 2 field3 3</span>
+OK
+
+<span class="token comment" spellcheck="true"># 获取指定field对应的value</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HGET hash1 field1</span>
+"1"
+
+<span class="token comment" spellcheck="true"># 批量获取指定field下的value</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HMGET hash1 field1 field2 field3</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"1"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"2"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"3"</span>
+
+<span class="token comment" spellcheck="true"># 获取hash结合里面所有元素</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HGETALL hash1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"filed1"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"1"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"filed2"</span>
+<span class="token attr-name">4)</span> <span class="token attr-value">"2"</span>
+<span class="token attr-name">5)</span> <span class="token attr-value">"filed3"</span>
+<span class="token attr-name">6)</span> <span class="token attr-value">"3"</span>
+<span class="token attr-name">7)</span> <span class="token attr-value">"field3"</span>
+<span class="token attr-name">8)</span> <span class="token attr-value">"3"</span>
+
+<span class="token comment" spellcheck="true"># 判断指定filed是否在Hash结构中存在</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HEXISTS hash1 field1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">1</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HEXISTS hash1 field5</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">0</span>
+
+<span class="token comment" spellcheck="true"># 从hash结构中删除一个或多个field</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HDEL hash1 field1 field2</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">2</span>
+
+<span class="token comment" spellcheck="true"># 对hash集合中指定field的value增加值</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HINCRBY hash1 field1 2</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">3</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HGET hash1 field1</span>
+"3"
+
+<span class="token comment" spellcheck="true"># 获取hash结构中所有的key</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HKEYS hash1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"filed1"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"filed2"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"filed3"</span>
+<span class="token attr-name">4)</span> <span class="token attr-value">"field3"</span>
+<span class="token attr-name">5)</span> <span class="token attr-value">"field1"</span>
+
+<span class="token attr-name">$</span> <span class="token attr-value">获取hash集合中所有的value</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HVALS hash1</span>
+<span class="token attr-name">1)</span> <span class="token attr-value">"1"</span>
+<span class="token attr-name">2)</span> <span class="token attr-value">"2"</span>
+<span class="token attr-name">3)</span> <span class="token attr-value">"3"</span>
+<span class="token attr-name">4)</span> <span class="token attr-value">"3"</span>
+<span class="token attr-name">5)</span> <span class="token attr-value">"3"</span>
+
+<span class="token comment" spellcheck="true"># 获取hash集合中的元素个数</span>
+<span class="token attr-name">$</span> <span class="token attr-value">localhost:6379> HLEN hash1</span>
+<span class="token attr-name">(integer)</span> <span class="token attr-value">5</span></code></pre>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>具体命令地址 : <a href="http://redis.cn/commands.html" target="_blank" rel="noopener">http://redis.cn/commands.html</a></p>
 
           
             <div class='article_footer'>
@@ -514,7 +679,7 @@ redis >hgetall website
           
         
           
-            <p>本文永久链接是：<a href=http://yoursite.com/2020/10/05/redis-data-type/>http://yoursite.com/2020/10/05/redis-data-type/</a></p>
+            <p>本文永久链接是：<a href=http://yoursite.com/2019/10/03/redis-commons/>http://yoursite.com/2019/10/03/redis-commons/</a></p>
           
         
       </blockquote>
@@ -565,7 +730,7 @@ redis >hgetall website
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-10-13T09:31:43+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-10-13T11:01:14+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>更新于：Oct 13, 2020</p>
@@ -597,14 +762,16 @@ redis >hgetall website
         
           <div class="prev-next">
             
+              <a class='prev' href='/2019/10/03/redis-data-type/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Redis数据结构总结</p>
+                <p class='content'>概述本文主要总结Redis几种数据结构的特点，Redis由于单线程和纯内存的特点，所以在数据结构上也做了很多优化，了解Redis的数据结构有利于我们更好的根据实际场景使用正确的数据结构。
+字典字...</p>
+              </a>
             
-              <a class='next' href='/2020/10/03/redis-commons/'>
-                <p class='title'>Redis常用数据结构命令<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>key常用操作# 查询指定key是否存在
-$ localhost:6379> EXISTS hash1
-(integer) 1
-$ localhost:6379> EXISTS jjj
-(int...</p>
+            
+              <a class='next' href='/2019/07/18/futuretask/'>
+                <p class='title'>Future、FutureTask实现原理浅析<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>什么是Future、FutureTaskfuture在字面上表示未来的意思，在Java中一般通过继承Thread类或者实现Runnable接口这两种方式来创建多线程，但是这两种方式都有个缺陷，就...</p>
               </a>
             
           </div>
@@ -649,7 +816,7 @@ $ localhost:6379> EXISTS jjj
 
   <script>
     window.subData = {
-      title: 'Redis数据结构总结',
+      title: 'Redis常用数据结构命令',
       tools: true
     }
   </script>
@@ -675,7 +842,7 @@ $ localhost:6379> EXISTS jjj
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字典"><span class="toc-text">字典</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#整数集合"><span class="toc-text">整数集合</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#key常用操作"><span class="toc-text">key常用操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#kv结构"><span class="toc-text">kv结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#list结构"><span class="toc-text">list结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#set结构"><span class="toc-text">set结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sorted-set-结构"><span class="toc-text">sorted set  结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hash结构"><span class="toc-text">hash结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li></ol>
     </div>
   </section>
 
