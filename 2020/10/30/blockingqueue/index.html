@@ -654,7 +654,7 @@
 </li>
 <li>性能上<ul>
 <li>ArrayBlockingQueue使用的是一个锁控制入队和出队，同一时刻入队出队阻塞。LinkedBlockingQueue使用两个锁分别控制入队和出队，同一时刻入队出队不阻塞，性能更高。</li>
-<li>ArrayBlockingQueue使用的是数组结构，LinkedBlockingQueue使用的单链表结构，占用内存的话ArrayBlockingQueue占用更小。</li>
+<li>ArrayBlockingQueue使用的是数组结构，LinkedBlockingQueue使用的单链表结构，在入队和出队需要创建/回收节点，从而需要GC的操作。</li>
 </ul>
 </li>
 </ul>
@@ -763,6 +763,45 @@
 </ul>
 <p><img src="/2020/10/30/blockingqueue/6.png" alt="PriorityBlockingQueue入队"></p>
 <p><img src="/2020/10/30/blockingqueue/7.png" alt="PriorityBlockingQueue出队"></p>
+<h2 id="ConcurrentLinkedQueue"><a href="#ConcurrentLinkedQueue" class="headerlink" title="ConcurrentLinkedQueue"></a>ConcurrentLinkedQueue</h2><p>特点 ：一个由 <font color="red">单链表</font> 实现的<font color="red">无界</font>，<font color="red">非阻塞（采用CAS）</font>，<font color="red">线程安全</font>，<font color="red">FIFO（先进先出）</font>队列，适合高并发场景。</p>
+<p>ArrayBlockingQueue或者LinkedBlockingQueue在多个线程入队或出队时都需要阻塞线程，就涉及到了多了线程挂起和上下文切换的开销，所以相对于CAS性能差，而ConcurrentLinkedQueue采用CAS的方式，提高了吞吐量。但是我们知道CAS有缺点，其中一个就是CAS自旋CAS如果长时间不成功，会给CPU带来非常大的执行开销。所以我们在选择队列时应考虑到实际场景做出选择。</p>
+<p>(ConcurrentLinkedQueue源码比较难懂，具体源码分析可以看其他大神的分析：<a href="http://cmsblogs.com/?p=2353" target="_blank" rel="noopener">J.U.C之Java并发容器：ConcurrentLinkedQueue</a>)</p>
+<table>
+<thead>
+<tr>
+<th>queue</th>
+<th>阻塞与否</th>
+<th>是否有界</th>
+<th>线程安全保障</th>
+<th>适用场景</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ArrayBlockingQueue</td>
+<td>阻塞</td>
+<td>有界</td>
+<td>一把全局锁</td>
+<td>生产消费模型，平衡两边处理速度</td>
+<td>–</td>
+</tr>
+<tr>
+<td>LinkedBlockingQueue</td>
+<td>阻塞</td>
+<td>可配置</td>
+<td>存取采用2把锁</td>
+<td>生产消费模型，平衡两边处理速度</td>
+<td>无界的时候注意内存溢出问题</td>
+</tr>
+<tr>
+<td>ConcurrentLinkedQueue</td>
+<td>非阻塞</td>
+<td>无界</td>
+<td>CAS</td>
+<td>需要高并发队列的场景</td>
+<td>size() 是要遍历一遍集合，慎用</td>
+</tr>
+</tbody></table>
 
           
             <div class='article_footer'>
@@ -855,10 +894,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-05T15:23:20+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-09T08:52:41+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 5, 2020</p>
+    <p>更新于：Nov 9, 2020</p>
   </a>
 </div>
 
@@ -962,7 +1001,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#BlockingQueue接口"><span class="toc-text">BlockingQueue接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-text">PriorityBlockingQueue</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#BlockingQueue接口"><span class="toc-text">BlockingQueue接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ArrayBlockingQueue"><span class="toc-text">ArrayBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LinkedBlockingQueue"><span class="toc-text">LinkedBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PriorityBlockingQueue"><span class="toc-text">PriorityBlockingQueue</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConcurrentLinkedQueue"><span class="toc-text">ConcurrentLinkedQueue</span></a></li></ol>
     </div>
   </section>
 
