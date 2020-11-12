@@ -363,9 +363,119 @@
         
           
         
+          
+        
       
     
     
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/2020/11/11/mysql-lock/">
+      MySQL中InnoDB锁，死锁详解
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/mysql/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>mysql</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Nov 11, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="为什么有锁"><a href="#为什么有锁" class="headerlink" title="为什么有锁"></a>为什么有锁</h3><p>Mysql锁主要是为了解决多事务并发带来的问题。多事务并发分成以下三种情况：</p>
+<ul>
+<li>读读，两个事务都只有读操作，不加锁。</li>
+<li>写写，多个未提交事务在对同一个记录做修改操作时，需要让操作排队，这就是用锁实现的。</li>
+<li>读写，Innodb中读操作利用多版本控制并发（MVCC），写操作使用锁来控制。</li>
+</ul>
+<p>InnoDB锁官方文档地址 ：<a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html#innodb-shared-exclusive-locks" target="_blank" rel="noopener">InnoDB Locking Doc</a>。锁作为MySQL一个很重要的知识点，虽然有隐式加锁解锁的存在开发人员很少涉及到，但了解锁对开发尤为重要，不然遇到死锁问题都不知道哪里出现问题了。</p>
+<h3 id="锁类型与上锁方式"><a href="#锁类型与上锁方式" class="headerlink" title="锁类型与上锁方式"></a>锁类型与上锁方式</h3><p>在MySQL中，锁按照类型划分可以分成 ：表锁，行锁（本文重点），页锁。</p>
+<p>在MySQL中，锁按照种类可以划分成：共享锁（S）和排他锁（X）。</p>
+<p><img src="/2020/11/11/mysql-lock/2.png" alt></p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2020/11/11/mysql-lock/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
       
         
           <div class='post-wrapper'>
@@ -1362,6 +1472,11 @@
             ><div class='name'>java</div><div class='badge'>(16)</div></a></li>
         
           <li><a class="flat-box"
+            title="/categories/kafka/" href="/categories/kafka/"
+            id="categorieskafka"
+            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+        
+          <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
             id="categorieslinux"
             ><div class='name'>linux</div><div class='badge'>(1)</div></a></li>
@@ -1369,7 +1484,7 @@
           <li><a class="flat-box"
             title="/categories/mysql/" href="/categories/mysql/"
             id="categoriesmysql"
-            ><div class='name'>mysql</div><div class='badge'>(8)</div></a></li>
+            ><div class='name'>mysql</div><div class='badge'>(9)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/redis/" href="/categories/redis/"
@@ -1418,7 +1533,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

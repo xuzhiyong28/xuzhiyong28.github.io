@@ -450,6 +450,8 @@
 <td>—</td>
 </tr>
 </tbody></table>
+<a id="more"></a>
+
 <ul>
 <li>抛出异常。当阻塞队列满时候，再往队列里插入元素，会抛出IllegalStateException(“Queue full”)异常。当队列为空时，从队列里获取元素时会抛出NoSuchElementException异常。</li>
 <li>返回特殊值。<ul>
@@ -894,10 +896,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-09T08:52:41+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-12T10:23:10+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 9, 2020</p>
+    <p>更新于：Nov 12, 2020</p>
   </a>
 </div>
 
@@ -926,11 +928,20 @@
         
           <div class="prev-next">
             
+              <a class='prev' href='/2020/11/11/mysql-lock/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>MySQL中InnoDB锁，死锁详解</p>
+                <p class='content'>为什么有锁Mysql锁主要是为了解决多事务并发带来的问题。多事务并发分成以下三种情况：
+
+读读，两个事务都只有读操作，不加锁。
+写写，多个未提交事务在对同一个记录做修改操作时，需要让操作排队，这...</p>
+              </a>
             
-              <a class='next' href='/2020/10/03/redis-data-type/'>
-                <p class='title'>Redis数据结构总结<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>概述本文主要总结Redis几种数据结构的特点，Redis由于单线程和纯内存的特点，所以在数据结构上也做了很多优化，了解Redis的数据结构有利于我们更好的根据实际场景使用正确的数据结构。
-基础数...</p>
+            
+              <a class='next' href='/2020/10/09/kafka-base/'>
+                <p class='title'>Kafka概念与架构知识点汇总<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>概述介绍Kafka是一个分布式，分区，多副本，发布-订阅模式，基于zookeeper协调的分布式日志系统，消息队列（MQ）。主要应用场景是：日志收集系统和消息系统。
+术语
+Broker（服务器）...</p>
               </a>
             
           </div>
