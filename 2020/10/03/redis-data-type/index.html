@@ -419,6 +419,7 @@
           <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>本文主要总结Redis几种数据结构的特点，Redis由于单线程和纯内存的特点，所以在数据结构上也做了很多优化，了解Redis的数据结构有利于我们更好的根据实际场景使用正确的数据结构。</p>
 <h3 id="基础数据结构"><a href="#基础数据结构" class="headerlink" title="基础数据结构"></a>基础数据结构</h3><h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p>Redis在内部定义了6种基础的数据结构，包括：<font color="red">简单动态字符串，链表，字典，跳跃表，整数集合，压缩列表</font>。Redis使用这几种基础的数据结构创建了一个对象系统，这个系统包含了字符串对象，列表对象，哈希对象，集合对象，有序集合对象。</p>
 <p>举个例子，对于命令<code>SET msg &quot;helloWorld&quot;</code>。msg使用的是字符串对象（对于Redis来说保存的键总是一个字符串对象），而helloWorld使用的是<code>简单动态字符串</code>。了解这6种基础数据接口才能进一步了解Redis种的字符串，列表，哈希，集合，有序集合。</p>
+<a id="more"></a>
 <h4 id="简单动态字符串"><a href="#简单动态字符串" class="headerlink" title="简单动态字符串"></a>简单动态字符串</h4><pre class=" language-c"><code class="language-c"><span class="token keyword">struct</span> sdshdr<span class="token punctuation">{</span>
     <span class="token comment" spellcheck="true">//记录buf数组中已使用字节的数量，SDS所保存字符串的长度</span>
     <span class="token keyword">int</span> len<span class="token punctuation">;</span>
@@ -665,10 +666,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-10-16T16:43:23+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:37+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Oct 16, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -698,7 +699,7 @@
           <div class="prev-next">
             
               <a class='prev' href='/2020/10/09/kafka-base/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Kafka概念与架构知识点汇总</p>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Kafka概念与架构知识点汇总（一）</p>
                 <p class='content'>概述介绍Kafka是一个分布式，分区，多副本，发布-订阅模式，基于zookeeper协调的分布式日志系统，消息队列（MQ）。主要应用场景是：日志收集系统和消息系统。
 术语
 Broker（服务器）...</p>

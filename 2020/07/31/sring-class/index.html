@@ -423,6 +423,9 @@
 <h2 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h2><p>运行时常量池是<font color="red">方法区的一部分</font>。</p>
 <p>运行时常量池是当Class文件被加载到内存后，Java虚拟机会将Class常量池里的内容转移到运行时常量池里(<font color="red">运行时常量池也是每个类都有一个</font>)。</p>
 <p>运行时常量池相对于Class常量池的另外一个重要特征是具备动态性，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入Class文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中。</p>
+<a id="more"></a>
+
+
 <h2 id="Class常量池和运行时常量池关系"><a href="#Class常量池和运行时常量池关系" class="headerlink" title="Class常量池和运行时常量池关系"></a>Class常量池和运行时常量池关系</h2><p><img src="/2020/07/31/sring-class/2.jpg" alt></p>
 <h2 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h2><p>字符串常量池又称为：字符串池，全局字符串池,英文也叫String Pool。<br>JVM为了提升性能和减少内存开销,避免字符串重复创建，所以维护了一块特殊的内存空间，字符串常量池。</p>
 <p>在JDK7之前，字符串常量池是存在在永久代里，JDK7以后转移到了堆里面</p>
@@ -528,10 +531,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-31T10:38:37+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:51+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 31, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

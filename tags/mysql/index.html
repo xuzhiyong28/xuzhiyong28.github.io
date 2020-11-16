@@ -558,7 +558,22 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>用大白话讲解事务隔离级别和多版本并发控制(MVCC)的原理。</p>
+        <h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>先定义一个表，方便后面说明。</p>
+<pre><code class="sql">CREATE    TABLE hero(
+       number    INT,
+       name    VARCHAR(100),
+       country    varchar(100),
+       PRIMARY    KEY    (number)
+)    Engine=InnoDB    CHARSET=utf8;
+INSERT INTO    hero VALUES(1,    &#39;索罗&#39;,&#39;cn&#39;);</code></pre>
+<p>MySQL是一个客户端/服务器架构。对于MySQL这个服务器来说，可以有很多客户端与其连接。每个客户端与服务器连接上之后，就可以称之为⼀个会话（Session）。事务是用来保证一个或多个数据库操作要嘛全部成功，要嘛全部回滚。事务要求我们要保证<font color="red">原子性、一致性、隔离性、持久性</font>。</p>
+<ul>
+<li>原子性，多个操作是一个不可分割的整体，要么全做，要么全不做的规则称之为原⼦性。</li>
+<li>一致性，在事务操作之前和之后，数据都是保持一个相同的状态，数据库的完整性没有被破坏。</li>
+<li>隔离性，保证多个事务之间不互相影响的规则称之为隔离性。隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。</li>
+<li>持久性，事务操作完成后，数据会被刷新到磁盘永久保存，即便是系统故障也不会丢失。</li>
+</ul>
+<p><font color="red">由于多个事务之间是并发执行的，要使得的事务之间互相不影响保证隔离性，只能对事务进行排队访问(锁)，但是这样的效果效率底下，如果不使用排队，多个事务之间同时操作则会出现如下问题：</font></p>
       
     </div>
     
@@ -657,7 +672,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>记一次MySQL主从同步延迟排查和解决</p>
+        <h2 id="问题分析和定位"><a href="#问题分析和定位" class="headerlink" title="问题分析和定位"></a>问题分析和定位</h2><p>线上环境这几天在凌晨4点时报主从延迟。虽然我们项目对数据的时效性不是要求很高，但是出现了主从延迟肯定是哪个地方除了问题，为了保证稳定性需要排查一下问题原因。</p>
+<h3 id="主从同步原理"><a href="#主从同步原理" class="headerlink" title="主从同步原理"></a>主从同步原理</h3><p><img src="/2020/08/19/mysql-masterslave-solve/1.jpg" alt></p>
+<ol>
+<li>主库对所有DDL和DML产生的日志写进binlog；</li>
+<li>主库生成一个 log dump 线程，用来给从库I/O线程读取binlog；</li>
+<li>从库的I/O Thread去请求主库的binlog，并将得到的binlog日志写到relay log文件中；</li>
+<li>从库的SQL Thread会读取relay log文件中的日志解析成具体操作，将主库的DDL和DML操作事件重放。</li></ol>
       
     </div>
     
@@ -756,7 +777,64 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>MySQL索引优化EXPLAIN</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="EXPLAIN字段说明"><a href="#EXPLAIN字段说明" class="headerlink" title="EXPLAIN字段说明"></a>EXPLAIN字段说明</h3><p><img src="/2020/07/31/mysql-explain/1.png" alt="示例1"></p>
+<table>
+<thead>
+<tr>
+<th><strong><code>列名</code></strong></th>
+<th><strong><code>用途</code></strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>每一个SELECT关键字查询语句都对应一个唯一id</td>
+</tr>
+<tr>
+<td>select_type</td>
+<td>SELECT关键字对应的查询类型</td>
+</tr>
+<tr>
+<td>table</td>
+<td>表名</td>
+</tr>
+<tr>
+<td>partitions</td>
+<td>匹配的分区信息</td>
+</tr>
+<tr>
+<td>type</td>
+<td>单表的访问方法</td>
+</tr>
+<tr>
+<td>possible_keys</td>
+<td>可能用到的索引</td>
+</tr>
+<tr>
+<td>key</td>
+<td>实际使用到的索引</td>
+</tr>
+<tr>
+<td>key_len</td>
+<td>实际使用到的索引长度</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>当使用索引列等值查询时，与索引列进行等值匹配的对象信息</td>
+</tr>
+<tr>
+<td>rows</td>
+<td>预估需要读取的记录条数</td>
+</tr>
+<tr>
+<td>filtered</td>
+<td>某个表经过条件过滤后剩余的记录条数百分比</td>
+</tr>
+<tr>
+<td>Extra</td>
+<td>额外的一些信息</td>
+</tr>
+</tbody></table>
+<p>为了事情的发展，我们新建几张表方便后面讲解…</p>
       
     </div>
     
@@ -855,7 +933,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>理解单表使用索引详解，为啥使用const而不是ref？多条件时是如何选择索引查询的？</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本文主要讲解单表使用索引的几种情况，Mysql分别在使用主键索引，普通索引，唯一索引时是如何查询的，另外等值查询和范围查询是什么个情况。一般来说单表查询基本分成如下情况：</p>
+<ul>
+<li>没使用索引的全表扫描查询</li>
+<li>使用索引查询<ul>
+<li>针对主键或唯⼀⼆级索引的等值查询</li>
+<li>针对普通⼆级索引的等值查询</li>
+<li>针对索引列的范围查询</li>
+<li>直接扫描整个索引</li></ul></li></ul>
       
     </div>
     
@@ -954,7 +1039,15 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>高性能数据库集群的第一种方式是“读写分离”</p>
+        <h2 id="读写分离基本原理"><a href="#读写分离基本原理" class="headerlink" title="读写分离基本原理"></a>读写分离基本原理</h2><p>高性能数据库集群的第一种方式是“<strong><em>读写分离</em></strong>”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。</p>
+<p>读写分离的基本实现是：</p>
+<ul>
+<li>数据库服务器搭建主从集群，一主一从、一主多从都可以</li>
+<li>数据库主机负责读写操作，从机只负责读操作</li>
+<li>数据库主机通过复制将数据同步到从机，每台数据库服务器都存储了所有的业务数据</li>
+<li>业务服务器将写操作发给数据库主机，将读操作发给数据库从机</li>
+</ul>
+<p><img src="/2020/07/20/db-w-r-dynamic/db1.png" alt></p>
       
     </div>
     
@@ -1053,7 +1146,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解MySQL之count(*)、count(1)、count(字段)</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。</p>
       
     </div>
     
@@ -1152,7 +1245,12 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Mysql-InnoDB索引之索引使用和优化原则(二)</p>
+        <h2 id="提出问题"><a href="#提出问题" class="headerlink" title="提出问题"></a>提出问题</h2><ol>
+<li>什么是回表？</li>
+<li>索引是不是可以无限建？</li>
+<li>什么是索引的最左匹配原则？</li>
+<li>什么是覆盖索引？</li>
+<li>如何建立高效的索引？</li></ol>
       
     </div>
     
@@ -1251,7 +1349,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Mysql-InnoDB索引详解(一)</p>
+        <h2 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h2><p>页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Records是真实存储我们插入的记录部分。<br><img src="/2019/07/18/mysql-index/1.png" alt></p>
       
     </div>
     
@@ -1474,7 +1572,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1533,7 +1631,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

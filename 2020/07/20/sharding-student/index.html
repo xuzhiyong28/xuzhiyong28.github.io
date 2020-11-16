@@ -420,7 +420,8 @@
 <p><strong>最终数据库结果如下</strong></p>
 <p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
 <pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
-<pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre><h4 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h4><h5 id="maven导出具体sharding需要的包"><a href="#maven导出具体sharding需要的包" class="headerlink" title="maven导出具体sharding需要的包"></a>maven导出具体sharding需要的包</h5><pre><code>&lt;dependency&gt;
+<pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre><a id="more"></a>
+<h4 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h4><h5 id="maven导出具体sharding需要的包"><a href="#maven导出具体sharding需要的包" class="headerlink" title="maven导出具体sharding需要的包"></a>maven导出具体sharding需要的包</h5><pre><code>&lt;dependency&gt;
             &lt;groupId&gt;io.shardingsphere&lt;/groupId&gt;
             &lt;artifactId&gt;sharding-jdbc-spring-namespace&lt;/artifactId&gt;
             &lt;version&gt;3.0.0.M3&lt;/version&gt;
@@ -757,10 +758,10 @@ public class ShardingTest {
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-30T15:07:19+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:03+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 30, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

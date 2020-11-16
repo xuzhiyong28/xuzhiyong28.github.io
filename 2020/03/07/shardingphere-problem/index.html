@@ -420,6 +420,7 @@
 <p><strong>定位可能原因：一般情况下我们项目会用到数据库连接池，在shardingjdbc启动时会初始化数据库连接池，可能是其中一台机器初始化连接时超时导致整体启动时间慢。</strong></p>
 <p>很遗憾不是这个问题，通过打印连接日志，数据库连接速度很快，不是这个问题导致的。无奈之下，跟了一遍shardingjdbc启动源码，发现问题所在。</p>
 <p><strong>定位原因：在shardingjdbc启动时，会加载分库分表中所有的表结构进行校验，判断是否所有的表结构都是一致的。</strong></p>
+<a id="more"></a>
 <p>在项目中，使用了分库分表 + 读写分离的方式。假设现在有一个表(user表)采用分库分表读写分离。分库分表规则如下：</p>
 <ul>
 <li>分库规则：4个库，按照日期%4的方式</li>
@@ -537,10 +538,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-07T17:50:41+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:26+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 7, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -581,7 +582,8 @@
               <a class='next' href='/2020/01/26/mysql-count/'>
                 <p class='title'>MySQL之count(*)、count(1)、count(字段)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
                 <p class='content'>正文count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。
-InnoDB下的countcount(...</p>
+
+InnoDB下的countcount...</p>
               </a>
             
           </div>

@@ -425,7 +425,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解MySQL之count(*)、count(1)、count(字段)</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。</p>
       
     </div>
     
@@ -524,7 +524,15 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>SpringMVC详细解析之工作流程</p>
+        <h2 id="SpringMVC工作流程"><a href="#SpringMVC工作流程" class="headerlink" title="SpringMVC工作流程"></a>SpringMVC工作流程</h2><h3 id="工作流程概述"><a href="#工作流程概述" class="headerlink" title="工作流程概述"></a>工作流程概述</h3><ul>
+<li>客户端（浏览器）发送请求，直接请求到 DispatcherServlet</li>
+<li>DispatcherServlet 根据请求信息调用 HandlerMapping，解析请求对应的 Handler</li>
+<li>解析到对应的 Handler（也就是我们平常说的 Controller 控制器）后，开始由 HandlerAdapter 适配器处理</li>
+<li>HandlerAdapter 会根据 Handler 来调用真正的处理器开处理请求，并处理相应的业务逻辑</li>
+<li>处理器处理完业务后，会返回一个 ModelAndView 对象，Model 是返回的数据对象，View 是个逻辑上的 View</li>
+<li>ViewResolver 会根据逻辑 View 查找实际的 View</li>
+<li>DispaterServlet 把返回的 Model 传给 View（视图渲染）</li>
+<li>把 View 返回给请求者（浏览器）</li></ul>
       
     </div>
     
@@ -623,13 +631,227 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>SpringMVC详细解析之初始化</p>
+        <h2 id="SpringMVC初始化"><a href="#SpringMVC初始化" class="headerlink" title="SpringMVC初始化"></a>SpringMVC初始化</h2><h3 id="SpringMVC搭建流程"><a href="#SpringMVC搭建流程" class="headerlink" title="SpringMVC搭建流程"></a>SpringMVC搭建流程</h3><p>1.新建applicationContext.xml配置文件</p>
+<pre><code class="java">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+       xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
+       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
+    &lt;context:annotation-config/&gt;
+    &lt;bean id=&quot;beanService&quot; class=&quot;com.xzy.bean.BeanService&quot;&gt;&lt;/bean&gt;
+    //...忽略其他配置
+&lt;/bean&gt;
+&lt;/beans&gt;</code></pre>
       
     </div>
     
       
         <div class="button readmore">
           <a href="/2020/01/01/springmvc/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/2019/11/16/kafka-operation/">
+      Kafka运维笔记（二）
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/kafka/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>kafka</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Nov 16, 2019</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Kafka运维笔记</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2019/11/16/kafka-operation/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/2019/11/15/kafka-muticustomerthread/">
+      Kafka多线程消费者设计（三）
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/kafka/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>kafka</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Nov 15, 2019</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Kafka多线程消费者设计</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2019/11/15/kafka-muticustomerthread/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -722,7 +944,29 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>主要用来记录Redis常用命令的记录，方便查询</p>
+        <h3 id="key常用操作"><a href="#key常用操作" class="headerlink" title="key常用操作"></a>key常用操作</h3><pre><code class="properties"># 查询指定key是否存在
+$ localhost:6379&gt; EXISTS hash1
+(integer) 1
+$ localhost:6379&gt; EXISTS jjj
+(integer) 0
+
+# 删除指定key
+$ localhost:6379&gt; DEL hash1
+(integer) 1
+$ localhost:6379&gt; EXISTS hash1
+(integer) 0
+
+# 对指定key设置过期时间
+$ localhost:6379&gt; set t1 value ex 5
+OK
+
+# 查询指定key的过期时间
+$ localhost:6379&gt; TTL t1
+(integer) 7
+
+# 查询指定key的类型
+$ localhost:6379&gt; type t1
+string</code></pre>
       
     </div>
     
@@ -821,13 +1065,117 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Mysql-InnoDB索引详解(一)</p>
+        <h2 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h2><p>页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Records是真实存储我们插入的记录部分。<br><img src="/2019/07/18/mysql-index/1.png" alt></p>
       
     </div>
     
       
         <div class="button readmore">
           <a href="/2019/07/18/mysql-index/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/2019/07/18/mysql-index-use/">
+      Mysql-InnoDB索引之索引使用和优化原则(二)
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/mysql/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>mysql</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Jul 18, 2019</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="提出问题"><a href="#提出问题" class="headerlink" title="提出问题"></a>提出问题</h2><ol>
+<li>什么是回表？</li>
+<li>索引是不是可以无限建？</li>
+<li>什么是索引的最左匹配原则？</li>
+<li>什么是覆盖索引？</li>
+<li>如何建立高效的索引？</li></ol>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2019/07/18/mysql-index-use/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -920,7 +1268,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Future、FutureTask实现原理浅析</p>
+        <h2 id="什么是Future、FutureTask"><a href="#什么是Future、FutureTask" class="headerlink" title="什么是Future、FutureTask"></a>什么是Future、FutureTask</h2><p>future在字面上表示未来的意思，在Java中一般通过继承Thread类或者实现Runnable接口这两种方式来创建多线程，但是这两种方式都有个缺陷，就是不能在执行完成后获取执行的结果。然而JDK提供了一种类似ajax的方式，允许提交任务后去做自己的事，在任务执行完成后可以获得执行的结果。总的来说就是实现”任务的提交”和”任务的执行”相分离。</p>
       
     </div>
     
@@ -1019,310 +1367,19 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>CompletableFuture使用详解</p>
+        <h2 id="CompletableFuture介绍"><a href="#CompletableFuture介绍" class="headerlink" title="CompletableFuture介绍"></a>CompletableFuture介绍</h2><p>CompletableFuture是JDK8新出来一种异步组合式编程。<br>Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结果之间的依赖性。实际开发中，我们经常需要达成以下目的：</p>
+<ul>
+<li><p>将多个异步计算的结果合并成一个</p>
+</li>
+<li><p>等待Future集合中的所有任务都完成</p>
+</li>
+<li><p>Future完成事件（即，任务完成以后触发执行动作）</p></li></ul>
       
     </div>
     
       
         <div class="button readmore">
           <a href="/2019/07/18/completable-future/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/07/18/design-pattern-singleton/">
-      设计模式之单例模式
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/java/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>java</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>设计模式之单例模式</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/07/18/design-pattern-singleton/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/07/18/volatile/">
-      java并发之volatile
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/java/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>java</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>详解volatile用法和原理</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/07/18/volatile/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/07/18/mysql-index-use/">
-      Mysql-InnoDB索引之索引使用和优化原则(二)
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/mysql/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>mysql</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Mysql-InnoDB索引之索引使用和优化原则(二)</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/07/18/mysql-index-use/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -1459,7 +1516,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1518,7 +1575,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

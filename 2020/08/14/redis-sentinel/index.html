@@ -429,6 +429,7 @@
 </ul>
 <p><img src="/2020/08/14/redis-sentinel/1.png" alt="redis哨兵架构图"></p>
 <p>所以说，本身redis哨兵也是一个<font color="red">分布式集群系统</font>。</p>
+<a id="more"></a>
 <h2 id="Redis哨兵配置"><a href="#Redis哨兵配置" class="headerlink" title="Redis哨兵配置"></a>Redis哨兵配置</h2><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># sentinel monitor mymaster 127.0.0.1 6379 2</span>
 <span class="token comment" spellcheck="true"># 哨兵节点定期监控 名字叫做 &lt;master-name>  并且 IP 为 &lt;ip> 端口号为 &lt;port> 的主节点</span>
 <span class="token comment" spellcheck="true">#quorum表示哨兵判断节点是否发生故障的票数，设置成2表示要两个哨兵认为主节点故障了才会客户下线</span>
@@ -764,10 +765,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-16T14:42:18+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:52+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 16, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

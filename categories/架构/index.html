@@ -432,7 +432,15 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>高性能数据库集群的第一种方式是“读写分离”</p>
+        <h2 id="读写分离基本原理"><a href="#读写分离基本原理" class="headerlink" title="读写分离基本原理"></a>读写分离基本原理</h2><p>高性能数据库集群的第一种方式是“<strong><em>读写分离</em></strong>”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。</p>
+<p>读写分离的基本实现是：</p>
+<ul>
+<li>数据库服务器搭建主从集群，一主一从、一主多从都可以</li>
+<li>数据库主机负责读写操作，从机只负责读操作</li>
+<li>数据库主机通过复制将数据同步到从机，每台数据库服务器都存储了所有的业务数据</li>
+<li>业务服务器将写操作发给数据库主机，将读操作发给数据库从机</li>
+</ul>
+<p><img src="/2020/07/20/db-w-r-dynamic/db1.png" alt></p>
       
     </div>
     
@@ -557,7 +565,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -616,7 +624,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

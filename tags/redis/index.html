@@ -446,7 +446,9 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Redis数据结构总结</p>
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>本文主要总结Redis几种数据结构的特点，Redis由于单线程和纯内存的特点，所以在数据结构上也做了很多优化，了解Redis的数据结构有利于我们更好的根据实际场景使用正确的数据结构。</p>
+<h3 id="基础数据结构"><a href="#基础数据结构" class="headerlink" title="基础数据结构"></a>基础数据结构</h3><h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p>Redis在内部定义了6种基础的数据结构，包括：<font color="red">简单动态字符串，链表，字典，跳跃表，整数集合，压缩列表</font>。Redis使用这几种基础的数据结构创建了一个对象系统，这个系统包含了字符串对象，列表对象，哈希对象，集合对象，有序集合对象。</p>
+<p>举个例子，对于命令<code>SET msg &quot;helloWorld&quot;</code>。msg使用的是字符串对象（对于Redis来说保存的键总是一个字符串对象），而helloWorld使用的是<code>简单动态字符串</code>。了解这6种基础数据接口才能进一步了解Redis种的字符串，列表，哈希，集合，有序集合。</p>
       
     </div>
     
@@ -545,7 +547,8 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Redis5.0集群搭建和水平扩展</p>
+        <h2 id="Redis5-0集群水平扩展"><a href="#Redis5-0集群水平扩展" class="headerlink" title="Redis5.0集群水平扩展"></a>Redis5.0集群水平扩展</h2><p>上节介绍了集群的搭建，这节开始详解水平扩展。假设现在由于资源使用情况，我们需要增加一组主从（9857、9858）加入到集群中。</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/2.png" alt></p>
       
     </div>
     
@@ -644,7 +647,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Redis5.0集群搭建和水平扩展</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>redis集群是一个由多个主从节点群组成的分布式服务器群，它具有<font color="red">复制、高可用和分片特性</font>。总结来说他的特点和好处包括：</p>
+<ul>
+<li>Redis的集群方式是无中心化的集群，每个KEY通过 <strong>虚拟槽分区算法</strong> 计算KEY存储在哪台机器上。</li>
+<li>Redis集群不需要sentinel哨兵也能完成<strong>节点转移、故障转移</strong>的功能。</li>
+<li>可水平扩展据官方文档称可以线性扩展到上万个节点(官方推荐不超过1000个节点)。</li>
+<li>Redis集群槽的范围是0 -16383（2^4 * 2^10）。</li>
+</ul>
+<p><img src="/2020/09/01/redis-cluster-build/1.png" alt="RedisCluster架构图"></p>
       
     </div>
     
@@ -743,7 +753,9 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>redis持久化详解RDB,AOP</p>
+        <h2 id="Redis两种持久化方案"><a href="#Redis两种持久化方案" class="headerlink" title="Redis两种持久化方案"></a>Redis两种持久化方案</h2><ul>
+<li>RDB方式，生成指定时间间隔内的 Redis 内存中数据快照，是一个二进制文件 dumpr.rdb。</li>
+<li>AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中数据进行修改的指令记录。</li></ul>
       
     </div>
     
@@ -842,7 +854,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>redis主从复制原理</p>
+        <h2 id="Redis主从复制配置"><a href="#Redis主从复制配置" class="headerlink" title="Redis主从复制配置"></a>Redis主从复制配置</h2><pre><code class="shell">127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379</code></pre>
+<h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><p>redis的复制功能分为<strong>完整重同步</strong>和<strong>部分重同步</strong>两个操作。</p>
+<ul>
+<li>完整重同步操作，将从服务器的数据库状态更新至主服务器当前所处的数据库状态。</li>
+<li>部分重同步操作，用于处理断线后重复制情况：当从服务器在断线后重新连接主服务器时，<strong>如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</strong></li></ul>
       
     </div>
     
@@ -941,7 +957,19 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>redis哨兵原理解析</p>
+        <h2 id="Redis哨兵概述"><a href="#Redis哨兵概述" class="headerlink" title="Redis哨兵概述"></a>Redis哨兵概述</h2><p>Redis Sentinel是一个分布式系统，为Redis提供<font color="red">高可用性</font>解决方案，通过监控各个Redis节点(主从服务器)实现<font color="red">自动障迁移</font>。</p>
+<p>Redis Sentinel功能包括 ：</p>
+<ul>
+<li>监控。Sentinel 会不断地定期检查你的主服务器和从服务器是否运作正常。</li>
+<li>提醒。当被监控的某个 Redis 服务器出现问题时，Sentinel可以通过API向管理员或者其他应用程序发送通知。</li>
+<li>自动故障迁移。当主服务器发生故障时，执行自动故障转移，将从服务器升级为新的主服务器，并让其他从服务器复制新的主服务器数据。<ul>
+<li>从服务器宕机时没什么，但当从服务器重新启动后会自动加入到主从架构中，自动完成同步数据。</li>
+<li>主服务器宕机时在从服务器中选出一台从服务器提升为主服务器，其他从服务器复制新的主服务器，原来的主服务器恢复后自动加入到主从架构中成为从服务器。</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2020/08/14/redis-sentinel/1.png" alt="redis哨兵架构图"></p>
+<p>所以说，本身redis哨兵也是一个<font color="red">分布式集群系统</font>。</p>
       
     </div>
     
@@ -1040,7 +1068,29 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>主要用来记录Redis常用命令的记录，方便查询</p>
+        <h3 id="key常用操作"><a href="#key常用操作" class="headerlink" title="key常用操作"></a>key常用操作</h3><pre><code class="properties"># 查询指定key是否存在
+$ localhost:6379&gt; EXISTS hash1
+(integer) 1
+$ localhost:6379&gt; EXISTS jjj
+(integer) 0
+
+# 删除指定key
+$ localhost:6379&gt; DEL hash1
+(integer) 1
+$ localhost:6379&gt; EXISTS hash1
+(integer) 0
+
+# 对指定key设置过期时间
+$ localhost:6379&gt; set t1 value ex 5
+OK
+
+# 查询指定key的过期时间
+$ localhost:6379&gt; TTL t1
+(integer) 7
+
+# 查询指定key的类型
+$ localhost:6379&gt; type t1
+string</code></pre>
       
     </div>
     
@@ -1139,7 +1189,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>基于springBoot+redis+aop+自定义标签实现分布式限流</p>
+        <h2 id="项目介绍"><a href="#项目介绍" class="headerlink" title="项目介绍"></a>项目介绍</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>通过给api-url设置一个redis-key并设置过期时间。当每次url被请求时key的值加一，如果在过期时间内增加到一定数量后则进行限流。在原理上通过使用redis键值过期时间作为限流的单位时间，在单位时间内如果访问的次数大于指定次数后禁止继续访问，当键值过期后再次访问时重新计算单位时间内的允许访问次数。</p>
       
     </div>
     
@@ -1263,7 +1313,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1322,7 +1372,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

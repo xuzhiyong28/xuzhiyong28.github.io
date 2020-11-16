@@ -424,6 +424,7 @@
 </ol>
 <p>这其中的复杂程度可想而知。有人会说，可以将配置定义在一个分布式配置中心中。 没错 ！！！</p>
 <p>所以ShardingSphere提供了编排治理功能，通俗一点就是通过ShardingSphere + Zookeeper 或者 Etcd  实现 分布式配置功能，并且通过Zookeeper的Watch机制保证每次修改后<font color="red">自动加载无需重启</font>。</p>
+<a id="more"></a>
 <h3 id="如何使用？"><a href="#如何使用？" class="headerlink" title="如何使用？"></a>如何使用？</h3><p>导入编排治理Maven</p>
 <pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
             <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>io.shardingsphere<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
@@ -1015,10 +1016,10 @@ DataSource dataSource <span class="token operator">=</span> OrchestrationShardin
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-30T17:32:50+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:10+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 30, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

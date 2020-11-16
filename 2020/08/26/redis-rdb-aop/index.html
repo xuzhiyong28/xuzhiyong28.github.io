@@ -418,9 +418,10 @@
           
           <h2 id="Redis两种持久化方案"><a href="#Redis两种持久化方案" class="headerlink" title="Redis两种持久化方案"></a>Redis两种持久化方案</h2><ul>
 <li>RDB方式，生成指定时间间隔内的 Redis 内存中数据快照，是一个二进制文件 dumpr.rdb。</li>
-<li>AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中数据进行修改的指令记录。</li>
+<li>AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中数据进行修改的指令记录。<a id="more"></a>
+<h2 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h2></li>
 </ul>
-<h2 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h2><h3 id="RDB介绍和使用"><a href="#RDB介绍和使用" class="headerlink" title="RDB介绍和使用"></a>RDB介绍和使用</h3><ul>
+<h3 id="RDB介绍和使用"><a href="#RDB介绍和使用" class="headerlink" title="RDB介绍和使用"></a>RDB介绍和使用</h3><ul>
 <li>RDB是一种<font color="red">快照模式</font>。保存的是 key-value数据内容。</li>
 <li>RDB有两种持久化方式即<strong>同步save模式</strong>和<strong>异步bgsave模式</strong>。<ul>
 <li>同步模式下阻塞其他命令执行持久化生成rdb文件，不会有一致性问题。</li>
@@ -609,10 +610,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-09T14:20:35+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:44+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 9, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -644,7 +645,8 @@
               <a class='prev' href='/2020/08/27/thread-interrupted/'>
                 <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>java并发之中断详解</p>
                 <p class='content'>概述java中提供了多种方式来实现线程的中断。本文通过列举其中的方式。并对方法interrupt()，Thread.interrupt()，isInterrupted()进行区分。
-中断方法分析...</p>
+
+中断方法分...</p>
               </a>
             
             

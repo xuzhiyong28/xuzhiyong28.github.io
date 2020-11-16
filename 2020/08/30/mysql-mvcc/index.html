@@ -432,6 +432,7 @@
 <li>持久性，事务操作完成后，数据会被刷新到磁盘永久保存，即便是系统故障也不会丢失。</li>
 </ul>
 <p><font color="red">由于多个事务之间是并发执行的，要使得的事务之间互相不影响保证隔离性，只能对事务进行排队访问(锁)，但是这样的效果效率底下，如果不使用排队，多个事务之间同时操作则会出现如下问题：</font></p>
+<a id="more"></a>
 <h3 id="事务并发执行可能出现的问题"><a href="#事务并发执行可能出现的问题" class="headerlink" title="事务并发执行可能出现的问题"></a>事务并发执行可能出现的问题</h3><h4 id="脏写"><a href="#脏写" class="headerlink" title="脏写"></a>脏写</h4><p>如果⼀个事务修改了另⼀个未提交事务修改过的数据，那就意味着发⽣了脏写。</p>
 <table>
 <thead>
@@ -955,10 +956,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-31T16:34:01+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:08:56+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 31, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

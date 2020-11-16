@@ -418,6 +418,7 @@
           
           <h3 id="什么是循环依赖"><a href="#什么是循环依赖" class="headerlink" title="什么是循环依赖"></a>什么是循环依赖</h3><p>所谓的循环依赖是指，A 依赖 B，B 又依赖 A，它们之间形成了循环依赖。或者是 A 依赖 B，B 依赖 C，C 又依赖 A，形成了循环依赖。更或者是自己依赖自己。</p>
 <p><img src="/2020/05/10/spring-forbean/1.png" alt></p>
+<a id="more"></a>
 <p><strong>Spring循环依赖配置和测试类</strong></p>
 <pre class=" language-xml"><code class="language-xml"><span class="token comment" spellcheck="true">&lt;!--src\main\resources\applicationContext.xml--></span>
 <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>beanB<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.xzy.bean.BeanB<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
@@ -696,10 +697,10 @@ sharedInstance <span class="token operator">=</span> <span class="token function
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-11T10:30:44+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:35+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 11, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

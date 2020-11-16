@@ -513,7 +513,10 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Zookeeper实现分布式锁</p>
+        <h2 id="什么是分布式锁"><a href="#什么是分布式锁" class="headerlink" title="什么是分布式锁"></a>什么是分布式锁</h2><p>在日常开发中，我们最熟悉也常用的分布式锁场景是在开发多线程的时候。为了协调本地应用上多个线程对某一资源的访问，就要对该资源或数值变量进行加锁，以保证在多线程环境下系统能够正确地运行。在一台服务器上的程序内部，线程可以通过系统进行线程之间的通信，实现加锁等操作。而在分布式环境下，执行事务的线程存在于不同的网络服务器中，要想实现在分布式网络下的线程协同操作，就要用到分布式锁。</p>
+<h2 id="独占式非公平分布式锁"><a href="#独占式非公平分布式锁" class="headerlink" title="独占式非公平分布式锁"></a>独占式非公平分布式锁</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>独占式非公平锁采用的方式是通过创建节点，如果节点创建成功则表示加锁成功，如果创建不成功则需要等待并对节点(锁)设置watch。</p>
+<p>当节点(锁)释放后会触发watch的节点删除事件，从而重新抢占创建节点。</p>
+<p><img src="/2020/08/27/zookeeper-lock/1.png" alt></p>
       
     </div>
     
@@ -612,7 +615,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解java中断线程的几种方式和方法interrupt()，Thread.interrupt()，isInterrupted()区别</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>java中提供了多种方式来实现线程的中断。本文通过列举其中的方式。并对方法interrupt()，Thread.interrupt()，isInterrupted()进行区分。</p>
       
     </div>
     
@@ -711,7 +714,9 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>redis持久化详解RDB,AOP</p>
+        <h2 id="Redis两种持久化方案"><a href="#Redis两种持久化方案" class="headerlink" title="Redis两种持久化方案"></a>Redis两种持久化方案</h2><ul>
+<li>RDB方式，生成指定时间间隔内的 Redis 内存中数据快照，是一个二进制文件 dumpr.rdb。</li>
+<li>AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中数据进行修改的指令记录。</li></ul>
       
     </div>
     
@@ -810,7 +815,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>redis主从复制原理</p>
+        <h2 id="Redis主从复制配置"><a href="#Redis主从复制配置" class="headerlink" title="Redis主从复制配置"></a>Redis主从复制配置</h2><pre><code class="shell">127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379</code></pre>
+<h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><p>redis的复制功能分为<strong>完整重同步</strong>和<strong>部分重同步</strong>两个操作。</p>
+<ul>
+<li>完整重同步操作，将从服务器的数据库状态更新至主服务器当前所处的数据库状态。</li>
+<li>部分重同步操作，用于处理断线后重复制情况：当从服务器在断线后重新连接主服务器时，<strong>如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</strong></li></ul>
       
     </div>
     
@@ -909,7 +918,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>记一次MySQL主从同步延迟排查和解决</p>
+        <h2 id="问题分析和定位"><a href="#问题分析和定位" class="headerlink" title="问题分析和定位"></a>问题分析和定位</h2><p>线上环境这几天在凌晨4点时报主从延迟。虽然我们项目对数据的时效性不是要求很高，但是出现了主从延迟肯定是哪个地方除了问题，为了保证稳定性需要排查一下问题原因。</p>
+<h3 id="主从同步原理"><a href="#主从同步原理" class="headerlink" title="主从同步原理"></a>主从同步原理</h3><p><img src="/2020/08/19/mysql-masterslave-solve/1.jpg" alt></p>
+<ol>
+<li>主库对所有DDL和DML产生的日志写进binlog；</li>
+<li>主库生成一个 log dump 线程，用来给从库I/O线程读取binlog；</li>
+<li>从库的I/O Thread去请求主库的binlog，并将得到的binlog日志写到relay log文件中；</li>
+<li>从库的SQL Thread会读取relay log文件中的日志解析成具体操作，将主库的DDL和DML操作事件重放。</li></ol>
       
     </div>
     
@@ -1008,7 +1023,19 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>redis哨兵原理解析</p>
+        <h2 id="Redis哨兵概述"><a href="#Redis哨兵概述" class="headerlink" title="Redis哨兵概述"></a>Redis哨兵概述</h2><p>Redis Sentinel是一个分布式系统，为Redis提供<font color="red">高可用性</font>解决方案，通过监控各个Redis节点(主从服务器)实现<font color="red">自动障迁移</font>。</p>
+<p>Redis Sentinel功能包括 ：</p>
+<ul>
+<li>监控。Sentinel 会不断地定期检查你的主服务器和从服务器是否运作正常。</li>
+<li>提醒。当被监控的某个 Redis 服务器出现问题时，Sentinel可以通过API向管理员或者其他应用程序发送通知。</li>
+<li>自动故障迁移。当主服务器发生故障时，执行自动故障转移，将从服务器升级为新的主服务器，并让其他从服务器复制新的主服务器数据。<ul>
+<li>从服务器宕机时没什么，但当从服务器重新启动后会自动加入到主从架构中，自动完成同步数据。</li>
+<li>主服务器宕机时在从服务器中选出一台从服务器提升为主服务器，其他从服务器复制新的主服务器，原来的主服务器恢复后自动加入到主从架构中成为从服务器。</li>
+</ul>
+</li>
+</ul>
+<p><img src="/2020/08/14/redis-sentinel/1.png" alt="redis哨兵架构图"></p>
+<p>所以说，本身redis哨兵也是一个<font color="red">分布式集群系统</font>。</p>
       
     </div>
     
@@ -1107,7 +1134,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>ThreadLocal详解用法和原理</p>
+        <h2 id="ThreadLocal是什么"><a href="#ThreadLocal是什么" class="headerlink" title="ThreadLocal是什么"></a>ThreadLocal是什么</h2><p>ThreadLocal是JAVA线程安全提供的一个工具类，用来存放线程的局部变量，使用他可以为每个线程创建一个副本，线程间可以独立改变自己线程的这个这个变量而不影响其他线程，相对于使用加锁会会导致线程阻塞从而影响性能，ThreadLocal采用了一种”以空间换时间”的方式来达到线程的安全。</p>
       
     </div>
     
@@ -1206,7 +1233,41 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>java并发之synchronized锁升级、锁消除、锁粗化</p>
+        <h2 id="synchronized使用方法"><a href="#synchronized使用方法" class="headerlink" title="synchronized使用方法"></a>synchronized使用方法</h2><table>
+<thead>
+<tr>
+<th></th>
+<th>锁的是什么</th>
+<th>代码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>修饰实例方法</td>
+<td>方法对应的new对象</td>
+<td>public synchronized void doSome(){}</td>
+</tr>
+<tr>
+<td>修饰静态方法</td>
+<td>静态方法对应的类</td>
+<td>public static synchronized void doSome(){}</td>
+</tr>
+<tr>
+<td>修饰代码块1</td>
+<td>方法对应的new对象</td>
+<td>public void doSome(){<br>    &nbsp;&nbsp;&nbsp;synchronized(this){<br>     &nbsp;&nbsp;&nbsp; …<br>    &nbsp;}<br>}</td>
+</tr>
+<tr>
+<td>修饰代码块2</td>
+<td>括号内的类</td>
+<td>public void doSome(){<br>    &nbsp;synchronized(Dog.class){<br>     &nbsp;&nbsp; …<br>    &nbsp;}<br>}</td>
+</tr>
+</tbody></table>
+<h2 id="什么是锁升级？"><a href="#什么是锁升级？" class="headerlink" title="什么是锁升级？"></a>什么是锁升级？</h2><p>JDK6以前synchronized锁实现都是重量级锁的形式，效率低下，为了提升效率进行了优化，所以出现了锁升级的过程。在JDK6之前每次调用synchronized加锁时都需要进行系统调用，系统调用会涉及到用户态和系统态的切换，此过程比较复杂且时间长导致了synchronized效率底下。所以在JDK6以后提出了锁升级的概念。</p>
+<p>synchronized锁升级包括如下几个状态，级别从低到高分别是：<font color="red">无锁状态、偏向锁状态、轻量锁状态、重量锁状态</font>。这里需要注意的是锁升级过程中提到的偏向锁、轻量锁、重量锁都是synchronized锁的具体实现所要经历的过程，<font color="red">他们并不是单独的锁</font>。</p>
+<h2 id="锁升级原理"><a href="#锁升级原理" class="headerlink" title="锁升级原理"></a>锁升级原理</h2><p><font color="red">synchronized锁的是对象</font>。在JVM中每个对象都是有由三部分组成的 ：对象头、实例数据、数据填充。<font color="red">synchronized的锁的信息都是存储在对象头里</font>。</p>
+<p><img src="/2020/08/09/synchronized-up/1.jpg" alt="对象的存储布局"></p>
+<p>我们可以看到对象头中有一个MarkWord。<font color="red">锁升级就是markWord里面标志位的变化</font>。这里我们主要看后面的锁标志位，不同的标志位代表不同的锁状态。大家发现一共有五种状态，用两位是不够的，所以01的时候在向前借一位。</p>
+<p><img src="/2020/08/09/synchronized-up/2.png" alt="不同锁状态对应的锁标志位"></p>
       
     </div>
     
@@ -1305,7 +1366,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Linux故障排查命令使用和JVM命令(jstat、jps、jmap、jstack)</p>
+        <h2 id="top命令详解"><a href="#top命令详解" class="headerlink" title="top命令详解"></a>top命令详解</h2><h3 id="各项指标详解"><a href="#各项指标详解" class="headerlink" title="各项指标详解"></a>各项指标详解</h3><p><img src="/2020/08/04/linux-top/1.png" alt="top命令展示"></p>
+<h4 id="第一行：系统运行时间和平均负载"><a href="#第一行：系统运行时间和平均负载" class="headerlink" title="第一行：系统运行时间和平均负载"></a>第一行：系统运行时间和平均负载</h4><pre><code class="shell">top - 14:46:47 up 909 days,  3:15,  1 user,  load average: 1.80, 1.50, 1.37</code></pre>
+<ul>
+<li>14:46:47 表示当前系统时间</li>
+<li>up 909 days 表示已经运行了909天期间没重启</li>
+<li>1 user 表示当前登录的用户数量</li>
+<li>load average: 1.80, 1.50, 1.37 表示当前系统5分钟;10分钟;15分钟的负载<br><font color="red">load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5的时候就表明系统在超负荷运转了。</font></li></ul>
       
     </div>
     
@@ -1404,7 +1471,64 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>MySQL索引优化EXPLAIN</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="EXPLAIN字段说明"><a href="#EXPLAIN字段说明" class="headerlink" title="EXPLAIN字段说明"></a>EXPLAIN字段说明</h3><p><img src="/2020/07/31/mysql-explain/1.png" alt="示例1"></p>
+<table>
+<thead>
+<tr>
+<th><strong><code>列名</code></strong></th>
+<th><strong><code>用途</code></strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>id</td>
+<td>每一个SELECT关键字查询语句都对应一个唯一id</td>
+</tr>
+<tr>
+<td>select_type</td>
+<td>SELECT关键字对应的查询类型</td>
+</tr>
+<tr>
+<td>table</td>
+<td>表名</td>
+</tr>
+<tr>
+<td>partitions</td>
+<td>匹配的分区信息</td>
+</tr>
+<tr>
+<td>type</td>
+<td>单表的访问方法</td>
+</tr>
+<tr>
+<td>possible_keys</td>
+<td>可能用到的索引</td>
+</tr>
+<tr>
+<td>key</td>
+<td>实际使用到的索引</td>
+</tr>
+<tr>
+<td>key_len</td>
+<td>实际使用到的索引长度</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>当使用索引列等值查询时，与索引列进行等值匹配的对象信息</td>
+</tr>
+<tr>
+<td>rows</td>
+<td>预估需要读取的记录条数</td>
+</tr>
+<tr>
+<td>filtered</td>
+<td>某个表经过条件过滤后剩余的记录条数百分比</td>
+</tr>
+<tr>
+<td>Extra</td>
+<td>额外的一些信息</td>
+</tr>
+</tbody></table>
+<p>为了事情的发展，我们新建几张表方便后面讲解…</p>
       
     </div>
     
@@ -1548,7 +1672,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1607,7 +1731,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

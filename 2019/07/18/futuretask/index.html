@@ -417,6 +417,7 @@
         <div class="article-entry" itemprop="articleBody">
           
           <h2 id="什么是Future、FutureTask"><a href="#什么是Future、FutureTask" class="headerlink" title="什么是Future、FutureTask"></a>什么是Future、FutureTask</h2><p>future在字面上表示未来的意思，在Java中一般通过继承Thread类或者实现Runnable接口这两种方式来创建多线程，但是这两种方式都有个缺陷，就是不能在执行完成后获取执行的结果。然而JDK提供了一种类似ajax的方式，允许提交任务后去做自己的事，在任务执行完成后可以获得执行的结果。总的来说就是实现”任务的提交”和”任务的执行”相分离。</p>
+<a id="more"></a>
 <pre class=" language-java"><code class="language-java">    <span class="token annotation punctuation">@Test</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> ExecutionException<span class="token punctuation">,</span> InterruptedException <span class="token punctuation">{</span>
         FutureTask<span class="token operator">&lt;</span>String<span class="token operator">></span> futureTask <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FutureTask</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> <span class="token punctuation">{</span>
@@ -788,10 +789,10 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-16T10:44:11+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:06:49+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 16, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -820,9 +821,15 @@ futureTask.get是支持多个线程去调用的，这个变量主要是用来存
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/mysql-index/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Mysql-InnoDB索引之索引结构详解(一)</p>
-                <p class='content'>InnoDB数据页结构页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Reco...</p>
+              <a class='prev' href='/2019/07/18/mysql-index-use/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Mysql-InnoDB索引之索引使用和优化原则(二)</p>
+                <p class='content'>提出问题
+什么是回表？
+索引是不是可以无限建？
+什么是索引的最左匹配原则？
+什么是覆盖索引？
+如何建立高效的索引？
+索引的代价通过上文《Mysql-InnoDB索引之索引结构详解(一)》我们了解...</p>
               </a>
             
             

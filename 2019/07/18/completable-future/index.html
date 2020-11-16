@@ -418,19 +418,24 @@
           
           <h2 id="CompletableFuture介绍"><a href="#CompletableFuture介绍" class="headerlink" title="CompletableFuture介绍"></a>CompletableFuture介绍</h2><p>CompletableFuture是JDK8新出来一种异步组合式编程。<br>Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结果之间的依赖性。实际开发中，我们经常需要达成以下目的：</p>
 <ul>
-<li>将多个异步计算的结果合并成一个</li>
-<li>等待Future集合中的所有任务都完成</li>
-<li>Future完成事件（即，任务完成以后触发执行动作）</li>
-</ul>
+<li><p>将多个异步计算的结果合并成一个</p>
+</li>
+<li><p>等待Future集合中的所有任务都完成</p>
+</li>
+<li><p>Future完成事件（即，任务完成以后触发执行动作）</p>
+<a id="more"></a>
 <h2 id="CompletableFuture使用"><a href="#CompletableFuture使用" class="headerlink" title="CompletableFuture使用"></a>CompletableFuture使用</h2><h3 id="场景一：普通异步使用"><a href="#场景一：普通异步使用" class="headerlink" title="场景一：普通异步使用"></a>场景一：普通异步使用</h3><p>CompletableFuture提供了4个方法用来执行异步调用。一组是有返回值的，一组是无返回值的</p>
 <pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> CompletableFuture<span class="token operator">&lt;</span>Void<span class="token operator">></span> <span class="token function">runAsync</span><span class="token punctuation">(</span>Runnable runnable<span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">static</span> CompletableFuture<span class="token operator">&lt;</span>Void<span class="token operator">></span> <span class="token function">runAsync</span><span class="token punctuation">(</span>Runnable runnable<span class="token punctuation">,</span> Executor executor<span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token operator">&lt;</span>U<span class="token operator">></span> CompletableFuture<span class="token operator">&lt;</span>U<span class="token operator">></span> <span class="token function">supplyAsync</span><span class="token punctuation">(</span>Supplier<span class="token operator">&lt;</span>U<span class="token operator">></span> supplier<span class="token punctuation">)</span>
 <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token operator">&lt;</span>U<span class="token operator">></span> CompletableFuture<span class="token operator">&lt;</span>U<span class="token operator">></span> <span class="token function">supplyAsync</span><span class="token punctuation">(</span>Supplier<span class="token operator">&lt;</span>U<span class="token operator">></span> supplier<span class="token punctuation">,</span> Executor executor<span class="token punctuation">)</span></code></pre>
+</li>
+<li><p>runAsync 和 supplyAsync 的区别是有没有返回值</p>
+</li>
+<li><p>没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。</p>
+</li>
+<li><p>如何判断是自己传线程池还是用ForkJoinPool线程池呢？</p>
 <ul>
-<li>runAsync 和 supplyAsync 的区别是有没有返回值</li>
-<li>没有指定Executor的方法会使用ForkJoinPool.commonPool() 作为它的线程池执行异步代码。如果指定线程池，则使用指定的线程池运行。</li>
-<li>如何判断是自己传线程池还是用ForkJoinPool线程池呢？<ul>
 <li>ThreadPool：多见于线程并发，阻塞时延比较长的，这种线程池比较常用，一般设置的线程个数根据业务性能要求会比较多</li>
 <li>ForkJoinPool：特点是少量线程完成大量任务，一般用于非阻塞的，能快速处理的业务，或阻塞时延比较少的</li>
 </ul>
@@ -891,10 +896,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-29T14:09:33+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:05:36+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 29, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -929,9 +934,12 @@
               </a>
             
             
-              <a class='next' href='/2019/07/18/design-pattern-singleton/'>
-                <p class='title'>设计模式之单例模式<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>单例模式概念单例模式(Singleton Pattern)：确保某一个类只有一个实例，而且自行实例化并向整个系统提供这个实例，这个类称为单例类，它提供全局访问的方法。单例模式是一种对象创建型模式...</p>
+              <a class='next' href='/2019/07/18/volatile/'>
+                <p class='title'>java并发之volatile<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Java内存模型(jmm)看个例子
+public class VolatileExample extends Thread{
+    //设置类静态变量,各线程访问这同一共享变量
+    pri...</p>
               </a>
             
           </div>

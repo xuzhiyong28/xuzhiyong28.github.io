@@ -425,6 +425,8 @@
 <li>业务服务器将写操作发给数据库主机，将读操作发给数据库从机</li>
 </ul>
 <p><img src="/2020/07/20/db-w-r-dynamic/db1.png" alt></p>
+<a id="more"></a>
+
 <h2 id="读写分离常见问题与解决"><a href="#读写分离常见问题与解决" class="headerlink" title="读写分离常见问题与解决"></a>读写分离常见问题与解决</h2><h3 id="主从延迟"><a href="#主从延迟" class="headerlink" title="主从延迟"></a>主从延迟</h3><p>以MYSQL为例，当主库插入数据后从库需要一段时间才能同步，时间可能达到1秒多，如果有大量数同步延迟1分钟也有可能。如果业务服务器将数据写入到数据库主服务器后立刻(1秒内)进行读取，此时读操作访问的是从机，主机还没有将数据复制过来，到从机读取数据是读不到最新数据的，业务上就可能出现问题。</p>
 <h3 id="常见解决方法"><a href="#常见解决方法" class="headerlink" title="常见解决方法"></a>常见解决方法</h3><ol>
 <li>关键业务读写操作指向主机，非关键业务采用读写分离。从业务上来区别理论上是比较好的。</li>
@@ -661,10 +663,10 @@ public class DBContextHolder {
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-21T17:59:46+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:05:55+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 21, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -703,7 +705,8 @@ public class DBContextHolder {
                 <p class='title'>Spring循环依赖详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
                 <p class='content'>什么是循环依赖所谓的循环依赖是指，A 依赖 B，B 又依赖 A，它们之间形成了循环依赖。或者是 A 依赖 B，B 依赖 C，C 又依赖 A，形成了循环依赖。更或者是自己依赖自己。
 
-Spring...</p>
+
+Sprin...</p>
               </a>
             
           </div>

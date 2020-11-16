@@ -420,9 +420,9 @@
 <p>这个扩展点主要发生在获取BeanDefinition后，可以在这里动态注册自己的beanDefinition，或者对已注册的BeanDefinition做一些改变，提供了两个方法</p>
 <ul>
 <li>postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)，该方法用来注册更多的bean到spring容器中。</li>
-<li>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)，主要用来对已注册BeanDefinition做一些改变。</li>
+<li>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)，主要用来对已注册BeanDefinition做一些改变。<a id="more"></a>
+具体源码</li>
 </ul>
-<p>具体源码</p>
 <pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//refresh -> #invokeBeanFactoryPostProcessors() -> PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, //getBeanFactoryPostProcessors())</span>
 <span class="token keyword">boolean</span> reiterate <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
 <span class="token keyword">while</span> <span class="token punctuation">(</span>reiterate<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -639,10 +639,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-09-18T14:07:05+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:31+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Sep 18, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

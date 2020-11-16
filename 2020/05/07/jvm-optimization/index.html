@@ -424,6 +424,7 @@
 -Xss256K: 栈大小设置
 -XX:MetaspaceSize=n 元空间初始大小
 -XX:MaxMetaspaceSize=n 元空间最大大小</code></pre>
+<a id="more"></a>
 <p>典型设置</p>
 <pre class=" language-shell"><code class="language-shell">java -Xmx3550m -Xms3550m -Xss128k -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=0
 #-XX:NewRatio=4:设置年轻代（包括Eden和两个Survivor区）与年老代的比值（除去持久代）。设置为4，则年轻代与年老代所占比值为1：4，年轻代占整个堆栈的1/5
@@ -572,10 +573,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-10-12T18:05:23+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:07:21+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Oct 12, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -608,7 +609,8 @@
                 <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spring循环依赖详解</p>
                 <p class='content'>什么是循环依赖所谓的循环依赖是指，A 依赖 B，B 又依赖 A，它们之间形成了循环依赖。或者是 A 依赖 B，B 依赖 C，C 又依赖 A，形成了循环依赖。更或者是自己依赖自己。
 
-Spring...</p>
+
+Sprin...</p>
               </a>
             
             

@@ -435,6 +435,7 @@
 <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
     SingletonOne singletonOne <span class="token operator">=</span> SingletonOne<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span></code></pre>
+<a id="more"></a>
 <p>缺陷 ：</p>
 <ul>
 <li>不支持多线程，在并发环境下会导致创建多个实例</li>
@@ -608,10 +609,10 @@ sInstance <span class="token operator">=</span> memory<span class="token punctua
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T15:30:04+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:06:11+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 28, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -640,18 +641,24 @@ sInstance <span class="token operator">=</span> memory<span class="token punctua
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/completable-future/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>CompletableFuture使用详解</p>
-                <p class='content'>CompletableFuture介绍CompletableFuture是JDK8新出来一种异步组合式编程。Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结...</p>
-              </a>
-            
-            
-              <a class='next' href='/2019/07/18/volatile/'>
-                <p class='title'>java并发之volatile<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+              <a class='prev' href='/2019/07/18/volatile/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>java并发之volatile</p>
                 <p class='content'>Java内存模型(jmm)看个例子
 public class VolatileExample extends Thread{
     //设置类静态变量,各线程访问这同一共享变量
     pri...</p>
+              </a>
+            
+            
+              <a class='next' href='/2019/02/18/limit-single/'>
+                <p class='title'>限流原理与guava单机限流<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>限流算法常见限流算法常用的限流算法有：令牌桶，漏桶、滑动窗口算法。
+
+漏桶算法算法介绍漏桶算法的描述如下：
+
+一个固定容量的漏桶，按照常量固定速率流出水滴
+如果桶是空的，则不需流出水滴
+可以以任...</p>
               </a>
             
           </div>

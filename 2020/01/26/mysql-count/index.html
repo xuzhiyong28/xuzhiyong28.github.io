@@ -417,6 +417,7 @@
         <div class="article-entry" itemprop="articleBody">
           
           <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。</p>
+<a id="more"></a>
 <h3 id="InnoDB下的count"><a href="#InnoDB下的count" class="headerlink" title="InnoDB下的count"></a>InnoDB下的count</h3><p>count(*)、count(主键 id) 、 count(1) 都表示返回满足条件的结果集的总行数。而count(字段)则表示返回满足条件的数据行里面，参数“字段”不为 NULL 的总个数。</p>
 <ul>
 <li><strong>对于count(主键id)来说</strong>，InnoDB引擎会遍历整张表，把每一行的id值取出来，返回给server层。server 层拿到 id 后，判断是不可能为空的，就按行累加。由于主键是不可能为NULL的，所以count(主键id)是忽略NULL的。</li>
@@ -532,10 +533,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-26T09:05:50+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:08:00+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 26, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 

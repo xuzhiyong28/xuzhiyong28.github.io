@@ -513,7 +513,7 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解MySQL之count(*)、count(1)、count(字段)</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。</p>
       
     </div>
     
@@ -612,7 +612,15 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>SpringMVC详细解析之工作流程</p>
+        <h2 id="SpringMVC工作流程"><a href="#SpringMVC工作流程" class="headerlink" title="SpringMVC工作流程"></a>SpringMVC工作流程</h2><h3 id="工作流程概述"><a href="#工作流程概述" class="headerlink" title="工作流程概述"></a>工作流程概述</h3><ul>
+<li>客户端（浏览器）发送请求，直接请求到 DispatcherServlet</li>
+<li>DispatcherServlet 根据请求信息调用 HandlerMapping，解析请求对应的 Handler</li>
+<li>解析到对应的 Handler（也就是我们平常说的 Controller 控制器）后，开始由 HandlerAdapter 适配器处理</li>
+<li>HandlerAdapter 会根据 Handler 来调用真正的处理器开处理请求，并处理相应的业务逻辑</li>
+<li>处理器处理完业务后，会返回一个 ModelAndView 对象，Model 是返回的数据对象，View 是个逻辑上的 View</li>
+<li>ViewResolver 会根据逻辑 View 查找实际的 View</li>
+<li>DispaterServlet 把返回的 Model 传给 View（视图渲染）</li>
+<li>把 View 返回给请求者（浏览器）</li></ul>
       
     </div>
     
@@ -711,7 +719,23 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>SpringMVC详细解析之初始化</p>
+        <h2 id="SpringMVC初始化"><a href="#SpringMVC初始化" class="headerlink" title="SpringMVC初始化"></a>SpringMVC初始化</h2><h3 id="SpringMVC搭建流程"><a href="#SpringMVC搭建流程" class="headerlink" title="SpringMVC搭建流程"></a>SpringMVC搭建流程</h3><p>1.新建applicationContext.xml配置文件</p>
+<pre><code class="java">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+       xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+       xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+       xmlns:tx=&quot;http://www.springframework.org/schema/tx&quot;
+       xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd&quot;&gt;
+    &lt;context:annotation-config/&gt;
+    &lt;bean id=&quot;beanService&quot; class=&quot;com.xzy.bean.BeanService&quot;&gt;&lt;/bean&gt;
+    //...忽略其他配置
+&lt;/bean&gt;
+&lt;/beans&gt;</code></pre>
       
     </div>
     
@@ -849,7 +873,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -908,7 +932,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

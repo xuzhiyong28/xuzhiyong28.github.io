@@ -420,6 +420,7 @@
 <h2 id="独占式非公平分布式锁"><a href="#独占式非公平分布式锁" class="headerlink" title="独占式非公平分布式锁"></a>独占式非公平分布式锁</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>独占式非公平锁采用的方式是通过创建节点，如果节点创建成功则表示加锁成功，如果创建不成功则需要等待并对节点(锁)设置watch。</p>
 <p>当节点(锁)释放后会触发watch的节点删除事件，从而重新抢占创建节点。</p>
 <p><img src="/2020/08/27/zookeeper-lock/1.png" alt></p>
+<a id="more"></a>
 <ol>
 <li>多个客户端竞争创建 lock 临时节点</li>
 <li>其中某个客户端成功创建 lock 节点，其他客户端对 lock 节点设置 watcher</li>
@@ -1022,10 +1023,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-08-30T09:27:20+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:11:23+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Aug 30, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -1067,7 +1068,8 @@ CREATE    TABLE hero(
               <a class='next' href='/2020/08/27/thread-interrupted/'>
                 <p class='title'>java并发之中断详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
                 <p class='content'>概述java中提供了多种方式来实现线程的中断。本文通过列举其中的方式。并对方法interrupt()，Thread.interrupt()，isInterrupted()进行区分。
-中断方法分析...</p>
+
+中断方法分...</p>
               </a>
             
           </div>

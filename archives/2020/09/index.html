@@ -527,7 +527,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>SpringBoot自动配置原理和自定义起步依赖</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>SpringBoot采用了“习惯优于配置”的理念，没有了繁琐的配置，让我们开发起来变得更加快捷。例如我们需要在项目中使用Redis模块进行开发。只需要引入spring-boot-starter-data-redis包，就会自动加载了Redis所需要的模块。我们只需要在配置文件application.properties上配置redis的相关连接信息，并在代码上使用RedisTemplate.java类就可以操作Redis。</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
       
     </div>
     
@@ -626,7 +630,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Spring扩展点详解</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h3><p><img src="/2020/09/13/spring-extend/1.png" alt></p>
+<p>这个扩展点主要发生在获取BeanDefinition后，可以在这里动态注册自己的beanDefinition，或者对已注册的BeanDefinition做一些改变，提供了两个方法</p>
+<ul>
+<li>postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)，该方法用来注册更多的bean到spring容器中。</li>
+<li>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)，主要用来对已注册BeanDefinition做一些改变。</li></ul>
       
     </div>
     
@@ -725,7 +733,12 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解AQS(抽象队列同步器)</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Java中提供了AbstractQueuedSynchronizer类，简称抽象队列同步器。这个类封装了各种底层的同步细节程序员想自定义自己的同步工具的时候，只需要定义这个类的子类并覆盖它提供的一些方法就好了。<strong>ReentrantLock</strong>类就是借助AQS实现的。</p>
+<h3 id="AQS工作原理大概流程"><a href="#AQS工作原理大概流程" class="headerlink" title="AQS工作原理大概流程"></a>AQS工作原理大概流程</h3><p>AQS中维护了一个<strong><font color="red">state</font></strong>字段，我们可以通过修改<code>state</code>字段代表的<code>同步状态</code>来实现多线程的<code>独占模式</code>或者<code>共享模式</code>。</p>
+<p><strong>独占模式</strong></p>
+<p>在独占模式下，我们可以把state的初始值设置为0，每当一个线程要进行某项独占操作时，判断state==0？，如果是0则通过<strong>CAS</strong>操作将state改成1并进入独占操作。当另一个线程也需要独占操作时，由于state!=0，意味着已经有线程在进行独占模式，则该线程会被封装成一个Node存到一个同步队列中去并阻塞。当第一个线程完成独占操作后，会将state设置成0并通知同步队列里的线程。这样同步队列里的线程就可以挨个进行独占操作。</p>
+<p><strong>共享模式</strong></p>
+<p>共享模式和独占模式差不多，也是判断state，需要阻塞的线程也是封装到同步队列中。比如说某项操作我们允许<code>10</code>个线程同时，那么就将state的初始值设置成10，线程需要独占操作时就将state减少1，当state小于0时，后续的线程才需要阻塞。</p>
       
     </div>
     
@@ -824,7 +837,8 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Redis5.0集群搭建和水平扩展</p>
+        <h2 id="Redis5-0集群水平扩展"><a href="#Redis5-0集群水平扩展" class="headerlink" title="Redis5.0集群水平扩展"></a>Redis5.0集群水平扩展</h2><p>上节介绍了集群的搭建，这节开始详解水平扩展。假设现在由于资源使用情况，我们需要增加一组主从（9857、9858）加入到集群中。</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/2.png" alt></p>
       
     </div>
     
@@ -923,7 +937,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Redis5.0集群搭建和水平扩展</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>redis集群是一个由多个主从节点群组成的分布式服务器群，它具有<font color="red">复制、高可用和分片特性</font>。总结来说他的特点和好处包括：</p>
+<ul>
+<li>Redis的集群方式是无中心化的集群，每个KEY通过 <strong>虚拟槽分区算法</strong> 计算KEY存储在哪台机器上。</li>
+<li>Redis集群不需要sentinel哨兵也能完成<strong>节点转移、故障转移</strong>的功能。</li>
+<li>可水平扩展据官方文档称可以线性扩展到上万个节点(官方推荐不超过1000个节点)。</li>
+<li>Redis集群槽的范围是0 -16383（2^4 * 2^10）。</li>
+</ul>
+<p><img src="/2020/09/01/redis-cluster-build/1.png" alt="RedisCluster架构图"></p>
       
     </div>
     
@@ -1046,7 +1067,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1105,7 +1126,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

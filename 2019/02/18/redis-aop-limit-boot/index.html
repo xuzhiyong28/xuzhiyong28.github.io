@@ -417,6 +417,7 @@
         <div class="article-entry" itemprop="articleBody">
           
           <h2 id="项目介绍"><a href="#项目介绍" class="headerlink" title="项目介绍"></a>项目介绍</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>通过给api-url设置一个redis-key并设置过期时间。当每次url被请求时key的值加一，如果在过期时间内增加到一定数量后则进行限流。在原理上通过使用redis键值过期时间作为限流的单位时间，在单位时间内如果访问的次数大于指定次数后禁止继续访问，当键值过期后再次访问时重新计算单位时间内的允许访问次数。</p>
+<a id="more"></a>
 <p>采用aop+自定义注解的方式，在每次调用controller类时对方法进行增强，aop扫描所有注有<strong>@RateLimiter</strong>的方法并环绕增强。</p>
 <h3 id="项目测试"><a href="#项目测试" class="headerlink" title="项目测试"></a>项目测试</h3><pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//指定testone这个url在10秒内只能有5次请求，如果超过则报错</span>
 <span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/testone"</span><span class="token punctuation">)</span>
@@ -909,10 +910,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T14:48:13+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:10+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 28, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -941,16 +942,15 @@
         
           <div class="prev-next">
             
-              <a class='prev' href='/2019/07/18/mysql-index-use/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Mysql-InnoDB索引之索引使用和优化原则(二)</p>
-                <p class='content'>提出问题
-什么是回表？
-索引是不是可以无限建？
-什么是索引的最左匹配原则？
-什么是覆盖索引？
-如何建立高效的索引？
+              <a class='prev' href='/2019/02/18/limit-single/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>限流原理与guava单机限流</p>
+                <p class='content'>限流算法常见限流算法常用的限流算法有：令牌桶，漏桶、滑动窗口算法。
 
-索引的代价通过上文《Mysql-InnoDB索引之索引结构详解(一)》我们了...</p>
+漏桶算法算法介绍漏桶算法的描述如下：
+
+一个固定容量的漏桶，按照常量固定速率流出水滴
+如果桶是空的，则不需流出水滴
+可以以任...</p>
               </a>
             
             

@@ -525,6 +525,10 @@
         
           
         
+          
+        
+          
+        
       
     
     
@@ -784,7 +788,7 @@
           
   <h2 class="title">
     <a href="/2020/10/09/kafka-base/">
-      Kafka概念与架构知识点汇总
+      Kafka概念与架构知识点汇总（一）
     </a>
   </h2>
 
@@ -850,7 +854,21 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Kafka概念与架构知识点汇总</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>Kafka是一个<strong>分布式</strong>，<strong>分区</strong>，<strong>多副本</strong>，<strong>发布-订阅模式</strong>，<strong>基于zookeeper协调</strong>的分布式日志系统，消息队列（MQ）。主要应用场景是：日志收集系统和消息系统。</p>
+<h3 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h3><ul>
+<li>Broker（服务器），Kafka的服务器被称为Broker，一个集群中包含一个或多个Broker。</li>
+<li>Topic（主题），每条发布到Kafka集群的消息都有一个类别，这个类别被称为Topic。</li>
+<li>Partition（分区），一个Topic被分成多个分区，这也是Kafka吞吐量高的原因之一，负载均衡。</li>
+<li>Producer（生产者），数据的发布者，将消息发布到topic中。</li>
+<li>Consumer（消费者），从topic中消费消息，一个消费者可以消费多个不同的Topic或者多个不同的Partition</li>
+<li>Consumer Group（消费者组），每个Consumer属于一个特定的Consumer Group。</li>
+<li>Replica（副本），一个分区有多个Replica，这也是Kafka高可用的原因。</li>
+<li>Leader（领导者副本），当前负责数据的读写的partition。</li>
+<li>Follower（追随者副本），负责从Leader获取数据并存储，不负责读写，作为一个冷备份，当Leader挂的时候就会从Follower中选举一个出来当Leader。</li>
+<li>LogSegemnt（数据段），消息的持久化方式。</li>
+<li>AR（Assigned Repllicas），分区中的所有副本统称为AR。</li>
+<li>ISR（in-sync Replica），所有与leader副本保持一定程度同步的副本（包括Leader）称之为ISR。</li>
+<li>Controller（控制者），负责管理整个集群中分区和副本的状态。</li></ul>
       
     </div>
     
@@ -949,7 +967,9 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Redis数据结构总结</p>
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>本文主要总结Redis几种数据结构的特点，Redis由于单线程和纯内存的特点，所以在数据结构上也做了很多优化，了解Redis的数据结构有利于我们更好的根据实际场景使用正确的数据结构。</p>
+<h3 id="基础数据结构"><a href="#基础数据结构" class="headerlink" title="基础数据结构"></a>基础数据结构</h3><h4 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h4><p>Redis在内部定义了6种基础的数据结构，包括：<font color="red">简单动态字符串，链表，字典，跳跃表，整数集合，压缩列表</font>。Redis使用这几种基础的数据结构创建了一个对象系统，这个系统包含了字符串对象，列表对象，哈希对象，集合对象，有序集合对象。</p>
+<p>举个例子，对于命令<code>SET msg &quot;helloWorld&quot;</code>。msg使用的是字符串对象（对于Redis来说保存的键总是一个字符串对象），而helloWorld使用的是<code>简单动态字符串</code>。了解这6种基础数据接口才能进一步了解Redis种的字符串，列表，哈希，集合，有序集合。</p>
       
     </div>
     
@@ -1048,7 +1068,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>SpringBoot自动配置原理和自定义起步依赖</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>SpringBoot采用了“习惯优于配置”的理念，没有了繁琐的配置，让我们开发起来变得更加快捷。例如我们需要在项目中使用Redis模块进行开发。只需要引入spring-boot-starter-data-redis包，就会自动加载了Redis所需要的模块。我们只需要在配置文件application.properties上配置redis的相关连接信息，并在代码上使用RedisTemplate.java类就可以操作Redis。</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
       
     </div>
     
@@ -1147,7 +1171,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Spring扩展点详解</p>
+        <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="BeanDefinitionRegistryPostProcessor"><a href="#BeanDefinitionRegistryPostProcessor" class="headerlink" title="BeanDefinitionRegistryPostProcessor"></a>BeanDefinitionRegistryPostProcessor</h3><p><img src="/2020/09/13/spring-extend/1.png" alt></p>
+<p>这个扩展点主要发生在获取BeanDefinition后，可以在这里动态注册自己的beanDefinition，或者对已注册的BeanDefinition做一些改变，提供了两个方法</p>
+<ul>
+<li>postProcessBeanDefinitionRegistry(BeanDefinitionRegistry beanDefinitionRegistry)，该方法用来注册更多的bean到spring容器中。</li>
+<li>postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)，主要用来对已注册BeanDefinition做一些改变。</li></ul>
       
     </div>
     
@@ -1246,7 +1274,12 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解AQS(抽象队列同步器)</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>Java中提供了AbstractQueuedSynchronizer类，简称抽象队列同步器。这个类封装了各种底层的同步细节程序员想自定义自己的同步工具的时候，只需要定义这个类的子类并覆盖它提供的一些方法就好了。<strong>ReentrantLock</strong>类就是借助AQS实现的。</p>
+<h3 id="AQS工作原理大概流程"><a href="#AQS工作原理大概流程" class="headerlink" title="AQS工作原理大概流程"></a>AQS工作原理大概流程</h3><p>AQS中维护了一个<strong><font color="red">state</font></strong>字段，我们可以通过修改<code>state</code>字段代表的<code>同步状态</code>来实现多线程的<code>独占模式</code>或者<code>共享模式</code>。</p>
+<p><strong>独占模式</strong></p>
+<p>在独占模式下，我们可以把state的初始值设置为0，每当一个线程要进行某项独占操作时，判断state==0？，如果是0则通过<strong>CAS</strong>操作将state改成1并进入独占操作。当另一个线程也需要独占操作时，由于state!=0，意味着已经有线程在进行独占模式，则该线程会被封装成一个Node存到一个同步队列中去并阻塞。当第一个线程完成独占操作后，会将state设置成0并通知同步队列里的线程。这样同步队列里的线程就可以挨个进行独占操作。</p>
+<p><strong>共享模式</strong></p>
+<p>共享模式和独占模式差不多，也是判断state，需要阻塞的线程也是封装到同步队列中。比如说某项操作我们允许<code>10</code>个线程同时，那么就将state的初始值设置成10，线程需要独占操作时就将state减少1，当state小于0时，后续的线程才需要阻塞。</p>
       
     </div>
     
@@ -1345,7 +1378,8 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Redis5.0集群搭建和水平扩展</p>
+        <h2 id="Redis5-0集群水平扩展"><a href="#Redis5-0集群水平扩展" class="headerlink" title="Redis5.0集群水平扩展"></a>Redis5.0集群水平扩展</h2><p>上节介绍了集群的搭建，这节开始详解水平扩展。假设现在由于资源使用情况，我们需要增加一组主从（9857、9858）加入到集群中。</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/2.png" alt></p>
       
     </div>
     
@@ -1444,7 +1478,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Redis5.0集群搭建和水平扩展</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>redis集群是一个由多个主从节点群组成的分布式服务器群，它具有<font color="red">复制、高可用和分片特性</font>。总结来说他的特点和好处包括：</p>
+<ul>
+<li>Redis的集群方式是无中心化的集群，每个KEY通过 <strong>虚拟槽分区算法</strong> 计算KEY存储在哪台机器上。</li>
+<li>Redis集群不需要sentinel哨兵也能完成<strong>节点转移、故障转移</strong>的功能。</li>
+<li>可水平扩展据官方文档称可以线性扩展到上万个节点(官方推荐不超过1000个节点)。</li>
+<li>Redis集群槽的范围是0 -16383（2^4 * 2^10）。</li>
+</ul>
+<p><img src="/2020/09/01/redis-cluster-build/1.png" alt="RedisCluster架构图"></p>
       
     </div>
     
@@ -1543,7 +1584,22 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>用大白话讲解事务隔离级别和多版本并发控制(MVCC)的原理。</p>
+        <h2 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>先定义一个表，方便后面说明。</p>
+<pre><code class="sql">CREATE    TABLE hero(
+       number    INT,
+       name    VARCHAR(100),
+       country    varchar(100),
+       PRIMARY    KEY    (number)
+)    Engine=InnoDB    CHARSET=utf8;
+INSERT INTO    hero VALUES(1,    &#39;索罗&#39;,&#39;cn&#39;);</code></pre>
+<p>MySQL是一个客户端/服务器架构。对于MySQL这个服务器来说，可以有很多客户端与其连接。每个客户端与服务器连接上之后，就可以称之为⼀个会话（Session）。事务是用来保证一个或多个数据库操作要嘛全部成功，要嘛全部回滚。事务要求我们要保证<font color="red">原子性、一致性、隔离性、持久性</font>。</p>
+<ul>
+<li>原子性，多个操作是一个不可分割的整体，要么全做，要么全不做的规则称之为原⼦性。</li>
+<li>一致性，在事务操作之前和之后，数据都是保持一个相同的状态，数据库的完整性没有被破坏。</li>
+<li>隔离性，保证多个事务之间不互相影响的规则称之为隔离性。隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。</li>
+<li>持久性，事务操作完成后，数据会被刷新到磁盘永久保存，即便是系统故障也不会丢失。</li>
+</ul>
+<p><font color="red">由于多个事务之间是并发执行的，要使得的事务之间互相不影响保证隔离性，只能对事务进行排队访问(锁)，但是这样的效果效率底下，如果不使用排队，多个事务之间同时操作则会出现如下问题：</font></p>
       
     </div>
     
@@ -1680,7 +1736,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1739,7 +1795,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

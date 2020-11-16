@@ -513,7 +513,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>理解单表使用索引详解，为啥使用const而不是ref？多条件时是如何选择索引查询的？</p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>本文主要讲解单表使用索引的几种情况，Mysql分别在使用主键索引，普通索引，唯一索引时是如何查询的，另外等值查询和范围查询是什么个情况。一般来说单表查询基本分成如下情况：</p>
+<ul>
+<li>没使用索引的全表扫描查询</li>
+<li>使用索引查询<ul>
+<li>针对主键或唯⼀⼆级索引的等值查询</li>
+<li>针对普通⼆级索引的等值查询</li>
+<li>针对索引列的范围查询</li>
+<li>直接扫描整个索引</li></ul></li></ul>
       
     </div>
     
@@ -612,7 +619,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>彻底理解class常量池、String常量池、运行时常量池</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>经常看网上博客，发现很多文章用了常量池，class常量池，运行时常量池，字符串常量池。傻傻分不清楚他们之间有什么区别。</p>
+<h2 id="常量池和class常量池"><a href="#常量池和class常量池" class="headerlink" title="常量池和class常量池"></a>常量池和class常量池</h2><p>其实，常量池 <font color="red">=</font> Class常量池。</p>
+<p>常量池,也叫 Class 常量池。Java文件被编译成 Class文件，Class文件中除了包含类的版本、字段、方法、接口等描述信息外，还有一项就是常量池，常量池是当Class文件被Java虚拟机加载进来后存放在方法区各种字面量 (Literal)和 符号引用 。</p>
+<p><img src="/2020/07/31/sring-class/1.jpg" alt></p>
+<h2 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h2><p>运行时常量池是<font color="red">方法区的一部分</font>。</p>
+<p>运行时常量池是当Class文件被加载到内存后，Java虚拟机会将Class常量池里的内容转移到运行时常量池里(<font color="red">运行时常量池也是每个类都有一个</font>)。</p>
+<p>运行时常量池相对于Class常量池的另外一个重要特征是具备动态性，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入Class文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中。</p>
       
     </div>
     
@@ -711,7 +724,12 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>详解Fork/join框架</p>
+        <h2 id="Fork-Join框架介绍"><a href="#Fork-Join框架介绍" class="headerlink" title="Fork/Join框架介绍"></a>Fork/Join框架介绍</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>Fork/Join框架是Java 7提供的一个用于并行执行任务的框架，是一个把大任务分割成若干个小任务，最终汇总每个小任务结果后得到大任务结果的框架。Fork/Join框架要完成两件事情：</p>
+<ul>
+<li>任务分割：首先Fork/Join框架需要把大的任务分割成足够小的子任务，如果子任务比较大的话还要对子任务进行继续分割</li>
+<li>执行任务并合并结果：分割的子任务分别放到双端队列里，然后几个启动线程分别从双端队列里获取任务执行。子任务执行完的结果都放在另外一个队列里，启动一个线程从队列里取数据，然后合并这些数据</li>
+</ul>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>ForkJoinPool 不是为了替代 ExecutorService，而是它的补充，在某些应用场景下性能比 ExecutorService 更好。FokJoinPool主要适用于<font color="red">计算密集型的任务</font>。例如对一个大数组求和，排序等场景。</p>
       
     </div>
     
@@ -810,7 +828,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>ShardingJdbc结合zookeeper做全局配置</p>
+        <h2 id="分布式配置中心"><a href="#分布式配置中心" class="headerlink" title="分布式配置中心"></a>分布式配置中心</h2><p>在分布式系统或者微服务中，我们经常用到分布式配置中心，他可以将配置定义到一个单独的地方以便所有分布式系统从能从中读取配置，对于修改配置也只需要修改一个地方就行。</p>
+<h2 id="ShardingSphere编排治理"><a href="#ShardingSphere编排治理" class="headerlink" title="ShardingSphere编排治理"></a>ShardingSphere编排治理</h2><h3 id="为啥需要编排治理？"><a href="#为啥需要编排治理？" class="headerlink" title="为啥需要编排治理？"></a>为啥需要编排治理？</h3><p>ShardingSphere的编排治理提供了配置中心和注册中心功能。<br>在使用ShardingSphere我们经常定义了一堆分库分表规则。传统的ShardingJdcb我们一般将分库分表规则配置在yml文件或者xml文件中。然而在分布式系统中，假设我们有100台机器做负载均衡，由于需求原因分库分表规则需要添加规则，这时候我们的处理如下：</p>
+<ol>
+<li>对100台机器上的分库分表配置文件yml文件进行逐一修改</li>
+<li>逐一重启100台机器Tomcat</li>
+</ol>
+<p>这其中的复杂程度可想而知。有人会说，可以将配置定义在一个分布式配置中心中。 没错 ！！！</p>
+<p>所以ShardingSphere提供了编排治理功能，通俗一点就是通过ShardingSphere + Zookeeper 或者 Etcd  实现 分布式配置功能，并且通过Zookeeper的Watch机制保证每次修改后<font color="red">自动加载无需重启</font>。</p>
       
     </div>
     
@@ -909,7 +934,16 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>HashMap原理浅析</p>
+        <h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><h3 id="数组的优点缺点"><a href="#数组的优点缺点" class="headerlink" title="数组的优点缺点"></a>数组的优点缺点</h3><ul>
+<li>数组在内存空间上连续。能实现快速访问某个下标的值。</li>
+<li>数组空间的大小一旦确定后就不能更改，如果需要增大减小需要新建数组重新设值。</li>
+</ul>
+<h3 id="链表的优点缺点"><a href="#链表的优点缺点" class="headerlink" title="链表的优点缺点"></a>链表的优点缺点</h3><ul>
+<li>链表在内存空间上是不连续的。插入删除某个值速度快</li>
+<li>链表不能随机查找，必须从第一个开始遍历，查找效率低</li>
+</ul>
+<h3 id="HashMap散列表结构"><a href="#HashMap散列表结构" class="headerlink" title="HashMap散列表结构"></a>HashMap散列表结构</h3><p>HashMap采用了散列表结构，结合了数组和链表的优点。</p>
+<p><img src="/2020/07/28/hashmap/1.png" alt="HashMap结构"></p>
       
     </div>
     
@@ -1008,7 +1042,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>采用shardingjdbc实现按年分库按月分表</p>
+        <p>sharding-jdbc官方文档:<a href="https://shardingsphere.apache.org/document/current/cn/overview/" target="_blank" rel="noopener">https://shardingsphere.apache.org/document/current/cn/overview/</a><br><strong>本文采用当当的shardingjdbc实现按年分库，按月分表</strong></p>
+<p><strong>最终数据库结果如下</strong></p>
+<p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
+<pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
+<pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre>
       
     </div>
     
@@ -1107,7 +1145,15 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>高性能数据库集群的第一种方式是“读写分离”</p>
+        <h2 id="读写分离基本原理"><a href="#读写分离基本原理" class="headerlink" title="读写分离基本原理"></a>读写分离基本原理</h2><p>高性能数据库集群的第一种方式是“<strong><em>读写分离</em></strong>”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。</p>
+<p>读写分离的基本实现是：</p>
+<ul>
+<li>数据库服务器搭建主从集群，一主一从、一主多从都可以</li>
+<li>数据库主机负责读写操作，从机只负责读操作</li>
+<li>数据库主机通过复制将数据同步到从机，每台数据库服务器都存储了所有的业务数据</li>
+<li>业务服务器将写操作发给数据库主机，将读操作发给数据库从机</li>
+</ul>
+<p><img src="/2020/07/20/db-w-r-dynamic/db1.png" alt></p>
       
     </div>
     
@@ -1206,7 +1252,8 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Spring循环依赖详解</p>
+        <h3 id="什么是循环依赖"><a href="#什么是循环依赖" class="headerlink" title="什么是循环依赖"></a>什么是循环依赖</h3><p>所谓的循环依赖是指，A 依赖 B，B 又依赖 A，它们之间形成了循环依赖。或者是 A 依赖 B，B 依赖 C，C 又依赖 A，形成了循环依赖。更或者是自己依赖自己。</p>
+<p><img src="/2020/05/10/spring-forbean/1.png" alt></p>
       
     </div>
     
@@ -1305,7 +1352,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>JVM参数详解和调优</p>
+        <h2 id="JVM常用参数"><a href="#JVM常用参数" class="headerlink" title="JVM常用参数"></a>JVM常用参数</h2><h3 id="推和栈大小设置"><a href="#推和栈大小设置" class="headerlink" title="推和栈大小设置"></a>推和栈大小设置</h3><pre><code class="shell">-Xms1024M: 初始堆大小
+-Xmx1024M: 最大堆大小
+-XX:NewSize=n: 设置年轻代大小
+-XX:NewRatio=n: 设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4
+-XX:SurvivorRatio=n: 年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5
+-Xss256K: 栈大小设置
+-XX:MetaspaceSize=n 元空间初始大小
+-XX:MaxMetaspaceSize=n 元空间最大大小</code></pre>
       
     </div>
     
@@ -1404,7 +1458,10 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>ShardingPhere使用中遇到的问题记录</p>
+        <h3 id="问题1：shardingphere启动慢"><a href="#问题1：shardingphere启动慢" class="headerlink" title="问题1：shardingphere启动慢"></a><strong>问题1：shardingphere启动慢</strong></h3><p>项目中使用了shardingphere分库分表，在使用了一段时间后发现项目启动越来越慢，原因定位在加载shardingphere时耗时比较长。但不知道具体是哪一个步骤。</p>
+<p><strong>定位可能原因：一般情况下我们项目会用到数据库连接池，在shardingjdbc启动时会初始化数据库连接池，可能是其中一台机器初始化连接时超时导致整体启动时间慢。</strong></p>
+<p>很遗憾不是这个问题，通过打印连接日志，数据库连接速度很快，不是这个问题导致的。无奈之下，跟了一遍shardingjdbc启动源码，发现问题所在。</p>
+<p><strong>定位原因：在shardingjdbc启动时，会加载分库分表中所有的表结构进行校验，判断是否所有的表结构都是一致的。</strong></p>
       
     </div>
     
@@ -1548,7 +1605,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1607,7 +1664,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 

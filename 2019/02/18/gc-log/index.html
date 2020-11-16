@@ -447,8 +447,16 @@
 <td>-XX:+PrintGC</td>
 <td>输出GC日志</td>
 </tr>
+<tr>
+<td><a id="more"></a></td>
+<td></td>
+</tr>
+<tr>
+<td>## YGC日志详解</td>
+<td></td>
+</tr>
 </tbody></table>
-<h2 id="YGC日志详解"><a href="#YGC日志详解" class="headerlink" title="YGC日志详解"></a>YGC日志详解</h2><h3 id="参数配置"><a href="#参数配置" class="headerlink" title="参数配置"></a>参数配置</h3><pre class=" language-properties"><code class="language-properties"><span class="token attr-name">-XX</span><span class="token punctuation">:</span><span class="token attr-value">+PrintGCDetails -XX:+PrintGCDateStamps</span></code></pre>
+<h3 id="参数配置"><a href="#参数配置" class="headerlink" title="参数配置"></a>参数配置</h3><pre class=" language-properties"><code class="language-properties"><span class="token attr-name">-XX</span><span class="token punctuation">:</span><span class="token attr-value">+PrintGCDetails -XX:+PrintGCDateStamps</span></code></pre>
 <p>发生GC后输出参数如下</p>
 <pre><code>2019-04-18T14:52:06.790+0800: 2.653: [GC (Allocation Failure) [PSYoungGen: 33280K-&gt;5113K(38400K)] 33280K-&gt;5848K(125952K), 0.0095764 secs] [Times: user=0.00 sys=0.00, real=0.01 secs]</code></pre><p><img src="/2019/02/18/gc-log/1.jpg" alt></p>
 <h3 id="日志详解"><a href="#日志详解" class="headerlink" title="日志详解"></a>日志详解</h3><pre><code>2019-04-18T14:52:06.790+0800（当前时间戳）: 2.653（应用启动基准时间）: [GC (Allocation Failure) [PSYoungGen（表示Young GC）: 33280K（年轻代回收前大小）-&gt;5113K（年轻代回收后大小）(38400K（年轻代总大小）)] 33280K（整个堆回收前大小）-&gt;5848K（整个堆回收后大小）(125952K（堆总大小）), 0.0095764（耗时） secs] [Times: user=0.00（用户耗时） sys=0.00（系统耗时）, real=0.01（实际耗时） secs]
@@ -565,10 +573,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-07-28T14:47:45+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:06:55+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jul 28, 2020</p>
+    <p>更新于：Nov 16, 2020</p>
   </a>
 </div>
 
@@ -603,14 +611,11 @@
               </a>
             
             
-              <a class='next' href='/2019/02/18/limit-single/'>
-                <p class='title'>限流原理与guava单机限流<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>限流算法常见限流算法常用的限流算法有：令牌桶，漏桶、滑动窗口算法。
-漏桶算法算法介绍漏桶算法的描述如下：
+              <a class='next' href='/2018/08/07/mysql-log/'>
+                <p class='title'>MySQL-binlog、redolog、undolog日志详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>MySQL三种重要的日志MySQL有三种重要的日志，分别是 binlog(归档日志)、redolog(重做日志)、redolog(撤销日志)。
 
-一个固定容量的漏桶，按照常量固定速率流出水滴
-如果桶是空的，则不需流出水滴
-可以以任意...</p>
+binlog归档日志是数据库层面上的日志，主要用...</p>
               </a>
             
           </div>
@@ -681,7 +686,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#GC日志相关参数"><span class="toc-text">GC日志相关参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YGC日志详解"><span class="toc-text">YGC日志详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数配置"><span class="toc-text">参数配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志详解"><span class="toc-text">日志详解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FGC日志详解"><span class="toc-text">FGC日志详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数配置-1"><span class="toc-text">参数配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志详解-1"><span class="toc-text">日志详解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码如何查看GC日志"><span class="toc-text">代码如何查看GC日志</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在IDEA配置GC日志参数"><span class="toc-text">在IDEA配置GC日志参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输出结果"><span class="toc-text">输出结果</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#GC日志相关参数"><span class="toc-text">GC日志相关参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数配置"><span class="toc-text">参数配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志详解"><span class="toc-text">日志详解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FGC日志详解"><span class="toc-text">FGC日志详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数配置-1"><span class="toc-text">参数配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志详解-1"><span class="toc-text">日志详解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码如何查看GC日志"><span class="toc-text">代码如何查看GC日志</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#代码"><span class="toc-text">代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在IDEA配置GC日志参数"><span class="toc-text">在IDEA配置GC日志参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输出结果"><span class="toc-text">输出结果</span></a></li></ol></li></ol>
     </div>
   </section>
 

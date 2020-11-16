@@ -436,7 +436,14 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>ShardingJdbc结合zookeeper做全局配置</p>
+        <h2 id="分布式配置中心"><a href="#分布式配置中心" class="headerlink" title="分布式配置中心"></a>分布式配置中心</h2><p>在分布式系统或者微服务中，我们经常用到分布式配置中心，他可以将配置定义到一个单独的地方以便所有分布式系统从能从中读取配置，对于修改配置也只需要修改一个地方就行。</p>
+<h2 id="ShardingSphere编排治理"><a href="#ShardingSphere编排治理" class="headerlink" title="ShardingSphere编排治理"></a>ShardingSphere编排治理</h2><h3 id="为啥需要编排治理？"><a href="#为啥需要编排治理？" class="headerlink" title="为啥需要编排治理？"></a>为啥需要编排治理？</h3><p>ShardingSphere的编排治理提供了配置中心和注册中心功能。<br>在使用ShardingSphere我们经常定义了一堆分库分表规则。传统的ShardingJdcb我们一般将分库分表规则配置在yml文件或者xml文件中。然而在分布式系统中，假设我们有100台机器做负载均衡，由于需求原因分库分表规则需要添加规则，这时候我们的处理如下：</p>
+<ol>
+<li>对100台机器上的分库分表配置文件yml文件进行逐一修改</li>
+<li>逐一重启100台机器Tomcat</li>
+</ol>
+<p>这其中的复杂程度可想而知。有人会说，可以将配置定义在一个分布式配置中心中。 没错 ！！！</p>
+<p>所以ShardingSphere提供了编排治理功能，通俗一点就是通过ShardingSphere + Zookeeper 或者 Etcd  实现 分布式配置功能，并且通过Zookeeper的Watch机制保证每次修改后<font color="red">自动加载无需重启</font>。</p>
       
     </div>
     
@@ -535,7 +542,11 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>采用shardingjdbc实现按年分库按月分表</p>
+        <p>sharding-jdbc官方文档:<a href="https://shardingsphere.apache.org/document/current/cn/overview/" target="_blank" rel="noopener">https://shardingsphere.apache.org/document/current/cn/overview/</a><br><strong>本文采用当当的shardingjdbc实现按年分库，按月分表</strong></p>
+<p><strong>最终数据库结果如下</strong></p>
+<p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
+<pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
+<pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre>
       
     </div>
     
@@ -634,7 +645,10 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <p>ShardingPhere使用中遇到的问题记录</p>
+        <h3 id="问题1：shardingphere启动慢"><a href="#问题1：shardingphere启动慢" class="headerlink" title="问题1：shardingphere启动慢"></a><strong>问题1：shardingphere启动慢</strong></h3><p>项目中使用了shardingphere分库分表，在使用了一段时间后发现项目启动越来越慢，原因定位在加载shardingphere时耗时比较长。但不知道具体是哪一个步骤。</p>
+<p><strong>定位可能原因：一般情况下我们项目会用到数据库连接池，在shardingjdbc启动时会初始化数据库连接池，可能是其中一台机器初始化连接时超时导致整体启动时间慢。</strong></p>
+<p>很遗憾不是这个问题，通过打印连接日志，数据库连接速度很快，不是这个问题导致的。无奈之下，跟了一遍shardingjdbc启动源码，发现问题所在。</p>
+<p><strong>定位原因：在shardingjdbc启动时，会加载分库分表中所有的表结构进行校验，判断是否所有的表结构都是一致的。</strong></p>
       
     </div>
     
@@ -759,7 +773,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(1)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -818,7 +832,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 14px; color: #999">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 14px; color: #999">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
     </div>
   </section>
 
