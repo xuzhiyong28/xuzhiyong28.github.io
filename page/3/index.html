@@ -1266,7 +1266,10 @@
       
         <h2 id="JVM常用参数"><a href="#JVM常用参数" class="headerlink" title="JVM常用参数"></a>JVM常用参数</h2><h3 id="推和栈大小设置"><a href="#推和栈大小设置" class="headerlink" title="推和栈大小设置"></a>推和栈大小设置</h3><pre><code class="shell">-Xms1024M: 初始堆大小
 -Xmx1024M: 最大堆大小
--XX:NewSize=n: 设置年轻代大小
+-Xmn512M:新生代的大小
+-XX:newSize:新生代初始化内存的大小(注意：该值需要小于-Xms的值)
+-XX:MaxnewSize:新生代可被分配的内存的最大上限(注意：该值需要小于-Xmx的值)
+-Xmn:年轻代的大小(eden + 2 survivor,设置了这就不用设置-XX:NewSize，-XX:MaxNewSize)
 -XX:NewRatio=n: 设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4
 -XX:SurvivorRatio=n: 年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5
 -Xss256K: 栈大小设置

@@ -418,7 +418,10 @@
           
           <h2 id="JVM常用参数"><a href="#JVM常用参数" class="headerlink" title="JVM常用参数"></a>JVM常用参数</h2><h3 id="推和栈大小设置"><a href="#推和栈大小设置" class="headerlink" title="推和栈大小设置"></a>推和栈大小设置</h3><pre class=" language-shell"><code class="language-shell">-Xms1024M: 初始堆大小
 -Xmx1024M: 最大堆大小
--XX:NewSize=n: 设置年轻代大小
+-Xmn512M:新生代的大小
+-XX:newSize:新生代初始化内存的大小(注意：该值需要小于-Xms的值)
+-XX:MaxnewSize:新生代可被分配的内存的最大上限(注意：该值需要小于-Xmx的值)
+-Xmn:年轻代的大小(eden + 2 survivor,设置了这就不用设置-XX:NewSize，-XX:MaxNewSize)
 -XX:NewRatio=n: 设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4
 -XX:SurvivorRatio=n: 年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5
 -Xss256K: 栈大小设置
@@ -480,6 +483,33 @@
 <li>YGC时，To Survivor区不足以存放存活的对象，对象会直接进入到老年代。这种情况可以适当加大Survivor区的大小。</li>
 <li>经过多次YGC后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中。这种情况属于对象存活太久，如果大对象在业务上不需要使用那么久最好能够用完即删。</li>
 <li>动态年龄判定规则，To Survivor区中相同年龄的对象，如果其大小之和占到了 To Survivor区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。这种情况也是可以适当更改Survivor大小。</li>
+</ul>
+<h3 id="如何确定新生代和老年代的比例？"><a href="#如何确定新生代和老年代的比例？" class="headerlink" title="如何确定新生代和老年代的比例？"></a>如何确定新生代和老年代的比例？</h3><ul>
+<li>IO交互性系统，互联网上目前大部分的服务都属于该类型，例如分布式 RPC、MQ、HTTP 网关服务等，对内存要求并不大，大部分对象在 TP9999 的时间内都会死亡， Young 区越大越好。</li>
+<li>内存计算性系统，主要是分布式数据计算 Hadoop，分布式存储 HBase、Cassandra，自建的分布式缓存等，对内存要求高，对象存活时间长，Old 区越大越好。</li>
+</ul>
+<h2 id="常见知识点"><a href="#常见知识点" class="headerlink" title="常见知识点"></a>常见知识点</h2><h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><p>空间担保指的是老年代进行空间分配担保。在发生Minor GC前，JVM会先检查<strong>老年代最大可用的连续空间是否大于新生代所有对象的总空间</strong>。</p>
+<ul>
+<li>如果大于，则此次<strong>Minor GC是安全的</strong>。</li>
+<li>如果小于，则虚拟机会查看<strong>HandlePromotionFailure</strong>设置值是否允许担保失败。如果HandlePromotionFailure=true，那么会继续检查老年代最大可用连续空间是否大于<strong>历次晋升到老年代的对象的平均大小</strong>，如果大于，则尝试进行一次Minor GC，但这次Minor GC依然是有风险的；如果小于或者HandlePromotionFailure=false，则改为进行一次Full GC。</li>
+</ul>
+<p><strong>为什么要进行空间担保？</strong></p>
+<p>是因为新生代采用<strong>复制收集算法</strong>，假如大量对象在Minor GC后仍然存活（最极端情况为内存回收后新生代中所有对象均存活），而Survivor空间是比较小的，这时就需要老年代进行分配担保，把Survivor无法容纳的对象放到老年代。<strong>老年代要进行空间分配担保，前提是老年代得有足够空间来容纳这些对象</strong>，但一共有多少对象在内存回收后存活下来是不可预知的，<strong>因此只好取之前每次垃圾回收后晋升到老年代的对象大小的平均值作为参考</strong>。使用这个平均值与老年代剩余空间进行比较，来决定是否进行Full GC来让老年代腾出更多空间。</p>
+<p><img src="/2020/05/07/jvm-optimization/1.png" alt="空间担保机制"></p>
+<p><strong>什么情况下对象直接进入老年代？</strong></p>
+<ul>
+<li>在执行YGC时，To Survivor区不足以存放存活的对象，对象会直接进入到老年代。</li>
+<li>长期存活的对象将进入老年代。经过多次YGC后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中，通过-XX：MaxTenuringThreshold = 15设置。</li>
+<li>大对象直接进入老年代，通过-XX：PretenureSizeThreshold参数设置，如果大于这个设定值则直接存入老年代，</li>
+<li>动态年龄判定规则，To Survivor区中相同年龄的对象，如果其大小之和占到了 To Survivor区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。</li>
+</ul>
+<p><strong>什么情况下会触发FGC？</strong></p>
+<ul>
+<li>当晋升到老年代的对象大于了老年代的剩余空间时，就会触发FGC（Major GC），<strong><em>\</em>FGC处理的区域同时包括新生代和老年代**</strong>。</li>
+<li>老年代的内存使用率达到了一定阈值（可通过参数调整），直接触发FGC （ -XX:CMSInitiatingOccupancyFraction=70 是指设定CMS在对内存占用率达到70%的时候开始GC）。</li>
+<li>空间分配担保：在YGC之前，会先检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。如果小于，说明YGC是不安全的，则会查看参数 HandlePromotionFailure 是否被设置成了允许担保失败，如果不允许则直接触发Full GC；如果允许，那么会进一步检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果小于也会触发 Full GC。</li>
+<li>Metaspace（元空间）在空间不足时会进行扩容，当扩容到了-XX:MetaspaceSize 参数的指定值时，也会触发FGC。</li>
+<li>System.gc() 或者Runtime.gc() 被显式调用时，触发FGC。（有些第三方插件会有用这个函数）</li>
 </ul>
 
           
@@ -573,10 +603,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:07:21+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-18T16:54:47+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Nov 18, 2020</p>
   </a>
 </div>
 
@@ -687,7 +717,7 @@ Sprin...</p>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何确定新生代和老年代的比例？"><span class="toc-text">如何确定新生代和老年代的比例？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见知识点"><span class="toc-text">常见知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空间分配担保"><span class="toc-text">空间分配担保</span></a></li></ol></li></ol>
     </div>
   </section>
 
