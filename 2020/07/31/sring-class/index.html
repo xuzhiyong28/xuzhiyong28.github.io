@@ -427,9 +427,137 @@
 
 
 <h2 id="Class常量池和运行时常量池关系"><a href="#Class常量池和运行时常量池关系" class="headerlink" title="Class常量池和运行时常量池关系"></a>Class常量池和运行时常量池关系</h2><p><img src="/2020/07/31/sring-class/2.jpg" alt></p>
-<h2 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h2><p>字符串常量池又称为：字符串池，全局字符串池,英文也叫String Pool。<br>JVM为了提升性能和减少内存开销,避免字符串重复创建，所以维护了一块特殊的内存空间，字符串常量池。</p>
-<p>在JDK7之前，字符串常量池是存在在永久代里，JDK7以后转移到了堆里面</p>
-<p><img src="/2020/07/31/sring-class/3.png" alt></p>
+<h2 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h2><p>字符串常量池又称为：字符串池，全局字符串池,英文也叫String Pool（<font color="red">一组指针指向Heap中的String对象的内存地址</font>）。<br>JVM为了提升性能和减少内存开销,避免字符串重复创建，所以维护了一块特殊的内存空间，字符串常量池。在JDK7之前，字符串常量池是存在在永久代里，JDK7以后转移到了堆里面。</p>
+<p><strong>哪些字符串会放到字符串常量池中?</strong></p>
+<p>我们可以把我们在代码上经常用到的字符串分成下面这几类</p>
+<ul>
+<li>全局变量直接声明(包含静态变量)，例如 public static final String str = “hello”</li>
+<li>局部变量直接声明，String str = “hello”</li>
+<li>程序中动态生成的字符串，例如动态拼接，从文件读取出来的字符串等。</li>
+<li>通过new声明，String str = new String()</li>
+</ul>
+<p>下面，进行测试，这里有个知识点，增加JVM参数<font color="red">-XX:+PrintStringTableStatistics</font>可以打印出字符串常量池的量。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//空代码</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出 空代码时候，字符串常量池中的量为1774</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>     <span class="token number">42576</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>    <span class="token number">158832</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.533</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681512</span> bytes</code></pre>
+<p>结论1：字面字符串常量会进入到字符串常量池中</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出，字符串常量池的量+1，字面字符串常量会进入到字符串常量池</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>     <span class="token number">42600</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>    <span class="token number">158888</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.514</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681592</span> bytes</code></pre>
+<p>结论2：相同的字面字符串只在字符串常量池创建一份，另外一份复用</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+        String str2 <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出，字符串常量池的量1775，所以说str，str2是同一个，str2没有继续创建一个新的，优化了空间</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>     <span class="token number">42600</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>    <span class="token number">158888</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.514</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681592</span> bytes</code></pre>
+<p>结论3：new字符串对象的情况，也会在字符串常量池创建一个</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出字符串常量池的量1775</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>     <span class="token number">42600</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>    <span class="token number">158888</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.514</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681592</span> bytes</code></pre>
+<p>结论4：代码中动态创建的字符串不会进入字符串常量池</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            String temp <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+#常量池没变
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>     <span class="token number">42576</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>    <span class="token number">158832</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.533</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681512</span> bytes</code></pre>
+<p>结论5：intern方法可以主动让字符串进入常量池</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            String temp <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">intern</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//量增加了10</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1784</span> <span class="token operator">=</span>     <span class="token number">42816</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1784</span> <span class="token operator">=</span>    <span class="token number">159312</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.300</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">682232</span> bytes</code></pre>
+<p><strong>面试常见：String str = new String(“hello”)创建了几个对象</strong></p>
+<p>通过javap反编译代码，具体看创建了几个对象</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> xzy<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">//反编译输出</span>
+Compiled from <span class="token string">"OtherTest.java"</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">xzy<span class="token punctuation">.</span>OtherTest</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> xzy<span class="token punctuation">.</span><span class="token function">OtherTest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Code<span class="token operator">:</span>
+       <span class="token number">0</span><span class="token operator">:</span> aload_0
+       <span class="token number">1</span><span class="token operator">:</span> invokespecial #<span class="token number">1</span>                  <span class="token comment" spellcheck="true">// Method java/lang/Object."&lt;init>":()V</span>
+       <span class="token number">4</span><span class="token operator">:</span> <span class="token keyword">return</span>
+
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Code<span class="token operator">:</span>
+       <span class="token number">0</span><span class="token operator">:</span> <span class="token keyword">new</span>           #<span class="token number">2</span>                  <span class="token comment" spellcheck="true">// class java/lang/String    -- new一个String对象</span>
+       <span class="token number">3</span><span class="token operator">:</span> dup                                                            <span class="token operator">--</span> 压入<span class="token punctuation">(</span>dup<span class="token punctuation">)</span>到栈顶
+       <span class="token number">4</span><span class="token operator">:</span> ldc           #<span class="token number">3</span>                  <span class="token comment" spellcheck="true">// String hello              -- 从常量池中(ldc)初始化hello字符串</span>
+       <span class="token number">6</span><span class="token operator">:</span> invokespecial #<span class="token number">4</span>                  <span class="token comment" spellcheck="true">// Method java/lang/String."&lt;init>":(Ljava/lang/String;)V --构造函数初始化(invokespecial)对象</span>
+       <span class="token number">9</span><span class="token operator">:</span> astore_1                            <span class="token operator">--</span>将对象引用赋值<span class="token punctuation">(</span>astore_1<span class="token punctuation">)</span>给本地变量str     
+      <span class="token number">10</span><span class="token operator">:</span> <span class="token keyword">return</span>
+<span class="token punctuation">}</span></code></pre>
+<p>所以，在常量池没有hello的情况下，创建了两个对象和一个引用。</p>
+<p>再来看看<code>String str = new String(&quot;A&quot; + &quot;B&quot;)</code> 生成了几个对象。</p>
+<p>从下图看，在字符串常量池里面只有+1。我看网上对于这个问题是说字符串常量池里面生成了A,B,AB三个，其实是只有一个，因为在编译有做了优化，会将A+B变成AB。这个只需要将class文件进行反编译就知道了。所以字符串常量池里面只有一个。</p>
+<p><img src="/2020/07/31/sring-class/1.png" alt></p>
+<p><strong>疑问：在JVM中，字符串常量到底存放到哪里</strong></p>
+<p>例如 <code>String str = &quot;ABC&quot;</code> ，那么“ABC”这个对象是放在内存中的哪个位置，<font color="red">是字符串常量池还是堆</font>？</p>
+<p>看网上的回答 ：abc当然在字符串常量池中，只有new String(“abc”)这个对象在堆中创建。<font color="red">abc这个东西放在常量池中，这个答案是错误的。</font></p>
+<p><strong>正确答案：<font color="green">字符串abc的本体，实例应该是存在在JVM的堆中。</font></strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    String str <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<ol>
+<li>首先，字面量 “hello” 在编译期，就会被记录在class文件的class常量池。</li>
+<li>而当 class文件被加载到内存中后，JVM就会将class常量池中的大部分内容存放到运行时常量池中，但是字符串 “hello” 的本体（对象）和其他所有对象一样，是会在堆中创建，再将引用放到字符串常量池。</li>
+<li>而到了String str = “hello”这一步，JVM会去字符串常量池中找，如果找到了，JVM会在栈中的局部变量表中创建str变量，然后把字符串常量池中的（hello对象的）引用复制给str变量。</li>
+</ol>
+<p><strong>疑问：JVM中字符串常量池会进行垃圾回收吗？</strong></p>
+<p>会，假设一个字符串”everor”已经进入了常量池，但是当前系统中没有一个String对象引用常量池中的”everor”常量（即String str = new String(“everor”);），也没有其他地方引用了这个字面量（即String str = “everor”;），如果这个时候发生了内存回收，而且有必要的话，这个”everor”常量就会被系统清理出常量池。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
 <li>String常量池在每个JVM中只有一份，存放的是字符串常量的引用值。</li>
 <li>class常量池是在编译的时候每个class都有的，在编译阶段，存放的是常量的符号引用。</li>
@@ -438,6 +566,8 @@
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a href="https://www.baidu.com/link?url=M8Bauh76JXr4VhFH84A2uK6PkDyDwfw8Si1uo23sMjKXirLJF2BHwIutcY1jMBx03jjyPJmnrXVVMyt_N_-jP_&wd=&eqid=b278744100018add000000065f237350" target="_blank" rel="noopener">详解JVM常量池、Class、运行时、字符串常量池</a></li>
 <li><a href="https://blog.csdn.net/u011552955/article/details/100079685" target="_blank" rel="noopener">字符串常量池、class常量池和运行时常量池</a></li>
+<li><a href="https://segmentfault.com/a/1190000017952075?utm_source=tag-newest" target="_blank" rel="noopener">https://segmentfault.com/a/1190000017952075?utm_source=tag-newest</a></li>
+<li><a href="https://mrdear.cn/posts/java-string-pool.html" target="_blank" rel="noopener">https://mrdear.cn/posts/java-string-pool.html</a></li>
 </ul>
 
           
@@ -531,10 +661,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:51+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-25T15:17:51+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Nov 25, 2020</p>
   </a>
 </div>
 
