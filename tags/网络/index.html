@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>Tag: kafka - 咕噜咕噜的博客</title>
+    <title>Tag: 网络 - 咕噜咕噜的博客</title>
   
   
 
@@ -347,10 +347,6 @@
         
           
         
-          
-        
-          
-        
       
     
     
@@ -369,8 +365,8 @@
         
           
   <h2 class="title">
-    <a href="/2020/10/09/kafka-base/">
-      Kafka概念与架构知识点汇总（一）
+    <a href="/2020/11/27/linux-netstat/">
+      Linux命令之netstat与TCP详解
     </a>
   </h2>
 
@@ -395,9 +391,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/kafka/' rel="nofollow">
+    <a href='/categories/linux/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>kafka</p>
+      <p>linux</p>
     </a>
   </div>
 
@@ -408,7 +404,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Oct 9, 2020</p>
+    <p>发布于：Nov 27, 2020</p>
   </a>
 </div>
 
@@ -436,225 +432,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>Kafka是一个<strong>分布式</strong>，<strong>分区</strong>，<strong>多副本</strong>，<strong>发布-订阅模式</strong>，<strong>基于zookeeper协调</strong>的分布式日志系统，消息队列（MQ）。主要应用场景是：日志收集系统和消息系统。</p>
-<h3 id="术语"><a href="#术语" class="headerlink" title="术语"></a>术语</h3><ul>
-<li>Broker（服务器），Kafka的服务器被称为Broker，一个集群中包含一个或多个Broker。</li>
-<li>Topic（主题），每条发布到Kafka集群的消息都有一个类别，这个类别被称为Topic。</li>
-<li>Partition（分区），一个Topic被分成多个分区，这也是Kafka吞吐量高的原因之一，负载均衡。</li>
-<li>Producer（生产者），数据的发布者，将消息发布到topic中。</li>
-<li>Consumer（消费者），从topic中消费消息，一个消费者可以消费多个不同的Topic或者多个不同的Partition</li>
-<li>Consumer Group（消费者组），每个Consumer属于一个特定的Consumer Group。</li>
-<li>Replica（副本），一个分区有多个Replica，这也是Kafka高可用的原因。</li>
-<li>Leader（领导者副本），当前负责数据的读写的partition。</li>
-<li>Follower（追随者副本），负责从Leader获取数据并存储，不负责读写，作为一个冷备份，当Leader挂的时候就会从Follower中选举一个出来当Leader。</li>
-<li>LogSegemnt（数据段），消息的持久化方式。</li>
-<li>AR（Assigned Repllicas），分区中的所有副本统称为AR。</li>
-<li>ISR（in-sync Replica），所有与leader副本保持一定程度同步的副本（包括Leader）称之为ISR。</li>
-<li>Controller（控制者），负责管理整个集群中分区和副本的状态。</li></ul>
+        <p>Linux命令之netstat与TCP详解</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/2020/10/09/kafka-base/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/11/16/kafka-operation/">
-      Kafka运维笔记（二）
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/kafka/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>kafka</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Nov 16, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Kafka运维笔记</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/11/16/kafka-operation/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/11/15/kafka-muticustomerthread/">
-      Kafka多线程消费者设计（三）
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/kafka/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>kafka</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Nov 15, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Kafka多线程消费者设计</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/11/15/kafka-muticustomerthread/">
+          <a href="/2020/11/27/linux-netstat/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
