@@ -358,6 +358,111 @@
         
           
   <h2 class="title">
+    <a href="/2020/08/04/linux-top/">
+      Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop)
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/linux/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>linux</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Aug 4, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="top命令详解"><a href="#top命令详解" class="headerlink" title="top命令详解"></a>top命令详解</h2><h3 id="各项指标详解"><a href="#各项指标详解" class="headerlink" title="各项指标详解"></a>各项指标详解</h3><p><img src="/2020/08/04/linux-top/1.png" alt="top命令展示"></p>
+<h4 id="第一行：系统运行时间和平均负载"><a href="#第一行：系统运行时间和平均负载" class="headerlink" title="第一行：系统运行时间和平均负载"></a>第一行：系统运行时间和平均负载</h4><pre><code class="shell">top - 14:46:47 up 909 days,  3:15,  1 user,  load average: 1.80, 1.50, 1.37</code></pre>
+<ul>
+<li>14:46:47 表示当前系统时间</li>
+<li>up 909 days 表示已经运行了909天期间没重启</li>
+<li>1 user 表示当前登录的用户数量</li>
+<li>load average: 1.80, 1.50, 1.37 表示当前系统5分钟;10分钟;15分钟的负载<br><font color="red">load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5的时候就表明系统在超负荷运转了。</font></li></ul>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2020/08/04/linux-top/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/2020/07/31/mysql-explain/">
       MySQL索引优化EXPLAIN详解
     </a>
@@ -1043,109 +1148,6 @@
         
           
   <h2 class="title">
-    <a href="/2020/07/20/sharding-student/">
-      ShardingJdbc学习之按年月分库分表
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/shardingjdbc/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>shardingjdbc</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 20, 2020</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>sharding-jdbc官方文档:<a href="https://shardingsphere.apache.org/document/current/cn/overview/" target="_blank" rel="noopener">https://shardingsphere.apache.org/document/current/cn/overview/</a><br><strong>本文采用当当的shardingjdbc实现按年分库，按月分表</strong></p>
-<p><strong>最终数据库结果如下</strong></p>
-<p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
-<pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
-<pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/07/20/sharding-student/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
     <a href="/2020/07/20/db-w-r-dynamic/">
       读写分离设计与思考
     </a>
@@ -1253,6 +1255,109 @@
         
           
   <h2 class="title">
+    <a href="/2020/07/20/sharding-student/">
+      ShardingJdbc学习之按年月分库分表
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/shardingjdbc/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>shardingjdbc</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Jul 20, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>sharding-jdbc官方文档:<a href="https://shardingsphere.apache.org/document/current/cn/overview/" target="_blank" rel="noopener">https://shardingsphere.apache.org/document/current/cn/overview/</a><br><strong>本文采用当当的shardingjdbc实现按年分库，按月分表</strong></p>
+<p><strong>最终数据库结果如下</strong></p>
+<p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
+<pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
+<pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2020/07/20/sharding-student/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/2020/05/10/spring-forbean/">
       Spring循环依赖详解
     </a>
@@ -1328,115 +1433,6 @@
       
         <div class="button readmore">
           <a href="/2020/05/10/spring-forbean/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2020/05/07/jvm-optimization/">
-      JVM参数详解和调优
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/java/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>java</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：May 7, 2020</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="JVM常用参数"><a href="#JVM常用参数" class="headerlink" title="JVM常用参数"></a>JVM常用参数</h2><h3 id="推和栈大小设置"><a href="#推和栈大小设置" class="headerlink" title="推和栈大小设置"></a>推和栈大小设置</h3><pre><code class="shell">-Xms1024M: 初始堆大小
--Xmx1024M: 最大堆大小
--Xmn512M:新生代的大小
--XX:newSize:新生代初始化内存的大小(注意：该值需要小于-Xms的值)
--XX:MaxnewSize:新生代可被分配的内存的最大上限(注意：该值需要小于-Xmx的值)
--Xmn:年轻代的大小(eden + 2 survivor,设置了这就不用设置-XX:NewSize，-XX:MaxNewSize)
--XX:NewRatio=n: 设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4
--XX:SurvivorRatio=n: 年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5
--Xss256K: 栈大小设置
--XX:MetaspaceSize=n 元空间初始大小
--XX:MaxMetaspaceSize=n 元空间最大大小</code></pre>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/05/07/jvm-optimization/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -1573,7 +1569,7 @@
           <li><a class="flat-box"
             title="/categories/kafka/" href="/categories/kafka/"
             id="categorieskafka"
-            ><div class='name'>kafka</div><div class='badge'>(3)</div></a></li>
+            ><div class='name'>kafka</div><div class='badge'>(4)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
@@ -1632,7 +1628,7 @@
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.67px; color: #8e8e8e">jvm</a> <a href="/tags/kafka/" style="font-size: 17.33px; color: #828282">kafka</a> <a href="/tags/linux/" style="font-size: 15.67px; color: #8e8e8e">linux</a> <a href="/tags/mysql/" style="font-size: 22.33px; color: #606060">mysql</a> <a href="/tags/redis/" style="font-size: 20.67px; color: #6c6c6c">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 17.33px; color: #828282">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19px; color: #777">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 14px; color: #999">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.67px; color: #8e8e8e">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.43px; color: #8f8f8f">jvm</a> <a href="/tags/kafka/" style="font-size: 18.29px; color: #7c7c7c">kafka</a> <a href="/tags/linux/" style="font-size: 15.43px; color: #8f8f8f">linux</a> <a href="/tags/mysql/" style="font-size: 22.57px; color: #5f5f5f">mysql</a> <a href="/tags/redis/" style="font-size: 21.14px; color: #686868">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 16.86px; color: #868686">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19.71px; color: #727272">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 14px; color: #999">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.43px; color: #8f8f8f">项目实践</a>
     </div>
   </section>
 

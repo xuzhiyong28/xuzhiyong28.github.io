@@ -18,7 +18,7 @@
 
   <!-- 页面元数据 -->
   
-    <title>Archive: 2019/10 - 咕噜咕噜的博客</title>
+    <title>Archive: 2020/12 - 咕噜咕噜的博客</title>
   
   
 
@@ -452,8 +452,8 @@
         
           
   <h2 class="title">
-    <a href="/2019/10/03/redis-commons/">
-      Redis常用数据结构命令
+    <a href="/2020/12/02/kafka-messge-complete/">
+      Kafka如何保证消息100%投递（四）
     </a>
   </h2>
 
@@ -478,9 +478,9 @@
               
   
   <div class='new-meta-item category'>
-    <a href='/categories/redis/' rel="nofollow">
+    <a href='/categories/kafka/' rel="nofollow">
       <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>redis</p>
+      <p>kafka</p>
     </a>
   </div>
 
@@ -491,7 +491,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Oct 3, 2019</p>
+    <p>发布于：Dec 2, 2020</p>
   </a>
 </div>
 
@@ -519,35 +519,13 @@
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="key常用操作"><a href="#key常用操作" class="headerlink" title="key常用操作"></a>key常用操作</h3><pre><code class="properties"># 查询指定key是否存在
-$ localhost:6379&gt; EXISTS hash1
-(integer) 1
-$ localhost:6379&gt; EXISTS jjj
-(integer) 0
-
-# 删除指定key
-$ localhost:6379&gt; DEL hash1
-(integer) 1
-$ localhost:6379&gt; EXISTS hash1
-(integer) 0
-
-# 对指定key设置过期时间
-$ localhost:6379&gt; set t1 value ex 5
-OK
-
-# 查询指定key的过期时间
-$ localhost:6379&gt; TTL t1
-(integer) 7
-
-# 查询指定key的类型
-$ localhost:6379&gt; type t1
-string</code></pre>
+        <p>Kafka如何保证消息100%投递</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/2019/10/03/redis-commons/">
+          <a href="/2020/12/02/kafka-messge-complete/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
