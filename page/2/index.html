@@ -358,6 +358,106 @@
         
           
   <h2 class="title">
+    <a href="/2020/09/02/redis-cluster-build-2/">
+      Redis5.0集群搭建和水平扩展（二）
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/redis/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>redis</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Sep 2, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Redis5-0集群水平扩展"><a href="#Redis5-0集群水平扩展" class="headerlink" title="Redis5.0集群水平扩展"></a>Redis5.0集群水平扩展</h2><p>上节介绍了集群的搭建，这节开始详解水平扩展。假设现在由于资源使用情况，我们需要增加一组主从（9857、9858）加入到集群中。</p>
+<p><img src="/2020/09/02/redis-cluster-build-2/2.png" alt></p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2020/09/02/redis-cluster-build-2/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/2020/09/01/redis-cluster-build/">
       Redis5.0集群搭建和水平扩展（一）
     </a>
@@ -1284,139 +1384,6 @@ INSERT INTO    hero VALUES(1,    &#39;索罗&#39;,&#39;cn&#39;);</code></pre>
           </div>
         
       
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2020/08/09/synchronized-up/">
-      java并发之synchronized锁升级、锁消除、锁粗化
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/java/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>java</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Aug 9, 2020</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="synchronized使用方法"><a href="#synchronized使用方法" class="headerlink" title="synchronized使用方法"></a>synchronized使用方法</h2><table>
-<thead>
-<tr>
-<th></th>
-<th>锁的是什么</th>
-<th>代码</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>修饰实例方法</td>
-<td>方法对应的new对象</td>
-<td>public synchronized void doSome(){}</td>
-</tr>
-<tr>
-<td>修饰静态方法</td>
-<td>静态方法对应的类</td>
-<td>public static synchronized void doSome(){}</td>
-</tr>
-<tr>
-<td>修饰代码块1</td>
-<td>方法对应的new对象</td>
-<td>public void doSome(){<br>    &nbsp;&nbsp;&nbsp;synchronized(this){<br>     &nbsp;&nbsp;&nbsp; …<br>    &nbsp;}<br>}</td>
-</tr>
-<tr>
-<td>修饰代码块2</td>
-<td>括号内的类</td>
-<td>public void doSome(){<br>    &nbsp;synchronized(Dog.class){<br>     &nbsp;&nbsp; …<br>    &nbsp;}<br>}</td>
-</tr>
-</tbody></table>
-<h2 id="什么是锁升级？"><a href="#什么是锁升级？" class="headerlink" title="什么是锁升级？"></a>什么是锁升级？</h2><p>JDK6以前synchronized锁实现都是重量级锁的形式，效率低下，为了提升效率进行了优化，所以出现了锁升级的过程。在JDK6之前每次调用synchronized加锁时都需要进行系统调用，系统调用会涉及到用户态和系统态的切换，此过程比较复杂且时间长导致了synchronized效率底下。所以在JDK6以后提出了锁升级的概念。</p>
-<p>synchronized锁升级包括如下几个状态，级别从低到高分别是：<font color="red">无锁状态、偏向锁状态、轻量锁状态、重量锁状态</font>。这里需要注意的是锁升级过程中提到的偏向锁、轻量锁、重量锁都是synchronized锁的具体实现所要经历的过程，<font color="red">他们并不是单独的锁</font>。</p>
-<h2 id="锁升级原理"><a href="#锁升级原理" class="headerlink" title="锁升级原理"></a>锁升级原理</h2><p><font color="red">synchronized锁的是对象</font>。在JVM中每个对象都是有由三部分组成的 ：对象头、实例数据、数据填充。<font color="red">synchronized的锁的信息都是存储在对象头里</font>。</p>
-<p><img src="/2020/08/09/synchronized-up/1.jpg" alt="对象的存储布局"></p>
-<p>我们可以看到对象头中有一个MarkWord。<font color="red">锁升级就是markWord里面标志位的变化</font>。这里我们主要看后面的锁标志位，不同的标志位代表不同的锁状态。大家发现一共有五种状态，用两位是不够的，所以01的时候在向前借一位。</p>
-<p><img src="/2020/08/09/synchronized-up/2.png" alt="不同锁状态对应的锁标志位"></p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/08/09/synchronized-up/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
     
   </section>
   
@@ -1547,7 +1514,7 @@ INSERT INTO    hero VALUES(1,    &#39;索罗&#39;,&#39;cn&#39;);</code></pre>
           <li><a class="flat-box"
             title="/categories/linux/" href="/categories/linux/"
             id="categorieslinux"
-            ><div class='name'>linux</div><div class='badge'>(2)</div></a></li>
+            ><div class='name'>linux</div><div class='badge'>(3)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/mysql/" href="/categories/mysql/"
@@ -1601,7 +1568,7 @@ INSERT INTO    hero VALUES(1,    &#39;索罗&#39;,&#39;cn&#39;);</code></pre>
 
 
     <div class='content'>
-      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.43px; color: #8f8f8f">jvm</a> <a href="/tags/kafka/" style="font-size: 18.29px; color: #7c7c7c">kafka</a> <a href="/tags/linux/" style="font-size: 15.43px; color: #8f8f8f">linux</a> <a href="/tags/mysql/" style="font-size: 22.57px; color: #5f5f5f">mysql</a> <a href="/tags/redis/" style="font-size: 21.14px; color: #686868">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 16.86px; color: #868686">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19.71px; color: #727272">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 14px; color: #999">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.43px; color: #8f8f8f">项目实践</a>
+      <a href="/tags/java8/" style="font-size: 14px; color: #999">java8</a> <a href="/tags/java%E5%B9%B6%E5%8F%91/" style="font-size: 24px; color: #555">java并发</a> <a href="/tags/java%E9%9B%86%E5%90%88/" style="font-size: 14px; color: #999">java集合</a> <a href="/tags/jvm/" style="font-size: 15.43px; color: #8f8f8f">jvm</a> <a href="/tags/kafka/" style="font-size: 18.29px; color: #7c7c7c">kafka</a> <a href="/tags/linux/" style="font-size: 16.86px; color: #868686">linux</a> <a href="/tags/mysql/" style="font-size: 22.57px; color: #5f5f5f">mysql</a> <a href="/tags/redis/" style="font-size: 21.14px; color: #686868">redis</a> <a href="/tags/shardingjdbc/" style="font-size: 16.86px; color: #868686">shardingjdbc</a> <a href="/tags/spring/" style="font-size: 19.71px; color: #727272">spring</a> <a href="/tags/zookeeper/" style="font-size: 14px; color: #999">zookeeper</a> <a href="/tags/%E6%9E%B6%E6%9E%84/" style="font-size: 14px; color: #999">架构</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 14px; color: #999">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 14px; color: #999">设计模式</a> <a href="/tags/%E9%A1%B9%E7%9B%AE%E5%AE%9E%E8%B7%B5/" style="font-size: 15.43px; color: #8f8f8f">项目实践</a>
     </div>
   </section>
 

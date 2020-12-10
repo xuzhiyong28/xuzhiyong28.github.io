@@ -799,9 +799,9 @@
 </ul>
 <h2 id="HashMap灵魂拷问"><a href="#HashMap灵魂拷问" class="headerlink" title="HashMap灵魂拷问"></a>HashMap灵魂拷问</h2><h3 id="如果两个对象hashCode相等，或者equals-方法相等会怎么样？"><a href="#如果两个对象hashCode相等，或者equals-方法相等会怎么样？" class="headerlink" title="如果两个对象hashCode相等，或者equals()方法相等会怎么样？"></a>如果两个对象hashCode相等，或者equals()方法相等会怎么样？</h3><p>首先先来了解下hashCode和equals方法的关系，前提是没有重写的情况下。</p>
 <ul>
-<li>如果两个对象equals相等，那么他们的hashCode一定相等。</li>
+<li>如果两个对象equals相等，那么他们的hashCode一定相等。（<strong>equals比较的是内存地址，内存地址一样的话，通过内存地址做哈希函数后得到的hashCode就一定是一样的</strong>）</li>
 <li>如果两个对象equals不相等，那么hashCode有可能相等也有可能不相等。</li>
-<li>如果两个对象hashCode不相等，那么equals一定相等。</li>
+<li>如果两个对象hashCode不相等，那么equals一定不相等。</li>
 </ul>
 <p>在HashMap中，如果两个对象的hashCode相等的话，那么他们在同一个槽内(发生碰撞)，这时候需要继续判断equals方法是否相等，如果相等做替换操作，如果不相等就插入链表尾部操作。</p>
 <h3 id="HashMap中定位元素在哪个槽下-路由寻址-的操作是什么，为什么？"><a href="#HashMap中定位元素在哪个槽下-路由寻址-的操作是什么，为什么？" class="headerlink" title="HashMap中定位元素在哪个槽下(路由寻址)的操作是什么，为什么？"></a>HashMap中定位元素在哪个槽下(路由寻址)的操作是什么，为什么？</h3><pre class=" language-java"><code class="language-java"><span class="token punctuation">(</span>h <span class="token operator">=</span> key<span class="token punctuation">.</span><span class="token function">hashCode</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">^</span> <span class="token punctuation">(</span>h <span class="token operator">>>></span> <span class="token number">16</span><span class="token punctuation">)</span></code></pre>
@@ -909,10 +909,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:07:02+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-07T11:01:12+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Dec 7, 2020</p>
   </a>
 </div>
 

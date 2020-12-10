@@ -928,6 +928,12 @@
 <span class="token punctuation">}</span></code></pre>
 <h3 id="可重入读写锁"><a href="#可重入读写锁" class="headerlink" title="可重入读写锁"></a>可重入读写锁</h3><p>InterProcessReadWriteLock</p>
 <h3 id="多个锁"><a href="#多个锁" class="headerlink" title="多个锁"></a>多个锁</h3><p>InterProcessMultiLock</p>
+<h2 id="zk分布式锁优缺点"><a href="#zk分布式锁优缺点" class="headerlink" title="zk分布式锁优缺点"></a>zk分布式锁优缺点</h2><p>缺点：由于ZK是强一致性系统，对于写请求需要发送给leader同一协调，如果有较多的客户端频繁的申请加锁、释放锁，对于 ZK 集群的压力会比较大。</p>
+<p>优点：</p>
+<ul>
+<li>相对于Redis的实现方式，zk使用设置watch的方式，不会出现key过期导致业务还没执行完锁就自动失效的问题。</li>
+<li>由于Redis不是强一致性系统，在极端情况下会出现（clientA获取锁后，主redis复制数据到从redis过程中崩溃了，导致没有复制到从redis中，然后从redis选举出一个升级为主redis,造成新的主redis没有clientA 设置的锁，这是clientB尝试获取锁，并且能够成功获取锁，导致互斥失效）的问题。zk是强一致性系统，每次写操作都需要先发给leader，leader处理写请求，一半以上的从节点也写成功，才返回给客户端成功。</li>
+</ul>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a href="https://www.jianshu.com/p/6e20e65f301a" target="_blank" rel="noopener">https://www.jianshu.com/p/6e20e65f301a</a></li>
 <li><a href="http://www.tianxiaobo.com/2018/01/20/%E5%9F%BA%E4%BA%8E-Zookeeper-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/" target="_blank" rel="noopener">http://www.tianxiaobo.com/2018/01/20/%E5%9F%BA%E4%BA%8E-Zookeeper-%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0/</a></li>
@@ -1025,10 +1031,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-03T09:10:23+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-07T14:09:15+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 3, 2020</p>
+    <p>更新于：Dec 7, 2020</p>
   </a>
 </div>
 
@@ -1142,7 +1148,7 @@ CREATE    TABLE hero(
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是分布式锁"><span class="toc-text">什么是分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式非公平分布式锁"><span class="toc-text">独占式非公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例"><span class="toc-text">代码实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缺点"><span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式公平分布式锁"><span class="toc-text">独占式公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述-1"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例-1"><span class="toc-text">代码实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Curator提供的分布式锁"><span class="toc-text">Curator提供的分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不可重入锁"><span class="toc-text">不可重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重入锁"><span class="toc-text">可重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重入读写锁"><span class="toc-text">可重入读写锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多个锁"><span class="toc-text">多个锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是分布式锁"><span class="toc-text">什么是分布式锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式非公平分布式锁"><span class="toc-text">独占式非公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例"><span class="toc-text">代码实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缺点"><span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#独占式公平分布式锁"><span class="toc-text">独占式公平分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述-1"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实例-1"><span class="toc-text">代码实例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Curator提供的分布式锁"><span class="toc-text">Curator提供的分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不可重入锁"><span class="toc-text">不可重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重入锁"><span class="toc-text">可重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#可重入读写锁"><span class="toc-text">可重入读写锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多个锁"><span class="toc-text">多个锁</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zk分布式锁优缺点"><span class="toc-text">zk分布式锁优缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 
