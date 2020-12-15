@@ -416,28 +416,50 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <h2 id="Redis主从复制配置"><a href="#Redis主从复制配置" class="headerlink" title="Redis主从复制配置"></a>Redis主从复制配置</h2><pre class=" language-shell"><code class="language-shell">127.0.0.1:6380> SLAVEOF 127.0.0.1 6379</code></pre>
-<h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><p>redis的复制功能分为<strong>完整重同步</strong>和<strong>部分重同步</strong>两个操作。</p>
+          <h2 id="Redis主从复制配置"><a href="#Redis主从复制配置" class="headerlink" title="Redis主从复制配置"></a>Redis主从复制配置</h2><pre><code>127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379
+#主从心跳ping的时间间隔。默认10
+repl-ping-replica-period
+#从节点超时时间，默认60
+#三种情况认为复制超时：
+#1）slave角度，如果在repl-timeout时间内没有收到master SYNC传输的rdb snapshot数据，
+#2）slave角度，在repl-timeout没有收到master发送的数据包或者ping。
+#3）master角度，在repl-timeout时间没有收到REPCONF ACK确认信息。
+repl-timeout
+#主节点保存操作日志的大小。默认1M 
+repl-backlog-size
+#主节点保存操作日志的时间。默认3600秒
+repl-backlog-ttl
+#这个参数分为3部分，第二部分涉及slave。表示主节点输出给从节点的缓存(output-buffer)大小。默认是：256M 64M 60秒。意思是：如果output-buffer&gt;256M则从节点需要重新全同步，如果256&gt;output-buffer&gt;64且持续时间60秒，则从节点需要重新全同步。
+client-output-buffer-limit</code></pre><h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><p>redis的复制功能分为<strong>完整重同步</strong>和<strong>部分重同步</strong>两个操作。</p>
 <ul>
-<li>完整重同步操作，将从服务器的数据库状态更新至主服务器当前所处的数据库状态。</li>
+<li>完整重同步操作，将从服务器的数据库状态更新至主服务器当前所处的数据库状态，后续进行命令传播。</li>
 <li>部分重同步操作，用于处理断线后重复制情况：当从服务器在断线后重新连接主服务器时，<strong>如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</strong><a id="more"></a>
 <h3 id="完整同步"><a href="#完整同步" class="headerlink" title="完整同步"></a>完整同步</h3></li>
 </ul>
 <p>同步的过程包括如下：</p>
 <ol>
-<li>从服务器向主服务器发送SYNC命令。</li>
+<li>从服务器向主服务器发送PSYNC命令。</li>
 <li>收到SYNC后主服务器执行BGSAVE命令生成RDB文件，期间并使用一个缓冲区记录从现在开始执行的所有写命令。</li>
 <li>BGSAVE命令执行完毕后，主服务器会将BGSAVE命令生成的RDB文件发送给从服务器。</li>
 <li>从服务器接收并载入RDB文件，将状态更新与主服务器一致。</li>
 <li>之后正常运行就是将缓冲区记录通过命令传播传播给从服务器。</li>
 </ol>
-<p><img src="/2020/08/20/redis-master-slave/1.png" alt="bgsave执行逻辑"></p>
-<h3 id="部分重同步"><a href="#部分重同步" class="headerlink" title="部分重同步"></a>部分重同步</h3><p>部分重同步中，主从服务器各自维护着一个<strong>复制偏移量</strong>，主服务器每次向从服务器传播N个字节时，都会将自己的复制偏移量加N，从服务器每次接收到N个字节数据后，也会自己的复制偏移量加N。</p>
+<p><img src="/2020/08/20/redis-master-slave/2.png" alt="完整同步过程"></p>
+<p>上面提到的缓冲区（<strong>replication buffer</strong>）用来存放三个时间内所有的master数据更新操作，分别是：</p>
 <ul>
-<li>如果主从服务器处于一致状态，那么两者复制偏移量相同</li>
-<li>如果主从服务器两者的偏移量并不相同，则两者状态不一致</li>
+<li>master生成RDB文件期间内产生的更新操作</li>
+<li>master发送RDB文件给slave网络传输时间的更新操作</li>
+<li>slave load rdb文件把数据恢复到内存的时间的更新操作</li>
 </ul>
-<p>同时主服务器维护着一个<strong>复制积压缓冲区</strong>。当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+<p>replication buffer<font color="red">对应于每个slave</font>，大小由<code>client-output-buffer-limit slave 256mb 64mb 60</code>确定。意思是如果该缓冲区的大小超过256M，或该缓冲区的大小超过64M，且持续了60s，主节点会马上断开从节点的连接。<font color="red">所以对于这个值不能设置太小，太小会导致主从复制断开</font>。</p>
+<h3 id="部分重同步"><a href="#部分重同步" class="headerlink" title="部分重同步"></a>部分重同步</h3><p>部分同步用于处理断线后的重新复制。功能由以下三个部分构成：</p>
+<ul>
+<li>主服务器的复制偏移量（replication offset）和从服务器的复制偏移量</li>
+<li>主服务器的复制积压缓冲区（replication backlog）</li>
+<li>服务器的运行ID（run ID）</li>
+</ul>
+<p><img src="/2020/08/20/redis-master-slave/3.png" alt="部分重同步"></p>
+<p>主从服务器各自维护着一个<strong>复制偏移量</strong>，主服务器每次向从服务器传播N个字节时，都会将自己的复制偏移量加N，从服务器每次接收到N个字节数据后，也会自己的复制偏移量加N。同时主服务器维护着一个<strong>复制积压缓冲区</strong>。当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
 <ul>
 <li>如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行<font color="red">部分重同步</font>操作。</li>
 <li>如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行<font color="red">完整重同步</font>操作，也就是发送SYNC命令，重头到尾生成快照然后发送给从服务器。</li>
@@ -449,7 +471,31 @@
 <li>接收到RDB文件的从服务器需要载入主服务器发来的RDB文件，并且在载入期间，从<strong>服务器会因为阻塞而没办法处理命令请求</strong></li>
 </ul>
 <p><font color="red">SYNC是一个如此消耗资源的命令，所以Redis最好在真需要的时候才需要执行SYNC命令。</font></p>
-<h4 id="复制积压缓冲区"><a href="#复制积压缓冲区" class="headerlink" title="复制积压缓冲区"></a>复制积压缓冲区</h4><p>复制积压缓冲区是由主服务器维护的一个固定长度（fixed-size）先进先出（FIFO）队列，默认大小为1MB。当入队元素的数量大于队列长度时，最先入队的元素会被弹出，而新元素会被放入队列。当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器，还会将写命令入队到复制积压缓冲区里面。</p>
+<h4 id="复制积压缓冲区"><a href="#复制积压缓冲区" class="headerlink" title="复制积压缓冲区"></a>复制积压缓冲区</h4><p>复制积压缓冲区是由主服务器维护的一个<font color="red">固定长度（fixed-size）先进先出（FIFO）队列</font>，默认大小为1MB。当入队元素的数量大于队列长度时，最先入队的元素会被弹出，而新元素会被放入队列。当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器（其实是写入到每个slave对应的replication buffer），还会将写命令入队到复制积压缓冲区里面。</p>
+<table>
+<thead>
+<tr>
+<th>偏移量</th>
+<th>…</th>
+<th>13512</th>
+<th>13513</th>
+<th>13514</th>
+<th>13515</th>
+<th>13516</th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字节值</td>
+<td>…</td>
+<td>\r</td>
+<td>\n</td>
+<td>$</td>
+<td>S</td>
+<td>E</td>
+<td>…</td>
+</tr>
+</tbody></table>
 <p>复制积压缓冲区大小可以通过<strong>repl-backlog-size</strong>进行配置。</p>
 <pre class=" language-properties"><code class="language-properties">//支持单位：b、k、kb、m、mb、g、gb，单位不区分大小写，其中k、m、g间的计算倍数是1000，
 //而kb、mb和gb的计算倍数是1024
@@ -469,9 +515,31 @@
 <li>如果从服务器保存的运行ID和当前连接的主服务器的运行ID相同，那么说明从服务器断线之前复制的就是当前连接的这个主服务器，主服务器可以继续尝试执行部分重同步操作；</li>
 <li>相反地，如果从服务器保存的运行ID和当前连接的主服务器的运行ID并不相同，那么说明从服务器断线之前复制的主服务器并不是当前连接的这个主服务器，主服务器将对从服务器执行完整重同步操作。</li>
 </ul>
+<h4 id="复制运维方法"><a href="#复制运维方法" class="headerlink" title="复制运维方法"></a>复制运维方法</h4><p><strong>如何判断主从同步是否正常</strong></p>
+<p>如果<code>master_repl_offset</code>减<code>offset</code>差不多，则表示主从复制正常。</p>
+<pre><code>192.168.1.110:9852&gt; info replication
+# Replication
+role:master
+connected_slaves:1
+#offset 表示 salve0的复制偏移量
+slave0:ip=192.168.1.120,port=9853,state=online,offset=375168999754,lag=1
+# master启动时生成的40位16进制的随机字符串，用来标识master节点
+master_replid:0ef80af291afbbb7e2f2d6fdbf150281ab1baa6f 
+master_replid2:0000000000000000000000000000000000000000
+#当前master复制偏移量
+master_repl_offset:375168999754      
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:67108864
+repl_backlog_first_byte_offset:375101890891
+repl_backlog_histlen:67108864</code></pre><h4 id="两个重要的缓冲区"><a href="#两个重要的缓冲区" class="headerlink" title="两个重要的缓冲区"></a>两个重要的缓冲区</h4><p>replication buffer，master<font color="red">为每个slave建立</font>的缓冲区，用来缓存master执行的命令。例如主库生成RDB和从库加载RDB这段时间增量的命令。他的特点是每个slave都有一个。<font color="red">所以，如果我们是一主多从的话，对内存的损耗也越大，所以控制从节点的数量，也可以控制缓存区对内存的开销</font>。</p>
+<p>replication backlog，复制积压缓冲区。master<font color="red">唯一一份</font>记录最近执行命令和命令对应的偏移量。结构是一个环形队列，后面的命令覆盖前面的命令。当slave由于网络抖动重新连接上master时，会传递自己的offset与replication backlog进行对比来确定执行全部同步还是部分同步。这个值默认是1M，我们需要根据主库写入的速率和主从同步传输的速率差值来适当调大replication backlog的配置。</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li>《Redis设计与实现》</li>
 <li><a href="https://www.cnblogs.com/lukexwang/p/4711977.html" target="_blank" rel="noopener">https://www.cnblogs.com/lukexwang/p/4711977.html</a></li>
+<li><a href="https://www.cnblogs.com/vansky/p/9293980.html" target="_blank" rel="noopener">https://www.cnblogs.com/vansky/p/9293980.html</a></li>
+<li><a href="https://blog.csdn.net/a1076067274/article/details/109294208" target="_blank" rel="noopener">https://blog.csdn.net/a1076067274/article/details/109294208</a></li>
+<li><a href="https://www.cnblogs.com/any-way/p/10411567.html" target="_blank" rel="noopener">https://www.cnblogs.com/any-way/p/10411567.html</a></li>
 </ul>
 
           
@@ -565,10 +633,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:40+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-15T16:36:00+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Dec 15, 2020</p>
   </a>
 </div>
 
@@ -681,7 +749,7 @@ AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中.
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis主从复制配置"><span class="toc-text">Redis主从复制配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理详解"><span class="toc-text">原理详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#完整同步"><span class="toc-text">完整同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步"><span class="toc-text">部分重同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#知识点"><span class="toc-text">知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SYNC命令"><span class="toc-text">SYNC命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#复制积压缓冲区"><span class="toc-text">复制积压缓冲区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务器运行ID"><span class="toc-text">服务器运行ID</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis主从复制配置"><span class="toc-text">Redis主从复制配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理详解"><span class="toc-text">原理详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#完整同步"><span class="toc-text">完整同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步"><span class="toc-text">部分重同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#知识点"><span class="toc-text">知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SYNC命令"><span class="toc-text">SYNC命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#复制积压缓冲区"><span class="toc-text">复制积压缓冲区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务器运行ID"><span class="toc-text">服务器运行ID</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#复制运维方法"><span class="toc-text">复制运维方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#两个重要的缓冲区"><span class="toc-text">两个重要的缓冲区</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 

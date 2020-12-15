@@ -466,10 +466,14 @@
 <li>AOF可以通过命令bgrewriteaof进行重写</li>
 </ul>
 <p>AOF配置：</p>
-<pre class=" language-properties"><code class="language-properties"><span class="token attr-name">appendonly</span> <span class="token attr-value">yes # 是否开启AOF持久化</span>
-<span class="token attr-name">appendfsync</span> <span class="token attr-value">no # 由系统决定什么时候写入AOF</span>
-<span class="token attr-name">appendfsync</span> <span class="token attr-value">always #每次有数据修改发生时都会写入AOF文件。</span>
-<span class="token attr-name">appendfsync</span> <span class="token attr-value">everysec #每秒钟同步一次，该策略为AOF的缺省策略。</span></code></pre>
+<pre><code># 是否开启AOF持久化
+appendonly yes
+# 由系统决定什么时候写入AOF
+appendfsync no 
+#每次有数据修改发生时都会写入AOF文件。原理是每次来操作命令都执行 fsync 函数，直到同步到硬盘返回
+appendfsync always 
+#每秒钟同步一次，该策略为AOF的缺省策略。先调用 OS write 函数， 写到缓冲区，然后 redis 每秒执行一次 OS fsync 函数
+appendfsync everysec </code></pre><h3 id="aof过程"><a href="#aof过程" class="headerlink" title="aof过程"></a>aof过程</h3><p>当redis收到客户端操作指令后，先进行参数校验。如果校验通过则将操作指令写到操作系统的内存缓存中并执行该指令。到了一定时间后操作系统内核会异步地把内存缓存中的redis操作指令刷写到AOF文件中。也可以通过glibc函数库提供的fsync()函数将指定文件的内容强制从内存缓存中刷写到磁盘上。</p>
 <h3 id="bgrewriteaof重写"><a href="#bgrewriteaof重写" class="headerlink" title="bgrewriteaof重写"></a>bgrewriteaof重写</h3><p><img src="/2020/08/26/redis-rdb-aop/2.png" alt></p>
 <ol>
 <li>开始bgrewriteaof，判断当前有没有bgsave命令(RDB持久化)/bgrewriteaof在执行，倘若有，则这些命令执行完成以后再执行。</li>
@@ -482,7 +486,7 @@
 </li>
 <li>使用新的AOF文件覆盖旧的AOF文件，标志AOF重写完成。</li>
 </ol>
-<p>可以看出整个重写过程是安全的。因为 Redis 重写是创建新 AOF 文件，重写的过程中会继续将命令追加到现有旧的 AOF 文件里面，即使重写过程中发生停机，现有旧的 AOF 文件也不会丢失。 而一旦新 AOF 文件创建完毕，Redis 就会从旧 AOF 文件切换到新 AOF 文件，并开始对新 AOF 文件进行追加操作。</p>
+<p>可以看出整个重写过程是安全的。因为 Redis 重写是创建新AOF文件，重写的过程中会继续将命令追加到现有旧的 AOF 文件里面，即使重写过程中发生停机，现有旧的 AOF 文件也不会丢失。 而一旦新 AOF 文件创建完毕，Redis 就会从旧 AOF 文件切换到新 AOF 文件，并开始对新 AOF 文件进行追加操作。</p>
 <p><strong>AOF重写机制的触发条件</strong>：</p>
 <ul>
 <li>手动触发：客户端执行bgrewriteaof命令。</li>
@@ -512,7 +516,7 @@
 <li>AOF文件开头不是RDB的格式，直接加载整个AOF文件</li>
 </ul>
 <p>混合持久化需要配置上确认是否开启</p>
-<pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true">#yes表示开启混合持久化</span>
+<pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true">#yes表示开启混合持久化，默认是开启的</span>
 <span class="token attr-name">aof-use-rdb-preamble</span> <span class="token attr-value">yes</span></code></pre>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
 <li><a href="https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&amp;mid=2452965797&amp;idx=1&amp;sn=dc1cc6dad0d589148d5d6147705cfc38&amp;chksm=88ede4cdbf9a6ddb775e3861ce6fc9a50eefe2d00eed69877e5ecf9cef94a6342fecaa3979c2&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">https://mp.weixin.qq.com/s?__biz=MzA3MTUzOTcxOQ==&amp;mid=2452965797&amp;idx=1&amp;sn=dc1cc6dad0d589148d5d6147705cfc38&amp;chksm=88ede4cdbf9a6ddb775e3861ce6fc9a50eefe2d00eed69877e5ecf9cef94a6342fecaa3979c2&amp;scene=21#wechat_redirect</a></li>
@@ -610,10 +614,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:44+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-15T18:05:32+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Dec 15, 2020</p>
   </a>
 </div>
 
@@ -652,10 +656,9 @@
             
               <a class='next' href='/2020/08/20/redis-master-slave/'>
                 <p class='title'>redis主从复制原理<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>Redis主从复制配置127.0.0.1:6380> SLAVEOF 127.0.0.1 6379
-原理详解redis的复制功能分为完整重同步和部分重同步两个操作。
-
-完整重同步操作，将从服务器...</p>
+                <p class='content'>Redis主从复制配置127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379
+#主从心跳ping的时间间隔。默认10
+repl-ping-replica-period...</p>
               </a>
             
           </div>
@@ -726,7 +729,7 @@
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis两种持久化方案"><span class="toc-text">Redis两种持久化方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB持久化"><span class="toc-text">RDB持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB介绍和使用"><span class="toc-text">RDB介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgsave方式持久化"><span class="toc-text">bgsave方式持久化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点"><span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-text">问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF持久化"><span class="toc-text">AOF持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF介绍和使用"><span class="toc-text">AOF介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgrewriteaof重写"><span class="toc-text">bgrewriteaof重写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点-1"><span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动时优先使用AOF恢复"><span class="toc-text">启动时优先使用AOF恢复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合持久化"><span class="toc-text">混合持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis两种持久化方案"><span class="toc-text">Redis两种持久化方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#RDB持久化"><span class="toc-text">RDB持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB介绍和使用"><span class="toc-text">RDB介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgsave方式持久化"><span class="toc-text">bgsave方式持久化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点"><span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#问题"><span class="toc-text">问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#AOF持久化"><span class="toc-text">AOF持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF介绍和使用"><span class="toc-text">AOF介绍和使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#aof过程"><span class="toc-text">aof过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bgrewriteaof重写"><span class="toc-text">bgrewriteaof重写</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优缺点-1"><span class="toc-text">优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动时优先使用AOF恢复"><span class="toc-text">启动时优先使用AOF恢复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合持久化"><span class="toc-text">混合持久化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
     </div>
   </section>
 

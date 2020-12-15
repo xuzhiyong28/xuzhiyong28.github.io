@@ -467,7 +467,7 @@
 <h3 id="偏向锁状态"><a href="#偏向锁状态" class="headerlink" title="偏向锁状态"></a>偏向锁状态</h3><p><strong><em>偏向锁产生的原因？</em></strong> 大多数情况下，锁不仅不存在多线程竞争，而且总是由同一线程多次获得，为了让线程获得锁的代价更低而引入了偏向锁。</p>
 <p><img src="/2020/08/09/synchronized-up/3.png" alt="无锁-&gt;偏向锁"></p>
 <ul>
-<li>当一个线程A访问同步块时，如果发现MarkWord没有存储线程ID，那判定是无锁状态，此时通过CAS方式视图将自己的线程ID存储到MarkWord中</li>
+<li>当一个线程A访问同步块时，如果发现MarkWord没有存储线程ID，那判定是无锁状态，此时通过CAS方式试图将自己的线程ID存储到MarkWord中</li>
 <li>线程A判断当前MardWord存储的线程是不是自己的线程ID？如果是直接获得锁(此时MarkWord上是线程IDA)。并把标志为改成01，表示现在是偏向锁状态。</li>
 <li>执行同步体</li>
 <li>假设在期间有了线程B来争抢，由于此时MardWord上是线程A的ID，所以线程B执行CAS失败。此时线程B阻塞，并撤销偏向锁,升级为轻量级锁。</li>
@@ -483,7 +483,7 @@
 <p>在重量级锁中将LockRecord对象替换为了monitor对象的实现。主要通过<font color="red">monitorenter</font>和<font color="red">monitorexit</font>两个指令来实现。需要经过系统调用，在并发低的情况下效率会低。</p>
 <p>通过反编译查看，如下图</p>
 <p><img src="/2020/08/09/synchronized-up/5.png" alt></p>
-<p>java中每个对象都关联了一个监视器锁monitor，当monitor被占用时就会处于锁定状态。线程执行monitorenter 指令时尝试获取monitor的所有权。<font color="red">monitor是可重入的，有计数器，且是非公平的</font>。monitor 依赖操作系统的mutexLock(互斥锁)来实现的，线程被阻塞后便进入内核（Linux）调度状态，这个会导致系统在用户态与内核态之间来回切换，严重影响锁的性能。</p>
+<p>java中每个对象都关联了一个监视器锁monitor，当monitor被占用时就会处于锁定状态。线程执行monitorenter 指令时尝试获取monitor的所有权。<font color="red">monitor是可重入的，有计数器，且是非公平的</font>。<font color="red">monitor 依赖操作系统的mutexLock(互斥锁)来实现的，线程被阻塞后便进入内核（Linux）调度状态，这个会导致系统在用户态与内核态之间来回切换，严重影响锁的性能</font>。</p>
 <h2 id="锁清除"><a href="#锁清除" class="headerlink" title="锁清除"></a>锁清除</h2><p>编译器会清除一些使用了同步，但同步块中没有涉及共享数据的锁，从而减少多余的同步。</p>
 <p>例如StringBuffer类。我们可以看StringBuffer类是线程安全的，因为他的方法用了synchronized修饰过，但是在使用上，我们经常是直接在方法内部new一个StringBuffer类，这样的情况其实StringBuffer是没有竞争的，但是他还是用了synchronized修饰，此时编译器会进行锁清除。</p>
 <pre class=" language-java"><code class="language-java"><span class="token comment" spellcheck="true">//方法内部创建了StringBuffer并不会出现锁竞争的情况。</span>
@@ -591,10 +591,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-07T09:11:16+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-14T17:05:32+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 7, 2020</p>
+    <p>更新于：Dec 14, 2020</p>
   </a>
 </div>
 
