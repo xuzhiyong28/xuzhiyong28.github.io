@@ -430,6 +430,7 @@
 <p><img src="/2020/08/14/redis-sentinel/1.png" alt="redis哨兵架构图"></p>
 <p>所以说，本身redis哨兵也是一个<font color="red">分布式集群系统</font>。</p>
 <a id="more"></a>
+
 <h2 id="Redis哨兵配置"><a href="#Redis哨兵配置" class="headerlink" title="Redis哨兵配置"></a>Redis哨兵配置</h2><pre class=" language-properties"><code class="language-properties"><span class="token comment" spellcheck="true"># sentinel monitor mymaster 127.0.0.1 6379 2</span>
 <span class="token comment" spellcheck="true"># 哨兵节点定期监控 名字叫做 &lt;master-name>  并且 IP 为 &lt;ip> 端口号为 &lt;port> 的主节点</span>
 <span class="token comment" spellcheck="true">#quorum表示哨兵判断节点是否发生故障的票数，设置成2表示要两个哨兵认为主节点故障了才会客户下线</span>
@@ -437,7 +438,7 @@
 <span class="token attr-name">sentinel</span> <span class="token attr-value">monitor &lt;master-name> &lt;ip> &lt;port> &lt;quorum></span>
 
 <span class="token comment" spellcheck="true">#sentinel down-after-milliseconds mymaster 2000</span>
-<span class="token comment" spellcheck="true">#哨兵定期发送ping命令判断Redis节点和哨兵节点是否可达，如果超过了这个值没有回复pong</span>
+<span class="token comment" spellcheck="true">#哨兵定期发送ping命令判断Redis节点和哨兵节点是否可达，如果超过了这个值没有回复pong，</span>
 <span class="token comment" spellcheck="true">#主观判断节点是不可达的，单位是毫秒</span>
 <span class="token attr-name">sentinel</span> <span class="token attr-value">down-after-milliseconds &lt;master-name> &lt;times></span>
 
@@ -470,7 +471,7 @@
 <p>更新主从状态。通过slaveof no one命令，让选出来的从节点成为主节点。并通过slaveof命令让其他节点成为其从节点。</p>
 <h3 id="哨兵的定时监控"><a href="#哨兵的定时监控" class="headerlink" title="哨兵的定时监控"></a>哨兵的定时监控</h3><ul>
 <li>每个哨兵节点每10秒会向主节点和从节点发送info命令获取最拓扑结构图，哨兵配置时只要配置对主节点的监控即可，通过向主节点发送info，获取从节点的信息，并当有新的从节点加入时可以马上感知到</li>
-<li>每个哨兵节点每隔2秒会向redis数据节点的指定频道上发送该哨兵节点对于主节点的判断以及当前哨兵节点的信息，同时每个哨兵节点也会订阅该频道，来了解其它哨兵节点的信息及对主节点的判断</li>
+<li>每个哨兵节点每隔2秒会向redis数据节点的指定频道（__sentinel__:hello）上发送该哨兵节点对于主节点的判断以及当前哨兵节点的信息，同时每个哨兵节点也会订阅该频道，来了解其它哨兵节点的信息及对主节点的判断</li>
 <li>每隔1秒每个哨兵会向主节点、从节点及其余哨兵节点发送一次ping命令做一次心跳检测</li>
 </ul>
 <h3 id="工作原理总结"><a href="#工作原理总结" class="headerlink" title="工作原理总结"></a>工作原理总结</h3><ul>
@@ -765,10 +766,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:09:52+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-18T16:32:53+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Dec 18, 2020</p>
   </a>
 </div>
 

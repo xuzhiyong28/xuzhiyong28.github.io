@@ -432,6 +432,7 @@
 <p>通过上面我们知道Redis简单动态字符串的接口，通过len记录已使用字节数量，free记录未使用字节数量，buf数组记录数据。那为啥要这样设计呢，为啥不直接使用C语言提供的字符串？</p>
 <p><strong>获取字符串长度复杂度超级低</strong></p>
 <p>由于len存储了已使用字节数量，可以直接通过len获取数组长度，而无须去遍历字节数组获取长度，获取字符串长度为常数复杂度。所以我们使用<code>strlen</code>命令获取key的长度时速度很快。</p>
+<p>这也是为什么Redis不用C语言内置的字符串了。例如C语言中要知道一个字符串的长度可以用函数strlen(str)，而这个函数需要对每个字符计数直到遇到代表字符串结束的空字符才结束，时间负责度O(N)。而 SDS 由于 <code>len</code> 记录当前字符串的长度，所以直接读取即可，时间复杂度仅为 <strong>O(1)</strong>。</p>
 <pre class=" language-reStructuredText"><code class="language-reStructuredText">127.0.0.1:6379> strlen msg
 (integer) 11</code></pre>
 <p><strong>减少修改字符串时带来的内存重分配次数</strong></p>
@@ -543,8 +544,8 @@
 <h4 id="字符串对象"><a href="#字符串对象" class="headerlink" title="字符串对象"></a>字符串对象</h4><p>字符串对象的编码有三种：int，rwa，embstr。</p>
 <ul>
 <li>如果value存的是整数值，那么会使用int编码，且类型是long类型。</li>
-<li>如果value是一个字符串值且长度大于32字节，则使用SDS(简单动态字符串)，编码为raw。</li>
-<li>如果value是一个字符串值且长度小于等于32字节，则使用SDS(简单动态字符串)，编码为embstr（专门用于保存短字符串的一种优化编码方式）。</li>
+<li>如果value是一个字符串值且长度大于39字节，则使用SDS(简单动态字符串)，编码为raw。</li>
+<li>如果value是一个字符串值且长度小于等于39字节，则使用SDS(简单动态字符串)，编码为embstr（专门用于保存短字符串的一种优化编码方式）。</li>
 </ul>
 <h4 id="列表对象"><a href="#列表对象" class="headerlink" title="列表对象"></a>列表对象</h4><p>列表对象的编码使用的是<code>压缩列表</code>或<code>链表</code>。当列表满足以下两点时采用压缩列表。</p>
 <ul>
@@ -585,6 +586,10 @@
 OK
 127.0.0.1:6379&gt; object encoding name
 &quot;embstr&quot;</code></pre><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p><strong>Redis的数据对象由多种数据结构来实现，主要是出于时间和空间的考虑。由于Redis是单线程和纯内存，当数据量小的时候使用更简单的数据结构，有利于节省内存，提高性能。</strong></p>
+<p>在开发过程我们需要选择合适的数据结构。举个例子。</p>
+<p><strong>例子1</strong></p>
+<p>例如上面分析了字符串的结构，虽然Redis字符串使用SDS提高了性能，但是SDS相比于C语言字符串占用更多空间。SDS结构本身就占用比C语言字符串更多内存，且由于空间预分配，还有可能有没使用的空间浪费。所以我们一定要基于合适场景使用合适的数据结构。所以在使用上，如果我们业务上能用哈希对象的话那会比字符串占用内存更低。</p>
+<hr>
 <h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
 <li>《Redis设计与实现》</li>
 <li>一篇完善的Redis结构博客：<a href="https://www.cnblogs.com/hunternet/p/12742390.html" target="_blank" rel="noopener">一文回顾Redis五大对象(数据类型)</a></li>
@@ -681,10 +686,10 @@ OK
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-09T09:13:26+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-17T19:23:03+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 9, 2020</p>
+    <p>更新于：Dec 17, 2020</p>
   </a>
 </div>
 
