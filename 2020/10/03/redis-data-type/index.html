@@ -487,6 +487,8 @@
 <span class="token punctuation">}</span></code></pre>
 <h4 id="跳跃表"><a href="#跳跃表" class="headerlink" title="跳跃表"></a>跳跃表</h4><p> 跳跃表是一种有序的数据结构，它通过在每个节点中维持多个指向其他节点的指针，从而达到快速访问节点的目的。</p>
 <h4 id="压缩列表"><a href="#压缩列表" class="headerlink" title="压缩列表"></a>压缩列表</h4><p>压缩列表是Redis为了<code>节约内存</code>而开发的数据结构，由一系列特殊编码的<code>连续内存</code>块组成的顺序型数据结构。压缩列表节点可以保存<code>字节数组</code>或<code>整数值</code>。<strong>压缩列表有点类似数组，也是通过一篇连续的内存空间来存储数据，不过他跟数组不同的是：允许存储的数据大小不同。</strong></p>
+<p>使用压缩列表的好处是节约内存，将内存存储与连续的内存区域，且减少了内存碎片的产生。</p>
+<p>那为什么例如列表当元素到达512就不用压缩列表了？<strong>因为压缩列表的新增、删除的操作平均时间复杂度为O(N)，随着N的增大，时间必然会增加。</strong></p>
 <p><img src="/2020/10/03/redis-data-type/3.png" alt="压缩列表"></p>
 <table>
 <thead>
@@ -686,10 +688,10 @@ OK
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-17T19:23:03+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-19T21:23:31+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 17, 2020</p>
+    <p>更新于：Dec 19, 2020</p>
   </a>
 </div>
 
