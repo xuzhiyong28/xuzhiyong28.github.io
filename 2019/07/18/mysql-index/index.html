@@ -416,8 +416,7 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <h2 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h2><p>页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Records是真实存储我们插入的记录部分。<br><img src="/2019/07/18/mysql-index/1.png" alt></p>
-<a id="more"></a>
+          <h2 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h2><p>页是InnoDB管理存储空间的基本单位，一个页一般大小为16KB，我们的记录是存放到页中的。其中Infimum + Supremum记录的是最小最大记录。User Records是真实存储我们插入的记录部分。<br><img src="/2019/07/18/mysql-index/1.png" alt="InnoDB数据页结构"></p>
 <table>
 <thead>
 <tr>
@@ -454,7 +453,14 @@
 <td>用于检验页是否完整的部分，占用固定的8个字节</td>
 </tr>
 </tbody></table>
-<p><img src="/2019/07/18/mysql-index/2.png" alt></p>
+<p><strong>InnoDB页中的数据如何查找</strong></p>
+<p><img src="/2019/07/18/mysql-index/8.png" alt="InnoDB页中数据"></p>
+<p>如上图，数据在InnoDB中按照主键顺序连成一个单链表（图上没画），然后使用了一个槽的概念将数据进行分组。<font color="red">所以在一个数据页中查找指定主键值的记录过程</font>如下：</p>
+<ul>
+<li>通过二分法确定该记录所在槽，并找到该槽中主键值最小的记录。</li>
+<li>通过记录的next_record（也就是指向下一个数据的指针）遍历该槽所在组的各个记录。</li>
+</ul>
+<p><img src="/2019/07/18/mysql-index/2.png" alt="InnoDB页直接双向链表连接"></p>
 <ul>
 <li>页与页之间在存储上是不连续的，而是通过双向链表关联起来</li>
 <li>每个页只有16KB的大小</li>
@@ -633,10 +639,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:08:19+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-22T19:36:11+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Dec 22, 2020</p>
   </a>
 </div>
 

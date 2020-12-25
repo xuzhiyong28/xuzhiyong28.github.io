@@ -526,6 +526,11 @@ Master_SSL_Verify_Server_Cert: No
 <li>Read_Master_Log_Pos 和 Exec_Master_Log_Pos  这个值如果相差太大表示主从出现了延迟</li>
 <li>Seconds_Behind_Master 当前salve和master记录事件的时间戳，这个值如果越大证明延迟越严重</li>
 </ul>
+<p><strong>结合下原理和show slave status返回的结果来说明，大概流程是这样：</strong></p>
+<ol>
+<li>从库先通过io线程读取主库的二进制文件（Master_Log_File）和位置（Read_Master_Log_Pos）然后缓存到本地（从库服务器）的中继文件（Relay_Log_File）中并记录已经读取到的位置（Relay_Log_Pos）。</li>
+<li>再通过从库的sql线程去读取中继文件（Relay_Log_File），这个sql线程执行会记录已经执行到了哪个文（Relay_Master_Log_File）和哪个位置（Exec_Master_Log_Pos）。</li>
+</ol>
 <p>通过看show slave status发现一切正常，因为延迟是发生在凌晨4点。所以有可能的原因就是凌晨4点执行了大量的DDL导致的，之后恢复正常了。所以我们只能通过binlog日志查看凌晨4点时执行了什么语句。</p>
 <p>通过上面我们知道了从库是从主库的 mysql-bin.000231日志中同步过来的。所以看下这个binlog日志在凌晨4点时执行的所有DDL语句。</p>
 <p>导出主库上凌晨4:00~4:02的binlog日志。</p>
@@ -540,7 +545,7 @@ cat mysql_bin_231_4.log | grep &#39;INSERT&#39; | grep &#39;dir_visit_report&#39
 <li>优化网络</li>
 <li>业务上防止统一时间点大量更新操作</li>
 <li>修改binlog配置sync_binlog，innodb_flush_log_at_trx_commit (redo日志)</li>
-<li>使用混合模式复制的方式，通过binlog-format配置。项目上作者使用的是行模式，行模式的有点是能保证主从完全一致，但速度会比较慢。具体可以参考《<a href="https://www.cnblogs.com/xingyunfashi/p/8431780.html" target="_blank" rel="noopener">MYSQL中BINLOG_FORMAT的三种模式</a>》</li>
+<li>使用混合模式复制的方式，通过binlog-format配置。项目上作者使用的是行模式，行模式的优点是能保证主从完全一致，但速度会比较慢。具体可以参考《<a href="https://www.cnblogs.com/xingyunfashi/p/8431780.html" target="_blank" rel="noopener">MYSQL中BINLOG_FORMAT的三种模式</a>》</li>
 </ul>
 <h3 id="sync-binlog"><a href="#sync-binlog" class="headerlink" title="sync_binlog"></a>sync_binlog</h3><ul>
 <li><p>sync_binlog = 0 ，表示MySQL不控制binlog的刷新，由文件系统自己控制它的缓存的刷新</p>
@@ -662,10 +667,10 @@ mysql&gt; show master status;  #登陆主节点查看binlog信息</code></pre><p
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:08:47+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-22T19:06:59+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Dec 22, 2020</p>
   </a>
 </div>
 
