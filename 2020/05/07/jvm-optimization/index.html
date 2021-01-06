@@ -542,8 +542,27 @@
 <li>CMS收集器无法处理浮动垃圾（因为CMS是支持并发的原因，所以允许在过程中用户线程也在运行，会导致判断不准确。 例如可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次GC再将该对象回收）。</li>
 </ul>
 <p><strong>几个优化的参数</strong></p>
-<p>-XX：CMSInitiatingOccu-pancyFraction的值来用来设置CMS收集器老年代占用百分之多少后执行FullGC，降低内存回收频率，获取更好的性能。</p>
-<p>-XX：+UseCMS-CompactAtFullCollection默认开启，用于开启内存碎片的合并整理过程。</p>
+<ul>
+<li><p>-XX:+UseCMSInitiatingOccupancyOnly 和 -XX：CMSInitiatingOccupancyFraction的值来用来设置CMS收集器老年代占用百分之多少后执行FullGC，降低内存回收频率，获取更好的性能。</p>
+</li>
+<li><p>-XX：+UseCMSCompactAtFullCollection默认开启，用于开启内存碎片的合并整理过程。</p>
+</li>
+<li><p>-XX：CMSFullGCsBeforeCompaction 每隔多少次不压缩的Full GC后，执行一次带压缩的Full GC。</p>
+</li>
+</ul>
+<p><strong>CMS并发模式失败（Concurrent mode failure）和晋升失败</strong></p>
+<ul>
+<li>并发模式失败，CMS的目标就是在回收老年代对象的时候不要停止全部应用线程，在并发周期执行期间，用户的线程依然在运行，如果这时候如果应用线程向老年代请求分配的空间超过预留的空间（担保失败），就回触发concurrent mode failure，然后CMS的并发周期就会被一次Full GC代替。</li>
+<li>晋升失败，新生代做minor gc的时候，需要CMS的担保机制确认老年代是否有足够的空间容纳要晋升的对象，担保机制发现不够，则报concurrent mode failure，如果担保机制判断是够的，但是实际上由于碎片问题导致无法分配，就会报晋升失败。</li>
+<li>永久代空间（或Java8的元空间）耗尽，默认情况下,CMS不会对永久代进行收集，一旦永久代空间耗尽，就回触发Full GC。</li>
+</ul>
+<p>针对并发模式失败的调优 ：</p>
+<ul>
+<li>想办法增大老年代的空间，增加整个堆的大小，或者减少年轻代的大小。</li>
+<li>以更高的频率执行后台的回收线程，即提高CMS并发周期发生的频率，例如调低<em>CMSInitiatingOccupancyFraction</em>的值。引用《Java性能权威指南》（<strong>对特定的应用程序，该标志的更优值可以根据 GC 日志中 CMS 周期首次启动失败时的值得到。具体方法是，在垃圾回收日志中寻找并发模式失效，找到后再反向查找 CMS 周期最近的启动记录，然后根据日志来计算这时候的老年代空间占用值，然后设置一个比该值更小的值。</strong>）</li>
+<li>增多回收线程的个数CMS默认的垃圾收集线程数是<em>（CPU个数 + 3）/4</em>。-XX:ParallelCMSThreads用来设置线程数量。</li>
+</ul>
+<h3 id="JVM动态年龄判断"><a href="#JVM动态年龄判断" class="headerlink" title="JVM动态年龄判断"></a>JVM动态年龄判断</h3><p>-XX:MaxTenuringThreshold=3，该参数主要是控制新生代需要经历多少次GC晋升到老年代中的最大阈值。但是不一定是这个阈值才晋升到老年代。因为有动态年龄判断(<strong>Survivor空间中相同年龄所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代，无须等到MaxTenuringThreshold中要求的年龄</strong>)</p>
 <h3 id="垃圾回收图解"><a href="#垃圾回收图解" class="headerlink" title="垃圾回收图解"></a>垃圾回收图解</h3><p><img src="/2020/05/07/jvm-optimization/3.png" alt="垃圾回收过程"></p>
 <h3 id="JVM内存模型"><a href="#JVM内存模型" class="headerlink" title="JVM内存模型"></a>JVM内存模型</h3><p><img src="/2020/05/07/jvm-optimization/4.png" alt="jvm内存模型"></p>
 <h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><p><img src alt>)<img src="/2020/05/07/jvm-optimization/5.png" alt="5"></p>
@@ -697,10 +716,10 @@ Space losses<span class="token operator">:</span> <span class="token number">0</
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-21T11:04:18+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-04T15:17:18+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 21, 2020</p>
+    <p>更新于：Jan 4, 2021</p>
   </a>
 </div>
 
@@ -811,7 +830,7 @@ Sprin...</p>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何确定新生代和老年代的比例？"><span class="toc-text">如何确定新生代和老年代的比例？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见知识点"><span class="toc-text">常见知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空间分配担保"><span class="toc-text">空间分配担保</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况对象直接进老年代"><span class="toc-text">什么情况对象直接进老年代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况下会触发FGC"><span class="toc-text">什么情况下会触发FGC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三种内存回收机制优缺点"><span class="toc-text">三种内存回收机制优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CMS老年代垃圾回收器详解"><span class="toc-text">CMS老年代垃圾回收器详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾回收图解"><span class="toc-text">垃圾回收图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM内存模型"><span class="toc-text">JVM内存模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾收集器"><span class="toc-text">垃圾收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JAVA内存对象布局"><span class="toc-text">JAVA内存对象布局</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何确定新生代和老年代的比例？"><span class="toc-text">如何确定新生代和老年代的比例？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见知识点"><span class="toc-text">常见知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空间分配担保"><span class="toc-text">空间分配担保</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况对象直接进老年代"><span class="toc-text">什么情况对象直接进老年代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况下会触发FGC"><span class="toc-text">什么情况下会触发FGC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三种内存回收机制优缺点"><span class="toc-text">三种内存回收机制优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CMS老年代垃圾回收器详解"><span class="toc-text">CMS老年代垃圾回收器详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM动态年龄判断"><span class="toc-text">JVM动态年龄判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾回收图解"><span class="toc-text">垃圾回收图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM内存模型"><span class="toc-text">JVM内存模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾收集器"><span class="toc-text">垃圾收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JAVA内存对象布局"><span class="toc-text">JAVA内存对象布局</span></a></li></ol></li></ol>
     </div>
   </section>
 
