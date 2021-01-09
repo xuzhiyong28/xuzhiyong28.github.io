@@ -369,7 +369,109 @@
         
           
   <h2 class="title">
-    <a href="/2020/07/30/shardingjdbc-reg/">
+    <a href="/2021/02/02/shardingphere-problem/">
+      ShardingPhere使用中遇到的问题记录
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/shardingjdbc/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>shardingjdbc</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Feb 2, 2021</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="问题1：shardingphere启动慢"><a href="#问题1：shardingphere启动慢" class="headerlink" title="问题1：shardingphere启动慢"></a><strong>问题1：shardingphere启动慢</strong></h3><p>项目中使用了shardingphere分库分表，在使用了一段时间后发现项目启动越来越慢，原因定位在加载shardingphere时耗时比较长。但不知道具体是哪一个步骤。</p>
+<p><strong>定位可能原因：一般情况下我们项目会用到数据库连接池，在shardingjdbc启动时会初始化数据库连接池，可能是其中一台机器初始化连接时超时导致整体启动时间慢。</strong></p>
+<p>很遗憾不是这个问题，通过打印连接日志，数据库连接速度很快，不是这个问题导致的。无奈之下，跟了一遍shardingjdbc启动源码，发现问题所在。</p>
+<p><strong>定位原因：在shardingjdbc启动时，会加载分库分表中所有的表结构进行校验，判断是否所有的表结构都是一致的。</strong></p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2021/02/02/shardingphere-problem/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/2021/02/02/shardingjdbc-reg/">
       ShardingJdbc编排治理详解
     </a>
   </h2>
@@ -408,7 +510,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 30, 2020</p>
+    <p>发布于：Feb 2, 2021</p>
   </a>
 </div>
 
@@ -449,7 +551,7 @@
     
       
         <div class="button readmore">
-          <a href="/2020/07/30/shardingjdbc-reg/">
+          <a href="/2021/02/02/shardingjdbc-reg/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -475,7 +577,7 @@
         
           
   <h2 class="title">
-    <a href="/2020/07/20/sharding-student/">
+    <a href="/2021/01/09/sharding-student/">
       ShardingJdbc学习之按年月分库分表
     </a>
   </h2>
@@ -514,7 +616,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 20, 2020</p>
+    <p>发布于：Jan 9, 2021</p>
   </a>
 </div>
 
@@ -544,7 +646,7 @@
       
         <p>sharding-jdbc官方文档:<a href="https://shardingsphere.apache.org/document/current/cn/overview/" target="_blank" rel="noopener">https://shardingsphere.apache.org/document/current/cn/overview/</a><br><strong>本文采用当当的shardingjdbc实现按年分库，按月分表</strong></p>
 <p><strong>最终数据库结果如下</strong></p>
-<p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
+<p><img src="/2021/01/09/sharding-student/1.png" alt><br>例如有如下sql语句</p>
 <pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
 <pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre>
       
@@ -552,109 +654,7 @@
     
       
         <div class="button readmore">
-          <a href="/2020/07/20/sharding-student/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2020/03/07/shardingphere-problem/">
-      ShardingPhere使用中遇到的问题记录
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/shardingjdbc/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>shardingjdbc</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Mar 7, 2020</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="问题1：shardingphere启动慢"><a href="#问题1：shardingphere启动慢" class="headerlink" title="问题1：shardingphere启动慢"></a><strong>问题1：shardingphere启动慢</strong></h3><p>项目中使用了shardingphere分库分表，在使用了一段时间后发现项目启动越来越慢，原因定位在加载shardingphere时耗时比较长。但不知道具体是哪一个步骤。</p>
-<p><strong>定位可能原因：一般情况下我们项目会用到数据库连接池，在shardingjdbc启动时会初始化数据库连接池，可能是其中一台机器初始化连接时超时导致整体启动时间慢。</strong></p>
-<p>很遗憾不是这个问题，通过打印连接日志，数据库连接速度很快，不是这个问题导致的。无奈之下，跟了一遍shardingjdbc启动源码，发现问题所在。</p>
-<p><strong>定位原因：在shardingjdbc启动时，会加载分库分表中所有的表结构进行校验，判断是否所有的表结构都是一致的。</strong></p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2020/03/07/shardingphere-problem/">
+          <a href="/2021/01/09/sharding-student/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -787,7 +787,7 @@
           <li><a class="flat-box"
             title="/categories/redis/" href="/categories/redis/"
             id="categoriesredis"
-            ><div class='name'>redis</div><div class='badge'>(8)</div></a></li>
+            ><div class='name'>redis</div><div class='badge'>(9)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/shardingjdbc/" href="/categories/shardingjdbc/"

@@ -789,8 +789,8 @@ string</code></pre>
         
           
   <h2 class="title">
-    <a href="/2019/07/18/futuretask/">
-      Future、FutureTask实现原理浅析
+    <a href="/2019/07/18/volatile/">
+      java并发之volatile
     </a>
   </h2>
 
@@ -856,217 +856,31 @@ string</code></pre>
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="什么是Future、FutureTask"><a href="#什么是Future、FutureTask" class="headerlink" title="什么是Future、FutureTask"></a>什么是Future、FutureTask</h2><p>future在字面上表示未来的意思，在Java中一般通过继承Thread类或者实现Runnable接口这两种方式来创建多线程，但是这两种方式都有个缺陷，就是不能在执行完成后获取执行的结果。然而JDK提供了一种类似ajax的方式，允许提交任务后去做自己的事，在任务执行完成后可以获得执行的结果。总的来说就是实现”任务的提交”和”任务的执行”相分离。</p>
+        <h2 id="Java内存模型-jmm"><a href="#Java内存模型-jmm" class="headerlink" title="Java内存模型(jmm)"></a>Java内存模型(jmm)</h2><p>看个例子</p>
+<pre><code class="java">public class VolatileExample extends Thread{
+    //设置类静态变量,各线程访问这同一共享变量
+    private  static boolean flag = false;
+    //无限循环,等待flag变为true时才跳出循环
+   public void run() {
+       while (!flag){
+       };
+       System.out.println(&quot;停止了&quot;);
+   }
+
+    public static void main(String[] args) throws Exception {
+        new VolatileExample().start();
+        //sleep的目的是等待线程启动完毕,也就是说进入run的无限循环体了
+        Thread.sleep(100);
+        flag = true;
+    }
+}</code></pre>
+<p>上面程序运行后发现当主线程设置flag为true时子线程的循环并没有停掉。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/2019/07/18/futuretask/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/07/18/mysql-index/">
-      Mysql-InnoDB索引之索引结构详解(一)
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/mysql/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>mysql</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Mysql-InnoDB索引详解(一)</p>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/07/18/mysql-index/">
-            阅读全文 <i class="fas fa-chevron-right"></i>
-          </a>
-        </div>
-      
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class='post-wrapper'>
-            <article class="post white-box shadow reveal ">
-  
-
-
-  <section class='meta'>
-    
-      
-      
-      <div class="meta" id="header-meta">
-        
-          
-  <h2 class="title">
-    <a href="/2019/07/18/completable-future/">
-      CompletableFuture使用详解
-    </a>
-  </h2>
-
-
-        
-        <div class='new-meta-box'>
-          
-            
-          
-            
-              
-<div class='new-meta-item author'>
-  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
-    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
-    <p>咕噜。咕噜</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-  
-  <div class='new-meta-item category'>
-    <a href='/categories/java/' rel="nofollow">
-      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
-      <p>java</p>
-    </a>
-  </div>
-
-
-            
-          
-            
-              <div class="new-meta-item date">
-  <a class='notlink'>
-    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 18, 2019</p>
-  </a>
-</div>
-
-            
-          
-            
-              
-
-            
-          
-            
-              
-
-            
-          
-        </div>
-        
-          <hr>
-        
-      </div>
-    
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="CompletableFuture介绍"><a href="#CompletableFuture介绍" class="headerlink" title="CompletableFuture介绍"></a>CompletableFuture介绍</h2><p>CompletableFuture是JDK8新出来一种异步组合式编程。<br>Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结果之间的依赖性。实际开发中，我们经常需要达成以下目的：</p>
-<ul>
-<li><p>将多个异步计算的结果合并成一个</p>
-</li>
-<li><p>等待Future集合中的所有任务都完成</p>
-</li>
-<li><p>Future完成事件（即，任务完成以后触发执行动作）</p></li></ul>
-      
-    </div>
-    
-      
-        <div class="button readmore">
-          <a href="/2019/07/18/completable-future/">
+          <a href="/2019/07/18/volatile/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -1209,6 +1023,210 @@ public static void main(String[] args){
         
           
   <h2 class="title">
+    <a href="/2019/07/18/completable-future/">
+      CompletableFuture使用详解
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/java/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>java</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Jul 18, 2019</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="CompletableFuture介绍"><a href="#CompletableFuture介绍" class="headerlink" title="CompletableFuture介绍"></a>CompletableFuture介绍</h2><p>CompletableFuture是JDK8新出来一种异步组合式编程。<br>Future接口可以构建异步应用，但依然有其局限性。它很难直接表述多个Future 结果之间的依赖性。实际开发中，我们经常需要达成以下目的：</p>
+<ul>
+<li><p>将多个异步计算的结果合并成一个</p>
+</li>
+<li><p>等待Future集合中的所有任务都完成</p>
+</li>
+<li><p>Future完成事件（即，任务完成以后触发执行动作）</p></li></ul>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2019/07/18/completable-future/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
+    <a href="/2019/07/18/mysql-index/">
+      Mysql-InnoDB索引之索引结构详解(一)
+    </a>
+  </h2>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/mysql/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>mysql</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Jul 18, 2019</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Mysql-InnoDB索引详解(一)</p>
+      
+    </div>
+    
+      
+        <div class="button readmore">
+          <a href="/2019/07/18/mysql-index/">
+            阅读全文 <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class='post-wrapper'>
+            <article class="post white-box shadow reveal ">
+  
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h2 class="title">
     <a href="/2019/07/18/mysql-index-use/">
       Mysql-InnoDB索引之索引使用和优化原则(二)
     </a>
@@ -1313,8 +1331,8 @@ public static void main(String[] args){
         
           
   <h2 class="title">
-    <a href="/2019/07/18/volatile/">
-      java并发之volatile
+    <a href="/2019/07/18/futuretask/">
+      Future、FutureTask实现原理浅析
     </a>
   </h2>
 
@@ -1380,31 +1398,13 @@ public static void main(String[] args){
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Java内存模型-jmm"><a href="#Java内存模型-jmm" class="headerlink" title="Java内存模型(jmm)"></a>Java内存模型(jmm)</h2><p>看个例子</p>
-<pre><code class="java">public class VolatileExample extends Thread{
-    //设置类静态变量,各线程访问这同一共享变量
-    private  static boolean flag = false;
-    //无限循环,等待flag变为true时才跳出循环
-   public void run() {
-       while (!flag){
-       };
-       System.out.println(&quot;停止了&quot;);
-   }
-
-    public static void main(String[] args) throws Exception {
-        new VolatileExample().start();
-        //sleep的目的是等待线程启动完毕,也就是说进入run的无限循环体了
-        Thread.sleep(100);
-        flag = true;
-    }
-}</code></pre>
-<p>上面程序运行后发现当主线程设置flag为true时子线程的循环并没有停掉。</p>
+        <h2 id="什么是Future、FutureTask"><a href="#什么是Future、FutureTask" class="headerlink" title="什么是Future、FutureTask"></a>什么是Future、FutureTask</h2><p>future在字面上表示未来的意思，在Java中一般通过继承Thread类或者实现Runnable接口这两种方式来创建多线程，但是这两种方式都有个缺陷，就是不能在执行完成后获取执行的结果。然而JDK提供了一种类似ajax的方式，允许提交任务后去做自己的事，在任务执行完成后可以获得执行的结果。总的来说就是实现”任务的提交”和”任务的执行”相分离。</p>
       
     </div>
     
       
         <div class="button readmore">
-          <a href="/2019/07/18/volatile/">
+          <a href="/2019/07/18/futuretask/">
             阅读全文 <i class="fas fa-chevron-right"></i>
           </a>
         </div>
@@ -1650,7 +1650,7 @@ public static void main(String[] args){
           <li><a class="flat-box"
             title="/categories/redis/" href="/categories/redis/"
             id="categoriesredis"
-            ><div class='name'>redis</div><div class='badge'>(8)</div></a></li>
+            ><div class='name'>redis</div><div class='badge'>(9)</div></a></li>
         
           <li><a class="flat-box"
             title="/categories/shardingjdbc/" href="/categories/shardingjdbc/"

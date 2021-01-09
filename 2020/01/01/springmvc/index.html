@@ -567,6 +567,31 @@
 <span class="token punctuation">}</span>
 <span class="token operator">&lt;</span>bean id<span class="token operator">=</span><span class="token string">"/other.action"</span> <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"com.xzy.controller.OtherController"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>bean<span class="token operator">></span></code></pre>
 <p>HandlerMapping通过不同的实现类来将url和handler映射起来。后面执行getHandler()方法时，就可以通过url找到对应的handler。并将handler+多个HandlerInterceptor拦截器封装成HandlerExecutionChain对象。</p>
+<p>具体的实现类包括：</p>
+<ul>
+<li>RequestMappingHandlerMapping，使用注解的时候,通过注解将url映射到对应的Controller上。也是我们最常用的方式。</li>
+<li>BeanNameUrlHandlerMapping，需要在spring-mvc.xml中配置BeanNameUrlHandlerMapping以及bean实现了AbstractController。通过bean将url映射的对应的Controller。</li>
+</ul>
+<pre class=" language-java"><code class="language-java"><span class="token operator">&lt;</span>bean <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>bean<span class="token operator">></span>
+<span class="token operator">&lt;</span>bean id<span class="token operator">=</span><span class="token string">"/hello"</span> <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"com.cyw.web.controller.HelloController"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>bean<span class="token operator">></span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">HelloController</span> <span class="token keyword">extends</span> <span class="token class-name">AbstractController</span> <span class="token punctuation">{</span>
+    <span class="token annotation punctuation">@Override</span>
+    <span class="token keyword">protected</span> ModelAndView <span class="token function">handleRequestInternal</span><span class="token punctuation">(</span>HttpServletRequest request<span class="token punctuation">,</span> HttpServletResponse response<span class="token punctuation">)</span>
+            <span class="token keyword">throws</span> Exception <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">ModelAndView</span><span class="token punctuation">(</span><span class="token string">"Hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<ul>
+<li>SimpleUrlHandlerMapping，通过url直接映射。</li>
+</ul>
+<pre class=" language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>org.springframework.web.servlet.handler.SimpleUrlHandlerMapping<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>property</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>mappings<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>props</span><span class="token punctuation">></span></span>
+       <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>prop</span> <span class="token attr-name">key</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>/hello.htm<span class="token punctuation">"</span></span><span class="token punctuation">></span></span>helloController<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>prop</span><span class="token punctuation">></span></span>
+     <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>props</span><span class="token punctuation">></span></span>
+   <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>property</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>bean</span><span class="token punctuation">></span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>bean</span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>helloController<span class="token punctuation">"</span></span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>com.cyw.web.controller.HelloController<span class="token punctuation">"</span></span> <span class="token punctuation">/></span></span></code></pre>
 <h3 id="处理适配器-HandlerAdapter"><a href="#处理适配器-HandlerAdapter" class="headerlink" title="处理适配器(HandlerAdapter)"></a>处理适配器(HandlerAdapter)</h3><p>HandlerAdapter将会根据适配的结果调用真正的处理器的功能处理方法，完成功能处理；并返回一个ModelAndView对象（包含模型数据、逻辑视图名）。由于handler是有不同的实现方式，例如是实现Controller还是使用@Controller注解，所以需要使用适配器的方式找到不通方式的处理器。系统默认提供了处理适配器来对应不同方式的handler。</p>
 <ul>
 <li>RequestMappingHandlerAdapter.java</li>
@@ -665,10 +690,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:43+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-07T16:56:14+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Jan 7, 2021</p>
   </a>
 </div>
 
@@ -700,8 +725,8 @@
               <a class='prev' href='/2020/01/04/springmvc2/'>
                 <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>SpringMVC详细解析之工作流程（二）</p>
                 <p class='content'>SpringMVC工作流程工作流程概述
-客户端（浏览器）发送请求，直接请求到 DispatcherServlet
-DispatcherServlet 根据请求信息调用 HandlerMappin...</p>
+客户端（浏览器）发送请求，直接请求到 DispatcherServlet。
+DispatcherServlet 根据请求信息调用 HandlerMappi...</p>
               </a>
             
             

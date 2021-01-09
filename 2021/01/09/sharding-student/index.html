@@ -354,7 +354,7 @@
         
           
   <h1 class="title">
-    <a href="/2020/07/20/sharding-student/">
+    <a href="/2021/01/09/sharding-student/">
       ShardingJdbc学习之按年月分库分表
     </a>
   </h1>
@@ -393,7 +393,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 20, 2020</p>
+    <p>发布于：Jan 9, 2021</p>
   </a>
 </div>
 
@@ -418,7 +418,7 @@
           
           <p>sharding-jdbc官方文档:<a href="https://shardingsphere.apache.org/document/current/cn/overview/" target="_blank" rel="noopener">https://shardingsphere.apache.org/document/current/cn/overview/</a><br><strong>本文采用当当的shardingjdbc实现按年分库，按月分表</strong></p>
 <p><strong>最终数据库结果如下</strong></p>
-<p><img src="/2020/07/20/sharding-student/1.png" alt><br>例如有如下sql语句</p>
+<p><img src="/2021/01/09/sharding-student/1.png" alt><br>例如有如下sql语句</p>
 <pre><code>select * from ips where flowtime = &#39;20181202&#39;;</code></pre><p>我们规定flowtime是我们的分片键,通过值20181202确定年份为2018，月份为12，所以需要定位到库sharding_2018中的表ips_12查询，<br>所以实际发出的查询语句是</p>
 <pre><code>select * from `sharding_2018`.ips_12 where flowtime = &#39;20181202&#39;;</code></pre><a id="more"></a>
 <h4 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h4><h5 id="maven导出具体sharding需要的包"><a href="#maven导出具体sharding需要的包" class="headerlink" title="maven导出具体sharding需要的包"></a>maven导出具体sharding需要的包</h5><pre><code>&lt;dependency&gt;
@@ -655,16 +655,16 @@ public class ShardingTest {
     public void testCreateTable() {
         jdbcTemplate.update(&quot;CREATE TABLE IF NOT EXISTS ips (flowtime VARCHAR(50) NOT NULL, value INT NOT NULL)&quot;);
   }
-}</code></pre><p>查看控制台，已经帮我们创建了对应的表<br><img src="/2020/07/20/sharding-student/2.png" alt><br>测试插入数据</p>
+}</code></pre><p>查看控制台，已经帮我们创建了对应的表<br><img src="/2021/01/09/sharding-student/2.png" alt><br>测试插入数据</p>
 <pre><code>@Test
     public void testInsertOne(){
         //测试一条记录多条插入
         jdbcTemplate.update(&quot;INSERT IGNORE INTO flow(flowtime,value) VALUES (&#39;20190525&#39;,1),(&#39;20190526&#39;,2),(&#39;20190527&#39;,2)&quot;);
-    }</code></pre><p>根据对应的规则插入到不同的表<br><img src="/2020/07/20/sharding-student/3.png" alt></p>
+    }</code></pre><p>根据对应的规则插入到不同的表<br><img src="/2021/01/09/sharding-student/3.png" alt></p>
 <pre><code> @Test
     public void query(){
         List&lt;Map&lt;String, Object&gt;&gt; list = jdbcTemplate.queryForList(&quot;select * from flow where flowtime = &#39;20170818&#39;&quot;);
-    }</code></pre><p><img src="/2020/07/20/sharding-student/4.png" alt></p>
+    }</code></pre><p><img src="/2021/01/09/sharding-student/4.png" alt></p>
 <h4 id="进行分库分表的思考"><a href="#进行分库分表的思考" class="headerlink" title="进行分库分表的思考"></a>进行分库分表的思考</h4><p>待续</p>
 
           
@@ -707,7 +707,7 @@ public class ShardingTest {
           
         
           
-            <p>本文永久链接是：<a href=http://yoursite.com/2020/07/20/sharding-student/>http://yoursite.com/2020/07/20/sharding-student/</a></p>
+            <p>本文永久链接是：<a href=http://yoursite.com/2021/01/09/sharding-student/>http://yoursite.com/2021/01/09/sharding-student/</a></p>
           
         
       </blockquote>
@@ -758,10 +758,10 @@ public class ShardingTest {
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:03+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-09T13:27:12+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Jan 9, 2021</p>
   </a>
 </div>
 
@@ -790,19 +790,18 @@ public class ShardingTest {
         
           <div class="prev-next">
             
-              <a class='prev' href='/2020/07/20/db-w-r-dynamic/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>读写分离设计与思考</p>
-                <p class='content'>读写分离基本原理高性能数据库集群的第一种方式是“读写分离”，其本质是将访问压力分散到集群中的多个节点，但是没有分散存储压力；第二种方式是“分库分表”，既可以分散访问压力，又可以分散存储压力。
-读...</p>
+              <a class='prev' href='/2021/02/02/shardingjdbc-reg/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>ShardingJdbc编排治理详解</p>
+                <p class='content'>分布式配置中心在分布式系统或者微服务中，我们经常用到分布式配置中心，他可以将配置定义到一个单独的地方以便所有分布式系统从能从中读取配置，对于修改配置也只需要修改一个地方就行。
+ShardingS...</p>
               </a>
             
             
-              <a class='next' href='/2020/05/10/spring-forbean/'>
-                <p class='title'>Spring循环依赖详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>什么是循环依赖所谓的循环依赖是指，A 依赖 B，B 又依赖 A，它们之间形成了循环依赖。或者是 A 依赖 B，B 依赖 C，C 又依赖 A，形成了循环依赖。更或者是自己依赖自己。
+              <a class='next' href='/2020/12/17/redis-known/'>
+                <p class='title'>Redis知识点扫盲<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>Redis内存划分直接上图
 
-
-Sprin...</p>
+Redis过期策略和内存淘汰过期策略你Redis只能存5G数据，可是你写了10G，那会删5G的数据。怎么删的？这个问题思考过么？还有，你的数据已经设置了过期时间，但...</p>
               </a>
             
           </div>

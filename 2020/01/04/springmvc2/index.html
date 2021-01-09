@@ -417,14 +417,14 @@
         <div class="article-entry" itemprop="articleBody">
           
           <h2 id="SpringMVC工作流程"><a href="#SpringMVC工作流程" class="headerlink" title="SpringMVC工作流程"></a>SpringMVC工作流程</h2><h3 id="工作流程概述"><a href="#工作流程概述" class="headerlink" title="工作流程概述"></a>工作流程概述</h3><ul>
-<li>客户端（浏览器）发送请求，直接请求到 DispatcherServlet</li>
-<li>DispatcherServlet 根据请求信息调用 HandlerMapping，解析请求对应的 Handler</li>
-<li>解析到对应的 Handler（也就是我们平常说的 Controller 控制器）后，开始由 HandlerAdapter 适配器处理</li>
-<li>HandlerAdapter 会根据 Handler 来调用真正的处理器开处理请求，并处理相应的业务逻辑</li>
-<li>处理器处理完业务后，会返回一个 ModelAndView 对象，Model 是返回的数据对象，View 是个逻辑上的 View</li>
-<li>ViewResolver 会根据逻辑 View 查找实际的 View</li>
-<li>DispaterServlet 把返回的 Model 传给 View（视图渲染）</li>
-<li>把 View 返回给请求者（浏览器）<a id="more"></a>
+<li>客户端（浏览器）发送请求，直接请求到 DispatcherServlet。</li>
+<li>DispatcherServlet 根据请求信息调用 HandlerMapping，解析请求成对应的 Handler（HandlerExecutionChain包含该请求的handler和拦截器链）。</li>
+<li>解析到对应的 Handler（也就是我们平常说的 Controller 控制器）后，开始由 HandlerAdapter 适配器处理。</li>
+<li>HandlerAdapter 会根据 Handler 来调用真正的处理器开始处理请求，执行对应的业务逻辑。</li>
+<li>处理器处理完业务后，会返回一个 ModelAndView 对象，Model 是返回的数据对象，View 是个逻辑上的 View。</li>
+<li>ViewResolver 会根据逻辑 View 查找实际的 View。</li>
+<li>DispaterServlet 把返回的 Model 传给 View（视图渲染）。</li>
+<li>把 View 返回给请求者（浏览器）。<a id="more"></a>
 <h3 id="流程分析"><a href="#流程分析" class="headerlink" title="流程分析"></a>流程分析</h3></li>
 </ul>
 <p><font size="4" color="red">第一步：客户端（浏览器）发送请求，直接请求到DispatcherServlet</font></p>
@@ -698,10 +698,10 @@ mappedHandler.applyPostHandle(processedRequest, response, mv)</code></pre><p><fo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:46+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-07T17:21:28+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Jan 7, 2021</p>
   </a>
 </div>
 

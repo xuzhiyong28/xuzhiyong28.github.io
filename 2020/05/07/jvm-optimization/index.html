@@ -530,8 +530,14 @@
 <p><strong>CMS四个过程</strong>：</p>
 <p>CMS基于<strong>标记-清除</strong>算法实现。</p>
 <ul>
-<li>初始标记。标记一下GC Roots能直接关联到的对象。——— <font color="red">Stop The World</font></li>
-<li>并发标记。从GC Roots开始找到它能引用的所有其它对象。</li>
+<li>初始标记(<font color="red">Stop The World</font>)。标记一下GC Roots能直接关联到的对象。这一步主要做两件事：</li>
+<li><ul>
+<li>从GcRoots直接可达的老年代对象</li>
+<li>遍历新生代对象，标记可达的老年代对象</li>
+</ul>
+</li>
+<li>并发标记。遍历初始标记阶段标记出来的存活对象，然后继续递归标记这些对象可达的对象。<strong>在运行期间可能发生新生代的对象晋升到老年代、或者是直接在老年代分配对象、或者更新老年代对象的引用关系等等，对于这些对象，都是需要进行重新标记的，否则有些对象就会被遗漏，发生漏标的情况。</strong>为了提高重新标记的效率，该阶段会把上述对象所在的Card(卡表)标识为Dirty(脏)，后续只需扫描这些Dirty Card的对象，避免扫描整个老年代。</li>
+<li>并发预清理。<em>CMSPrecleaningEnabled</em>控制是否需要并发预清理，默认启用。<strong>该阶段要尽最大的努力去处理那些在并发阶段被应用线程更新的老年代对象，这样在暂停的重新标记阶段就可以少处理一些，暂停时间也会相应的降低。</strong></li>
 <li>重新标记。为了修正并发标记期间因用户程序继续动作而导致标记产生变动的那一部分对象的标记记录 — <font color="red">Stop The World</font></li>
 <li>并发清除。</li>
 </ul>
@@ -543,12 +549,11 @@
 </ul>
 <p><strong>几个优化的参数</strong></p>
 <ul>
-<li><p>-XX:+UseCMSInitiatingOccupancyOnly 和 -XX：CMSInitiatingOccupancyFraction的值来用来设置CMS收集器老年代占用百分之多少后执行FullGC，降低内存回收频率，获取更好的性能。</p>
-</li>
-<li><p>-XX：+UseCMSCompactAtFullCollection默认开启，用于开启内存碎片的合并整理过程。</p>
-</li>
-<li><p>-XX：CMSFullGCsBeforeCompaction 每隔多少次不压缩的Full GC后，执行一次带压缩的Full GC。</p>
-</li>
+<li>-XX:+UseCMSInitiatingOccupancyOnly 和 -XX：CMSInitiatingOccupancyFraction的值来用来设置CMS收集器老年代占用百分之多少后执行FullGC，降低内存回收频率，获取更好的性能。</li>
+<li>-XX:+UseCMSCompactAtFullCollection默认开启，要进行Full GC的时候进行内存碎片整理。</li>
+<li>-XX:CMSFullGCsBeforeCompaction 每隔多少次不压缩的Full GC后，执行一次带压缩的Full GC。</li>
+<li>CMSScavengeBeforeRemark 如果开启这个参数，会在进入重新标记阶段之前强制触发一次minor gc。</li>
+<li>CMSMaxAbortablePrecleanTime = 5 表示并发预清理阶段持续5秒还没等到minor gc就中断并发预清理阶段。</li>
 </ul>
 <p><strong>CMS并发模式失败（Concurrent mode failure）和晋升失败</strong></p>
 <ul>
@@ -716,10 +721,10 @@ Space losses<span class="token operator">:</span> <span class="token number">0</
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-04T15:17:18+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-07T09:50:36+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jan 4, 2021</p>
+    <p>更新于：Jan 7, 2021</p>
   </a>
 </div>
 
@@ -757,9 +762,11 @@ Sprin...</p>
               </a>
             
             
-              <a class='next' href='/2020/03/07/shardingphere-problem/'>
-                <p class='title'>ShardingPhere使用中遇到的问题记录<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>问题1：shardingphere启动慢项目中使用了shardingphere分库分表，在使用了一段时间后发现项目启动越来越慢，原因定位在加载shardingphere时耗时比较长。但不知道具体...</p>
+              <a class='next' href='/2020/01/26/mysql-count/'>
+                <p class='title'>MySQL之count(*)、count(1)、count(字段)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>正文count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。
+
+InnoDB下的countcount...</p>
               </a>
             
           </div>

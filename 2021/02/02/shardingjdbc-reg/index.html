@@ -354,7 +354,7 @@
         
           
   <h1 class="title">
-    <a href="/2020/07/30/shardingjdbc-reg/">
+    <a href="/2021/02/02/shardingjdbc-reg/">
       ShardingJdbc编排治理详解
     </a>
   </h1>
@@ -393,7 +393,7 @@
               <div class="new-meta-item date">
   <a class='notlink'>
     <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
-    <p>发布于：Jul 30, 2020</p>
+    <p>发布于：Feb 2, 2021</p>
   </a>
 </div>
 
@@ -774,7 +774,7 @@ DataSource dataSource <span class="token operator">=</span> OrchestrationShardin
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span></code></pre>
 <h4 id="编排治理ShardingDataSource"><a href="#编排治理ShardingDataSource" class="headerlink" title="编排治理ShardingDataSource"></a>编排治理ShardingDataSource</h4><p>OrchestrationShardingDataSource继承关系如下，实现了DataSource接口。这个类是最主要的类，通过从zookeeper获取对应的配置最后初始化成ShardingDataSource。</p>
-<p><img src="/2020/07/30/shardingjdbc-reg/1.png" alt></p>
+<p><img src="/2021/02/02/shardingjdbc-reg/1.png" alt></p>
 <p>主流程如下：</p>
 <ol>
 <li>初始化OrchestrationFacade对象，里面通过配置确定是采用zookeeper还是etcd作为配置中心</li>
@@ -922,7 +922,7 @@ DataSource dataSource <span class="token operator">=</span> OrchestrationShardin
 <span class="token punctuation">}</span></code></pre>
 <p>所以，当配置中心触发Watch机制的时候，我们可以看到在代码上执行了</p>
 <pre class=" language-java"><code class="language-java">ShardingEventBusInstance<span class="token punctuation">.</span><span class="token function">getInstance</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">post</span><span class="token punctuation">(</span>shardingEvent<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
-<p><img src="/2020/07/30/shardingjdbc-reg/2.png" alt></p>
+<p><img src="/2021/02/02/shardingjdbc-reg/2.png" alt></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>通过将复杂繁多的配置使用zookeeper进行管理，并且通过Watch机制自动重新加载配置。笔者工作中负责一个自动化入库任务，通过定时拉取数据再经过shardingjdbc存入数据库。期间如果需要新增分库分表规则需要重启服务，势必会导致定时任务的失败，所以采用了编排治理的方式实现不用重启重新加载配置。安全高效。</p>
 
           
@@ -965,7 +965,7 @@ DataSource dataSource <span class="token operator">=</span> OrchestrationShardin
           
         
           
-            <p>本文永久链接是：<a href=http://yoursite.com/2020/07/30/shardingjdbc-reg/>http://yoursite.com/2020/07/30/shardingjdbc-reg/</a></p>
+            <p>本文永久链接是：<a href=http://yoursite.com/2021/02/02/shardingjdbc-reg/>http://yoursite.com/2021/02/02/shardingjdbc-reg/</a></p>
           
         
       </blockquote>
@@ -1016,10 +1016,10 @@ DataSource dataSource <span class="token operator">=</span> OrchestrationShardin
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-11-16T17:10:10+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-09T13:23:43+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Nov 16, 2020</p>
+    <p>更新于：Jan 9, 2021</p>
   </a>
 </div>
 
@@ -1048,20 +1048,15 @@ DataSource dataSource <span class="token operator">=</span> OrchestrationShardin
         
           <div class="prev-next">
             
-              <a class='prev' href='/2020/07/30/fork-join/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Fork/join框架你会用吗？</p>
-                <p class='content'>Fork/Join框架介绍介绍Fork/Join框架是Java 7提供的一个用于并行执行任务的框架，是一个把大任务分割成若干个小任务，最终汇总每个小任务结果后得到大任务结果的框架。Fork/Jo...</p>
+              <a class='prev' href='/2021/02/02/shardingphere-problem/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>ShardingPhere使用中遇到的问题记录</p>
+                <p class='content'>问题1：shardingphere启动慢项目中使用了shardingphere分库分表，在使用了一段时间后发现项目启动越来越慢，原因定位在加载shardingphere时耗时比较长。但不知道具体...</p>
               </a>
             
             
-              <a class='next' href='/2020/07/28/hashmap/'>
-                <p class='title'>HashMap原理浅析<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-                <p class='content'>基础数组的优点缺点
-数组在内存空间上连续。能实现快速访问某个下标的值。
-数组空间的大小一旦确定后就不能更改，如果需要增大减小需要新建数组重新设值。
-
-链表的优点缺点
-链表在内存空间上是不连续的。...</p>
+              <a class='next' href='/2021/01/09/sharding-student/'>
+                <p class='title'>ShardingJdbc学习之按年月分库分表<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>sharding-jdbc官方文档:https://shardingsphere.apache.org/document/current/cn/overview/本文采用当当的shardingj...</p>
               </a>
             
           </div>
