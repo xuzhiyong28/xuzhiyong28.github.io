@@ -431,6 +431,7 @@
 <li>Volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，<font color="red">随机</font>移除某个Key。依然不推荐；</li>
 <li>Volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的Key优先移除。不推荐。</li>
 </ul>
+<h3 id="Redis缓存问题"><a href="#Redis缓存问题" class="headerlink" title="Redis缓存问题"></a>Redis缓存问题</h3><p><img src="/2020/12/17/redis-known/2.png" alt></p>
 
           
             <div class='article_footer'>
@@ -523,10 +524,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-07T09:12:20+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-11T14:11:44+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jan 7, 2021</p>
+    <p>更新于：Jan 11, 2021</p>
   </a>
 </div>
 
@@ -635,7 +636,7 @@ IO操作流程假设现在一个网络请求想访问服务器上的一个文...
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis内存划分"><span class="toc-text">Redis内存划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis过期策略和内存淘汰"><span class="toc-text">Redis过期策略和内存淘汰</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#过期策略"><span class="toc-text">过期策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#淘汰策略"><span class="toc-text">淘汰策略</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis内存划分"><span class="toc-text">Redis内存划分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis过期策略和内存淘汰"><span class="toc-text">Redis过期策略和内存淘汰</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#过期策略"><span class="toc-text">过期策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#淘汰策略"><span class="toc-text">淘汰策略</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis缓存问题"><span class="toc-text">Redis缓存问题</span></a></li></ol>
     </div>
   </section>
 
