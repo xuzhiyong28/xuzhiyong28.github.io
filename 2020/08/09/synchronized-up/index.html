@@ -416,7 +416,8 @@
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
           
-          <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>synchronized是java提供的原子性内置锁，这种内置的并且使用者看不到的锁也被称为<strong>监视器锁</strong>，使用synchronized之后，会在编译之后在同步的代码块前后加上monitorenter和monitorexit字节码指令，他依赖操作系统底层互斥锁实现。他的作用主要就是实现原子性操作和解决共享变量的内存可见性问题。</p>
+          <h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>synchronized是java提供的原子性内置锁，这种内置的并且使用者看不到的锁也被称为<strong>监视器锁</strong>，使用synchronized之后，会在编译之后在同步的代码块前后加上monitorenter和monitorexit字节码指令，他依赖操作系统底层互斥锁（Mutex Lock）实现。他的作用主要就是实现原子性操作和解决共享变量的内存可见性问题。</p>
+<p><strong>总结：synchronized修饰的代码会在编译的时候加入monitorenter,monitorexit指令，这两个指令是通过操作系统的Mutex Lock实现的，由于使用Mutex Lock需要将当前线程挂起并从用户态切换到内核态来执行，这种切换的代价是非常昂贵的。</strong></p>
 <h2 id="synchronized使用方法"><a href="#synchronized使用方法" class="headerlink" title="synchronized使用方法"></a>synchronized使用方法</h2><table>
 <thead>
 <tr>
@@ -592,10 +593,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-30T16:13:20+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-13T22:13:27+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 30, 2020</p>
+    <p>更新于：Jan 13, 2021</p>
   </a>
 </div>
 

@@ -629,6 +629,18 @@ Space losses<span class="token operator">:</span> <span class="token number">4</
      <span class="token number">16</span>    <span class="token number">40</span>   java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object Object<span class="token punctuation">;</span><span class="token punctuation">.</span>&lt;elements<span class="token operator">></span>数组长度<span class="token punctuation">(</span><span class="token number">4</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">)</span>                        N<span class="token operator">/</span>A
 Instance size<span class="token operator">:</span> <span class="token number">56</span> bytes
 Space losses<span class="token operator">:</span> <span class="token number">0</span> bytes internal <span class="token operator">+</span> <span class="token number">0</span> bytes external <span class="token operator">=</span> <span class="token number">0</span> bytes total</code></pre>
+<h3 id="三色标记法"><a href="#三色标记法" class="headerlink" title="三色标记法"></a>三色标记法</h3><p>实现并发标记的算法就是三色标记法，三色标记法最大的特点就是可以异步执行，从而可以以中断时间极少的代价或者完全没有中断来进行整个GC。</p>
+<ul>
+<li>白色：尚未被GC访问过的对象，如果全部标记已完成依旧为白色的，称为不可达对象，既垃圾对象。</li>
+<li>黑色：本对象已经被GC访问过，且本对象的子引用对象也已经被访问过了。</li>
+<li>灰色：本对象已访问过，但是本对象的子引用对象还没有被访问过，全部访问完会变成黑色，属于中间态。</li>
+</ul>
+<p><strong>标记过程</strong></p>
+<ol>
+<li>在GC并发标记刚开始时，所以对象均为白色集合。</li>
+<li>将所有GCRoots直接引用的对象标记为灰色集合。</li>
+<li>判断若灰色集合中的对象不存在子引用，则将其放入黑色集合，若存在子引用对象，则将其所有的子引用对象放入灰色集合，当前对象放入黑色集合。</li>
+</ol>
 
           
             <div class='article_footer'>
@@ -721,10 +733,10 @@ Space losses<span class="token operator">:</span> <span class="token number">0</
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-07T09:50:36+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-28T16:36:23+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jan 7, 2021</p>
+    <p>更新于：Jan 28, 2021</p>
   </a>
 </div>
 
@@ -837,7 +849,7 @@ InnoDB下的countcount...</p>
 
 
     <div class='content'>
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何确定新生代和老年代的比例？"><span class="toc-text">如何确定新生代和老年代的比例？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见知识点"><span class="toc-text">常见知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空间分配担保"><span class="toc-text">空间分配担保</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况对象直接进老年代"><span class="toc-text">什么情况对象直接进老年代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况下会触发FGC"><span class="toc-text">什么情况下会触发FGC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三种内存回收机制优缺点"><span class="toc-text">三种内存回收机制优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CMS老年代垃圾回收器详解"><span class="toc-text">CMS老年代垃圾回收器详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM动态年龄判断"><span class="toc-text">JVM动态年龄判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾回收图解"><span class="toc-text">垃圾回收图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM内存模型"><span class="toc-text">JVM内存模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾收集器"><span class="toc-text">垃圾收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JAVA内存对象布局"><span class="toc-text">JAVA内存对象布局</span></a></li></ol></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何确定新生代和老年代的比例？"><span class="toc-text">如何确定新生代和老年代的比例？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见知识点"><span class="toc-text">常见知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空间分配担保"><span class="toc-text">空间分配担保</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况对象直接进老年代"><span class="toc-text">什么情况对象直接进老年代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况下会触发FGC"><span class="toc-text">什么情况下会触发FGC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三种内存回收机制优缺点"><span class="toc-text">三种内存回收机制优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CMS老年代垃圾回收器详解"><span class="toc-text">CMS老年代垃圾回收器详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM动态年龄判断"><span class="toc-text">JVM动态年龄判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾回收图解"><span class="toc-text">垃圾回收图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM内存模型"><span class="toc-text">JVM内存模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾收集器"><span class="toc-text">垃圾收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JAVA内存对象布局"><span class="toc-text">JAVA内存对象布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三色标记法"><span class="toc-text">三色标记法</span></a></li></ol></li></ol>
     </div>
   </section>
 

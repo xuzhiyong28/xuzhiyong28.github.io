@@ -650,7 +650,8 @@ Total DISK READ:       6.01 M/s | Total DISK WRITE:       3.85 K/s
     2 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % [kthreadd]</code></pre>
 <h2 id="netstat-网络命令"><a href="#netstat-网络命令" class="headerlink" title="netstat - 网络命令"></a>netstat - 网络命令</h2><p>查看服务器的请求数可以用下面命令</p>
 <pre class=" language-shell"><code class="language-shell">netstat -na |wc -l
-netstat -anp | grep 3306 | wc -l # 统计3306端口的连接数</code></pre>
+netstat -anp | grep 3306 | wc -l # 统计3306端口的连接数
+netstat -ant|awk '/^tcp/ {++S[$NF]} END {for(a in S) print (a,S[a])}'  #统计TCP各个状态数量</code></pre>
 <p>Netstat是控制台命令,是一个监控TCP/IP网络的非常有用的工具。</p>
 <pre><code>Active Internet connections (servers and established)
 Proto Recv-Q Send-Q Local Address(当前地址)      Foreign Address(远程地址)    State      
@@ -854,10 +855,10 @@ jmap -dump:live,format=b,file=/tmp/xxxx.hprof PID #导出存活对象的dump文�
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-12-10T13:34:24+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-02-20T14:06:03+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Dec 10, 2020</p>
+    <p>更新于：Feb 20, 2021</p>
   </a>
 </div>
 

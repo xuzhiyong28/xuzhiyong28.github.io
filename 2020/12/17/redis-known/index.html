@@ -430,6 +430,8 @@
 <li>Volatile-lru：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，移除最近最少使用的Key。这种情况一般是把Redis既当缓存又做持久化存储的时候才用。不推荐；</li>
 <li>Volatile-random：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，<font color="red">随机</font>移除某个Key。依然不推荐；</li>
 <li>Volatile-ttl：当内存不足以容纳新写入数据时，在设置了过期时间的键空间中，有更早过期时间的Key优先移除。不推荐。</li>
+<li>volatite-lfu：从所有配置了过期时间的键中驱逐使用频率最少的键 （Redis4.0新加的）</li>
+<li>allkeys-lfu：从所有键中驱逐使用频率最少的键（Redis4.0新加的）</li>
 </ul>
 <h3 id="Redis缓存问题"><a href="#Redis缓存问题" class="headerlink" title="Redis缓存问题"></a>Redis缓存问题</h3><p><img src="/2020/12/17/redis-known/2.png" alt></p>
 
@@ -524,10 +526,10 @@
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-11T14:11:44+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-01-13T21:07:20+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jan 11, 2021</p>
+    <p>更新于：Jan 13, 2021</p>
   </a>
 </div>
 
@@ -556,9 +558,12 @@
         
           <div class="prev-next">
             
-              <a class='prev' href='/2021/01/09/sharding-student/'>
-                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>ShardingJdbc学习之按年月分库分表</p>
-                <p class='content'>sharding-jdbc官方文档:https://shardingsphere.apache.org/document/current/cn/overview/本文采用当当的shardingj...</p>
+              <a class='prev' href='/2021/01/01/springcloud-1/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>SpringCloud注册中心详解</p>
+                <p class='content'>核心概念
+
+服务注册。Eureka客户端（服务提供者或消费者）通过向Eureka服务器提供IP地址，端口等各项与服务相关的基本信息来完成注册操作。
+服务续约。Eureka客户端每隔一段时间向Eu...</p>
               </a>
             
             
