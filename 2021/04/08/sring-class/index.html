@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>彻底理解class常量池、String常量池、运行时常量池 - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="jvm">
+  
+  
+    <meta name="description" content="彻底理解class常量池、String常量池、运行时常量池">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2021/04/08/sring-class/">
+      彻底理解class常量池、String常量池、运行时常量池
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/java/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>java</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Apr 8, 2021</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>经常看网上博客，发现很多文章用了常量池，class常量池，运行时常量池，字符串常量池。傻傻分不清楚他们之间有什么区别。</p>
+<h2 id="常量池和class常量池"><a href="#常量池和class常量池" class="headerlink" title="常量池和class常量池"></a>常量池和class常量池</h2><p>其实，常量池 <font color="red">=</font> Class常量池。</p>
+<p>常量池,也叫 Class 常量池。Java文件被编译成 Class文件，Class文件中除了包含类的版本、字段、方法、接口等描述信息外，还有一项就是常量池，Class常量池可以理解为是Class文件中的资源仓库。用于存放编译器生成的各种<code>字面量</code>和<code>符号引用</code>。</p>
+<p><img src="/2021/04/08/sring-class/1.jpg" alt></p>
+<a id="more"></a>
+
+<p>如，我们有如下代码</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> a <span class="token operator">=</span> <span class="token number">11</span><span class="token punctuation">;</span>
+        String s <span class="token operator">=</span> <span class="token string">"helloWorld"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+<p>使用 javap -v OtherTest.class查看</p>
+<p><img src="/2021/04/08/sring-class/4.png" alt="编译后常量池内容"></p>
+<h3 id="字面量"><a href="#字面量" class="headerlink" title="字面量"></a>字面量</h3><p>前面说过，运行时常量池中主要保存的是字面量和符号引用，那么到底什么字面量？说简单点，字面量就是指由字母、数字等构成的字符串或者数值。</p>
+<p>字面量只可以右值出现，所谓右值是指等号右边的值，如：int a=11这里的a为左值，11为右值。在这个例子中11就是字面量。上面的代码中<code>11</code>和<code>helloWorld</code>都是字面量。</p>
+<h3 id="符号引用"><a href="#符号引用" class="headerlink" title="符号引用"></a>符号引用</h3><p>符号引用是编译原理中的概念，是相对于直接引用来说的。主要包括了以下三类常量： * 类和接口的全限定名 * 字段的名称和描述符 * 方法的名称和描述符。这也就可以印证前面的常量池中还包含一些<code>xzy//OtherTest</code>、<code>main</code>、<code>([Ljava/lang/String;)V</code>等常量的原因了。</p>
+<h2 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h2><p>运行时常量池是<font color="red">方法区的一部分</font>。</p>
+<p>运行时常量池是当Class文件被加载到内存后，Java虚拟机会将Class常量池里的内容转移到运行时常量池里(<font color="red">运行时常量池也是每个类都有一个</font>)。</p>
+<p>运行时常量池相对于Class常量池的另外一个重要特征是具备动态性，Java语言并不要求常量一定只有编译期才能产生，也就是并非预置入Class文件中常量池的内容才能进入方法区运行时常量池，运行期间也可能将新的常量放入池中。</p>
+<h2 id="Class常量池和运行时常量池关系"><a href="#Class常量池和运行时常量池关系" class="headerlink" title="Class常量池和运行时常量池关系"></a>Class常量池和运行时常量池关系</h2><p><img src="/2021/04/08/sring-class/2.jpg" alt></p>
+<h2 id="字符串常量池"><a href="#字符串常量池" class="headerlink" title="字符串常量池"></a>字符串常量池</h2><p>字符串常量池又称为：字符串池，全局字符串池,英文也叫String Pool（<font color="red">一组指针指向Heap中的String对象的内存地址</font>）。<br>JVM为了提升性能和减少内存开销,避免字符串重复创建，所以维护了一块特殊的内存空间，字符串常量池。在JDK7之前，字符串常量池是存在在永久代里，JDK7以后转移到了堆里面。</p>
+<p><strong>哪些字符串会放到字符串常量池中?</strong></p>
+<p>我们可以把我们在代码上经常用到的字符串分成下面这几类</p>
+<ul>
+<li>全局变量直接声明(包含静态变量)，例如 public static final String str = “hello”</li>
+<li>局部变量直接声明，String str = “hello”</li>
+<li>程序中动态生成的字符串，例如动态拼接，从文件读取出来的字符串等。</li>
+<li>通过new声明，String str = new String()</li>
+</ul>
+<p>下面，进行测试，这里有个知识点，增加JVM参数<font color="red">-XX:+PrintStringTableStatistics</font>可以打印出字符串常量池的量。</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">//空代码</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出 空代码时候，字符串常量池中的量为1774</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>     <span class="token number">42576</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>    <span class="token number">158832</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.533</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681512</span> bytes</code></pre>
+<p>结论1：字面字符串常量会进入到字符串常量池中</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出，字符串常量池的量+1，字面字符串常量会进入到字符串常量池</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>     <span class="token number">42600</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>    <span class="token number">158888</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.514</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681592</span> bytes</code></pre>
+<p>结论2：相同的字面字符串只在字符串常量池创建一份，另外一份复用</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+        String str2 <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出，字符串常量池的量1775，所以说str，str2是同一个，str2没有继续创建一个新的，优化了空间</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>     <span class="token number">42600</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>    <span class="token number">158888</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.514</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681592</span> bytes</code></pre>
+<p>结论3：new字符串对象的情况，也会在字符串常量池创建一个</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//输出字符串常量池的量1775</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>     <span class="token number">42600</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1775</span> <span class="token operator">=</span>    <span class="token number">158888</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.514</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681592</span> bytes</code></pre>
+<p>结论4：代码中动态创建的字符串不会进入字符串常量池</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            String temp <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+#常量池没变
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>     <span class="token number">42576</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1774</span> <span class="token operator">=</span>    <span class="token number">158832</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.533</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">681512</span> bytes</code></pre>
+<p>结论5：intern方法可以主动让字符串进入常量池</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token number">10</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            String temp <span class="token operator">=</span> String<span class="token punctuation">.</span><span class="token function">valueOf</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">intern</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//量增加了10</span>
+StringTable statistics<span class="token operator">:</span>
+Number of buckets       <span class="token operator">:</span>     <span class="token number">60013</span> <span class="token operator">=</span>    <span class="token number">480104</span> bytes<span class="token punctuation">,</span> avg   <span class="token number">8.000</span>
+Number of entries       <span class="token operator">:</span>      <span class="token number">1784</span> <span class="token operator">=</span>     <span class="token number">42816</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">24.000</span>
+Number of literals      <span class="token operator">:</span>      <span class="token number">1784</span> <span class="token operator">=</span>    <span class="token number">159312</span> bytes<span class="token punctuation">,</span> avg  <span class="token number">89.300</span>
+Total footprint         <span class="token operator">:</span>           <span class="token operator">=</span>    <span class="token number">682232</span> bytes</code></pre>
+<p><strong>面试常见：String str = new String(“hello”)创建了几个对象</strong></p>
+<p>通过javap反编译代码，具体看创建了几个对象</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> xzy<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        String str <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">(</span><span class="token string">"hello"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">//反编译输出</span>
+Compiled from <span class="token string">"OtherTest.java"</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">xzy<span class="token punctuation">.</span>OtherTest</span> <span class="token punctuation">{</span>
+  <span class="token keyword">public</span> xzy<span class="token punctuation">.</span><span class="token function">OtherTest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Code<span class="token operator">:</span>
+       <span class="token number">0</span><span class="token operator">:</span> aload_0
+       <span class="token number">1</span><span class="token operator">:</span> invokespecial #<span class="token number">1</span>                  <span class="token comment" spellcheck="true">// Method java/lang/Object."&lt;init>":()V</span>
+       <span class="token number">4</span><span class="token operator">:</span> <span class="token keyword">return</span>
+
+  <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    Code<span class="token operator">:</span>
+       <span class="token number">0</span><span class="token operator">:</span> <span class="token keyword">new</span>           #<span class="token number">2</span>                  <span class="token comment" spellcheck="true">// class java/lang/String    -- new一个String对象</span>
+       <span class="token number">3</span><span class="token operator">:</span> dup                                                            <span class="token operator">--</span> 压入<span class="token punctuation">(</span>dup<span class="token punctuation">)</span>到栈顶
+       <span class="token number">4</span><span class="token operator">:</span> ldc           #<span class="token number">3</span>                  <span class="token comment" spellcheck="true">// String hello              -- 从常量池中(ldc)初始化hello字符串</span>
+       <span class="token number">6</span><span class="token operator">:</span> invokespecial #<span class="token number">4</span>                  <span class="token comment" spellcheck="true">// Method java/lang/String."&lt;init>":(Ljava/lang/String;)V --构造函数初始化(invokespecial)对象</span>
+       <span class="token number">9</span><span class="token operator">:</span> astore_1                            <span class="token operator">--</span>将对象引用赋值<span class="token punctuation">(</span>astore_1<span class="token punctuation">)</span>给本地变量str     
+      <span class="token number">10</span><span class="token operator">:</span> <span class="token keyword">return</span>
+<span class="token punctuation">}</span></code></pre>
+<p>所以，在常量池没有hello的情况下，创建了两个对象和一个引用。</p>
+<p>再来看看<code>String str = new String(&quot;A&quot; + &quot;B&quot;)</code> 生成了几个对象。</p>
+<p>从下图看，在字符串常量池里面只有+1。我看网上对于这个问题是说字符串常量池里面生成了A,B,AB三个，其实是只有一个，因为在编译有做了优化，会将A+B变成AB。这个只需要将class文件进行反编译就知道了。所以字符串常量池里面只有一个。</p>
+<p><img src="/2021/04/08/sring-class/1.png" alt></p>
+<p><strong>疑问：在JVM中，字符串常量到底存放到哪里</strong></p>
+<p>例如 <code>String str = &quot;ABC&quot;</code> ，那么“ABC”这个对象是放在内存中的哪个位置，<font color="red">是字符串常量池还是堆</font>？</p>
+<p>看网上的回答 ：abc当然在字符串常量池中，只有new String(“abc”)这个对象在堆中创建。<font color="red">abc这个东西放在常量池中，这个答案是错误的。</font></p>
+<p><strong>正确答案：<font color="green">字符串abc的本体，实例应该是存在在JVM的堆中。</font></strong></p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+    String str <span class="token operator">=</span> <span class="token string">"hello"</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+<ol>
+<li>首先，字面量 “hello” 在编译期，就会被记录在class文件的class常量池。</li>
+<li>而当 class文件被加载到内存中后，JVM就会将class常量池中的大部分内容存放到运行时常量池中，但是字符串 “hello” 的本体（对象）和其他所有对象一样，是会在堆中创建，再将引用放到字符串常量池。</li>
+<li>而到了String str = “hello”这一步，JVM会去字符串常量池中找，如果找到了，JVM会在栈中的局部变量表中创建str变量，然后把字符串常量池中的（hello对象的）引用复制给str变量。</li>
+</ol>
+<p><strong>疑问：JVM中字符串常量池会进行垃圾回收吗？</strong></p>
+<p>会，假设一个字符串”everor”已经进入了常量池，但是当前系统中没有一个String对象引用常量池中的”everor”常量（即String str = new String(“everor”);），也没有其他地方引用了这个字面量（即String str = “everor”;），如果这个时候发生了内存回收，而且有必要的话，这个”everor”常量就会被系统清理出常量池。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>String常量池在每个JVM中只有一份，存放的是字符串常量的引用值。</li>
+<li>class常量池是在编译的时候每个class都有的，在编译阶段，存放的是常量的符号引用。</li>
+<li>运行时常量池是在类加载完成之后，将每个class常量池中的符号引用值转存到运行时常量池中，也就是说，每个class都有一个运行时常量池，类在解析之后，将符号引用替换成直接引用，与全局常量池中的引用值保持一致。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://www.baidu.com/link?url=M8Bauh76JXr4VhFH84A2uK6PkDyDwfw8Si1uo23sMjKXirLJF2BHwIutcY1jMBx03jjyPJmnrXVVMyt_N_-jP_&wd=&eqid=b278744100018add000000065f237350" target="_blank" rel="noopener">详解JVM常量池、Class、运行时、字符串常量池</a></li>
+<li><a href="https://blog.csdn.net/u011552955/article/details/100079685" target="_blank" rel="noopener">字符串常量池、class常量池和运行时常量池</a></li>
+<li><a href="https://segmentfault.com/a/1190000017952075?utm_source=tag-newest" target="_blank" rel="noopener">https://segmentfault.com/a/1190000017952075?utm_source=tag-newest</a></li>
+<li><a href="https://mrdear.cn/posts/java-string-pool.html" target="_blank" rel="noopener">https://mrdear.cn/posts/java-string-pool.html</a></li>
+</ul>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2021/04/08/sring-class/>http://yoursite.com/2021/04/08/sring-class/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-08T08:47:07+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Apr 8, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/jvm/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>jvm</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2021/04/24/elasticsearch-01/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>ElasticSearch常见问题汇总(0)</p>
+                <p class='content'>match/term等区别Elasticsearch中 match、match_phrase、query_string和term的区别
+首先建立一个索引，结果如下
+PUT my_index
+{
+...</p>
+              </a>
+            
+            
+              <a class='next' href='/2021/04/08/linux-top/'>
+                <p class='title'>Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>top命令详解各项指标详解
+第一行：系统运行时间和平均负载top - 14:46:47 up 909 days,  3:15,  1 user,  load average: 1.80, 1.5...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: '彻底理解class常量池、String常量池、运行时常量池',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常量池和class常量池"><span class="toc-text">常量池和class常量池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#字面量"><span class="toc-text">字面量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#符号引用"><span class="toc-text">符号引用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#运行时常量池"><span class="toc-text">运行时常量池</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Class常量池和运行时常量池关系"><span class="toc-text">Class常量池和运行时常量池关系</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#字符串常量池"><span class="toc-text">字符串常量池</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

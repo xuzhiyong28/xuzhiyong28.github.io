@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop) - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="linux">
+  
+  
+    <meta name="description" content="Linux故障排查命令使用和JVM命令(jstat、jps、jmap、jstack)">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2021/04/08/linux-top/">
+      Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop)
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/linux/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>linux</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Apr 8, 2021</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h2 id="top命令详解"><a href="#top命令详解" class="headerlink" title="top命令详解"></a>top命令详解</h2><h3 id="各项指标详解"><a href="#各项指标详解" class="headerlink" title="各项指标详解"></a>各项指标详解</h3><p><img src="/2021/04/08/linux-top/1.png" alt="top命令展示"></p>
+<h4 id="第一行：系统运行时间和平均负载"><a href="#第一行：系统运行时间和平均负载" class="headerlink" title="第一行：系统运行时间和平均负载"></a>第一行：系统运行时间和平均负载</h4><pre class=" language-shell"><code class="language-shell">top - 14:46:47 up 909 days,  3:15,  1 user,  load average: 1.80, 1.50, 1.37</code></pre>
+<ul>
+<li>14:46:47 表示当前系统时间</li>
+<li>up 909 days 表示已经运行了909天期间没重启</li>
+<li>1 user 表示当前登录的用户数量</li>
+<li>load average: 1.80, 1.50, 1.37 表示当前系统5分钟;10分钟;15分钟的负载<br><font color="red">load average数据是每隔5秒钟检查一次活跃的进程数，然后按特定算法计算出的数值。如果这个数除以逻辑CPU的数量，结果高于5的时候就表明系统在超负荷运转了。</font><a id="more"></a>
+<h4 id="第二行：任务信息"><a href="#第二行：任务信息" class="headerlink" title="第二行：任务信息"></a>第二行：任务信息</h4><pre class=" language-shell"><code class="language-shell">Tasks: 652 total,   1 running, 651 sleeping,   0 stopped,   0 zombie</code></pre>
+</li>
+<li>total : 当前系统的任务进程个数</li>
+<li>runnning : 正在运行的任务进程个数</li>
+<li>sleeping : 正在休眠的任务进程个数</li>
+<li>stopped : 已经终止的任务进程个数</li>
+<li>zombie : 僵尸进程个数</li>
+</ul>
+<p>running 表示在运行，占用cpu，sleeping则多半是在等待（比如等IO完成），所以大部分进程在sleeping是很正常的，否则都在running，cpu都不够用了.</p>
+<h4 id="第三行：CPU信息"><a href="#第三行：CPU信息" class="headerlink" title="第三行：CPU信息"></a>第三行：CPU信息</h4><pre class=" language-shell"><code class="language-shell">Cpu(s):  3.8%us,  0.4%sy,  0.0%ni, 95.7%id,  0.1%wa,  0.0%hi,  0.0%si,  0.0%st</code></pre>
+<ul>
+<li>us — 用户空间占用CPU的百分比。</li>
+<li>sy — 内核空间占用CPU的百分比。</li>
+<li>ni — 改变过优先级的进程占用CPU的百分比</li>
+<li>id — 空闲CPU百分比</li>
+<li>wa — IO等待占用CPU的百分比</li>
+<li>hi — 硬中断（Hardware IRQ）占用CPU的百分比</li>
+<li>si — 软中断（Software Interrupts）占用CPU的百分比</li>
+</ul>
+<p>这里的内核态和用户态可以这样理解：</p>
+<ul>
+<li>当一个任务（进程）执行系统调用而陷入内核代码中执行时，称进程处于内核运行态（内核态）。</li>
+<li>当进程在执行用户自己的代码时，则称其处于用户运行态（用户态）。</li>
+</ul>
+<h4 id="第四五行：内存信息"><a href="#第四五行：内存信息" class="headerlink" title="第四五行：内存信息"></a>第四五行：内存信息</h4><pre class=" language-shell"><code class="language-shell">Mem:  231349636k total, 72512612k used, 158837024k free,   299360k buffers
+Swap:  8388600k total,        0k used,  8388600k free,  3648000k cached</code></pre>
+<ul>
+<li>Mem<ul>
+<li>total 物理内存重量</li>
+<li>used 使用中的内存总量</li>
+<li>free 空间内存总量</li>
+<li>buffers 缓存的内存量</li>
+</ul>
+</li>
+<li>swap交换分区 具体值与上面的Mem一样,只是是对应交换分区的</li>
+</ul>
+<h4 id="各任务状态监控"><a href="#各任务状态监控" class="headerlink" title="各任务状态监控"></a>各任务状态监控</h4><pre><code>   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+   10840 tomcat  20   0 68.0g  21g  14m S  0.3  9.8  71:32.92 jsvc     </code></pre><ul>
+<li>PID：进程ID，进程的唯一标识符</li>
+<li>USER：进程所有者的实际用户名。</li>
+<li>PR：进程的调度优先级。这个字段的一些值是’rt’。这意味这这些进程运行在实时态。</li>
+<li>NI：进程的nice值（优先级）。越小的值意味着越高的优先级。负值表示高优先级，正值表示低优先级</li>
+<li>VIRT：进程使用的虚拟内存。进程使用的虚拟内存总量，单位kb。VIRT=SWAP+RES</li>
+<li>RES：驻留内存大小。驻留内存是任务使用的非交换物理内存大小。进程使用的、未被换出的物理内存大小，单位kb。RES=CODE+DATA</li>
+<li>SHR：SHR是进程使用的共享内存。共享内存大小，单位kb</li>
+<li>S：这个是进程的状态。它有以下不同的值:<ul>
+<li>D - 不可中断的睡眠态。</li>
+<li>R – 运行态</li>
+<li>S – 睡眠态</li>
+<li>T – 被跟踪或已停止</li>
+<li>Z – 僵尸态</li>
+</ul>
+</li>
+<li>%CPU：自从上一次更新时到现在任务所使用的CPU时间百分比。</li>
+<li>%MEM：进程使用的可用物理内存百分比。</li>
+<li>TIME+：任务启动后到现在所使用的全部CPU时间，精确到百分之一秒。</li>
+<li>COMMAND：运行进程所使用的命令。进程名称（命令名/命令行）</li>
+</ul>
+<h3 id="top-常用参数命令"><a href="#top-常用参数命令" class="headerlink" title="top 常用参数命令"></a>top 常用参数命令</h3><ul>
+<li>top -p PID 只监控某一个进程</li>
+<li>top -c c表示展示完整命令行</li>
+<li>top -Hp PID 查看指定进程的线程数的信息 <font>这个通常可以配合jstack来判断哪个线程占用CPU或者内存多</font></li>
+<li>top -u tomcat 查看进程用户是tomcat的任务</li>
+</ul>
+<h3 id="top-常用交互命令"><a href="#top-常用交互命令" class="headerlink" title="top 常用交互命令"></a>top 常用交互命令</h3><p>在top视图下，我们可以键入一些命令在帮助我们获得不同的视图</p>
+<p><img src="/2021/04/08/linux-top/2.png" alt="按键1展示各个CPU详细信息"></p>
+<h4 id="常用键盘"><a href="#常用键盘" class="headerlink" title="常用键盘"></a>常用键盘</h4><ul>
+<li>P ：根据CPU使用百分比大小进行排序</li>
+<li>M ：根据驻留内存大小进行排序</li>
+<li>c ：切换显示命令名称和完整命令行</li>
+<li>T ：根据时间/累计时间进行排序</li>
+<li>q ：退出程序</li>
+<li>1 ：可以展示每个CPU的使用情况</li>
+<li>u ：键入后会提示输出需要查看的用户名，然后就可以只查看对应用户名的任务</li>
+</ul>
+<h2 id="vmstat-监控整体CPU-内存-IO使用情况"><a href="#vmstat-监控整体CPU-内存-IO使用情况" class="headerlink" title="vmstat - 监控整体CPU,内存,IO使用情况"></a>vmstat - 监控整体CPU,内存,IO使用情况</h2><h3 id="所谓的IO"><a href="#所谓的IO" class="headerlink" title="所谓的IO"></a>所谓的IO</h3><p>所谓的I/O（Input/Output）操作实际上就是输入输出的数据传输行为。程序员最关注的主要是磁盘IO和网络IO，因为这两个IO操作和应用程序的关系最直接最紧密。</p>
+<ul>
+<li><p>磁盘IO：磁盘的输入输出，比如磁盘和内存之间的数据传输。</p>
+</li>
+<li><p>网络IO：不同系统间跨网络的数据传输，比如两个系统间的远程接口调用。</p>
+</li>
+</ul>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>vmstat命令是最常见的Linux/Unix监控工具，可以展现给定时间间隔的服务器的状态值,包括服务器的CPU使用率，内存使用，虚拟内存交换情况,IO读写情况。<br>相比top命令，这个命令可以看到<font color="red">整个CPU,内存,IO的使用情况</font>而不是单单看到各个进程的CPU使用率和内存使用率</p>
+<p>vmstat 3 2 表示 间隔3秒获取一次信息，一共获取2次</p>
+<pre class=" language-shell"><code class="language-shell">[ssh~]$ vmstat 3 2
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 1  0      0 163756688 272168 3186404    0    0     0    11    0    0  4  0 96  0  0    
+ 1  0      0 163758912 272168 3186424    0    0     0    72 8156 4923 14  0 85  0  0    </code></pre>
+<h3 id="输出参数介绍"><a href="#输出参数介绍" class="headerlink" title="输出参数介绍"></a>输出参数介绍</h3><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>r</td>
+<td>表示多少个进程分配到CPU,如果值超过CPU个数表示到CPU瓶颈了</td>
+</tr>
+<tr>
+<td>b</td>
+<td>表示阻塞的进程</td>
+</tr>
+<tr>
+<td>swpd (内存相关)</td>
+<td>虚拟内存已使用的大小，如果大于0，表示你的机器物理内存不足了</td>
+</tr>
+<tr>
+<td>free (内存相关)</td>
+<td>空闲的物理内存的大小,目前我这个机器还有163758M空闲内存</td>
+</tr>
+<tr>
+<td>buff (内存相关)</td>
+<td>已用的buff大小，对块设备的读写进行缓冲</td>
+</tr>
+<tr>
+<td>cache (内存相关)</td>
+<td>已用的cache大小，文件系统的cache</td>
+</tr>
+<tr>
+<td>si (swap相关)</td>
+<td>每秒从交换区写入内存的大小（单位：kb/s）</td>
+</tr>
+<tr>
+<td>so (swap相关)</td>
+<td>每秒从内存写到交换区的大小</td>
+</tr>
+<tr>
+<td>bi (IO相关)</td>
+<td>块设备每秒接收的块数量，这里的块设备是指系统上所有的磁盘和其他块设备</td>
+</tr>
+<tr>
+<td>bo (IO相关)</td>
+<td>块设备每秒发送的块数量，例如我们读取文件，bo就要大于0。bi和bo一般都要接近0，不然就是IO过于频繁，需要调整。</td>
+</tr>
+<tr>
+<td>in</td>
+<td>每秒CPU的中断次数，包括时间中断</td>
+</tr>
+<tr>
+<td>cs</td>
+<td>每秒上下文切换次数，例如我们调用系统函数，就要进行上下文切换，线程的切换，也要进程上下文切换.</td>
+</tr>
+<tr>
+<td>us (CPU相关)</td>
+<td>用户进程执行消耗cpu时间</td>
+</tr>
+<tr>
+<td>sy (CPU相关)</td>
+<td>系统进程消耗cpu时间</td>
+</tr>
+<tr>
+<td>id (CPU相关)</td>
+<td>空闲时间(包括IO等待时间)</td>
+</tr>
+<tr>
+<td>wa (CPU相关)</td>
+<td>等待IO时间.</td>
+</tr>
+</tbody></table>
+<h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
+<li>bi 和 bo 随机磁盘读写的时候，这两个值越大(如超出1024k)能看到CPU在IO等待的值也会越大。</li>
+<li>cs上下文切换次数的值越小越好，太大了需要考虑调低线程或进程的数目。<font color="red">上下文切换次数过多表示你的CPU大部分浪费在上下文切换，导致CPU没有充分被利用</font></li>
+<li>us的值比较高时，说明用户进程消耗的cpu时间多，如果长期超过50%使用，需要考虑优化程序</li>
+<li>sy如果太高，表示系统调用时间长，例如是IO操作频繁</li>
+</ul>
+<h2 id="iostat-监控系统设备的IO负载情况"><a href="#iostat-监控系统设备的IO负载情况" class="headerlink" title="iostat -  监控系统设备的IO负载情况"></a>iostat -  监控系统设备的IO负载情况</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p>iostat工具对系统的磁盘操作活动进行监视。它的特点是汇报磁盘活动统计情况，同时也会汇报出CPU使用情况。</p>
+<p><font>可以认为iostat主要是通过监控磁盘来看IO负载</font></p>
+<pre class=" language-shell"><code class="language-shell">-c 显示CPU使用情况
+-d 显示磁盘使用情况
+-k 以K为单位显示
+-m 以M为单位显示
+-N 显示磁盘阵列(LVM) 信息
+-n 显示NFS使用情况
+-p 可以报告出每块磁盘的每个分区的使用情况
+-t 显示终端和CPU的信息
+-x 显示详细信息</code></pre>
+<p>iostat -d -k -x 20 # 表示间隔20秒输出一次信息</p>
+<p><img src="/2021/04/08/linux-top/3.png" alt="iostat监控磁盘"></p>
+<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><ul>
+<li>%user：CPU处在用户模式下的时间百分比。</li>
+<li>%nice：CPU处在带NICE值的用户模式下的时间百分比。</li>
+<li>%system：CPU处在系统模式下的时间百分比。</li>
+<li>%iowait：CPU等待输入输出完成时间的百分比。</li>
+<li>%steal：管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比。</li>
+<li>%idle：CPU空闲时间百分比。</li>
+<li>Device ：设备名称</li>
+<li>rrqm/s ：每秒合并到设备的读取请求数</li>
+<li>wrqm/s ：每秒合并到设备的写请求数</li>
+<li>r/s ：每秒向磁盘发起的读操作数</li>
+<li>w/s ：每秒向磁盘发起的写操作数</li>
+<li>rkB/s ：每秒读K字节数</li>
+<li>wkB/s:每秒写K字节数</li>
+<li>avgrq-sz ：平均每次设备I/O操作的数据大小</li>
+<li>avgqu-sz ：平均I/O队列长度</li>
+<li>await ：平均每次设备I/O操作的等待时间 (毫秒)，<font color="red">一般地，系统I/O响应时间应该低于5ms，如果大于 10ms就比较大了</font></li>
+<li>r_await ：每个读操作平均所需的时间；不仅包括硬盘设备读操作的时间，还包括了在kernel队列中等待的时间</li>
+<li>w_await ：每个写操作平均所需的时间；不仅包括硬盘设备写操作的时间，还包括了在kernel队列中等待的时间</li>
+<li>svctm ：平均每次设备I/O操作的服务时间 (毫秒)（这个数据不可信！）</li>
+<li>%util ：一秒中有百分之多少的时间用于I/O操作，即被IO消耗的CPU百分比，<font color="red">一般地，如果该参数是100%表示设备已经接近满负荷运行了</font></li>
+</ul>
+<p>如果%iowait的值过高，表示硬盘存在I/O瓶颈。<br>如果%idle值高，表示CPU较空闲。<br>如果%idle值高但系统响应慢时，可能是CPU等待分配内存，应加大内存容量。<br>如果%idle值持续低于10，表明CPU处理能力相对较低，系统中最需要解决的资源是CPU。</p>
+<h2 id="free命令-–-查看内存使用"><a href="#free命令-–-查看内存使用" class="headerlink" title="free命令 – 查看内存使用"></a>free命令 – 查看内存使用</h2><p>主要用来展示内存使用。其实也可以用top 和 vmstat 。 这里不过多介绍了</p>
+<pre class=" language-shell"><code class="language-shell">[watch@localhost ~]$ free -g  # -g 表示按照GB的方式展示
+             total       used       free     shared    buffers     cached
+Mem:           220         64        156          0          0          3
+-/+ buffers/cache:         61        159
+Swap:            7          0          7</code></pre>
+<h2 id="df命令-–-文件系统的磁盘空间使用情况"><a href="#df命令-–-文件系统的磁盘空间使用情况" class="headerlink" title="df命令 – 文件系统的磁盘空间使用情况"></a>df命令 – 文件系统的磁盘空间使用情况</h2><pre class=" language-shell"><code class="language-shell">[watch@localhost ~]$ df -h #-h以易读的GB、MB、KB等格式显示
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda3       909G   57G  844G   7% /
+tmpfs           111G   16K  111G   1% /dev/shm
+/dev/sda1       485M  125M  335M  28% /boot
+/dev/sdb1       1.5T   16G  1.5T   2% /cache1</code></pre>
+<h2 id="iotop-–-精确到进程的IO监控"><a href="#iotop-–-精确到进程的IO监控" class="headerlink" title="iotop – 精确到进程的IO监控"></a>iotop – 精确到进程的IO监控</h2><p>Linux下的IO统计工具如iostat,top等大多数是只能统计到总体的读写情况, 如果你想知道每个进程是如何使用IO的就比较麻烦.</p>
+<p>iotop 类似与top界面，可以查看各个进程使用IO的情况。<br>iotop -p PID 指定某个PID进行监控</p>
+<pre class=" language-shell"><code class="language-shell">[watch@localhost ~]$ iotop
+Total DISK READ:       6.01 M/s | Total DISK WRITE:       3.85 K/s
+  TID  PRIO  USER     DISK READ  DISK WRITE  SWAPIN     IO>    COMMAND                                                                                                          
+20074 be/4 hadoop      6.01 M/s    0.00 B/s  0.00 %  4.54 % java -Dproc_datanode -Xmx8192m -server  org.apache.hadoop.hdfs.server.datanode.DataNode
+ 6371 be/4 hadoop      0.00 B/s    3.25 M/s  0.00 %  0.00 % java -Dproc_datanode -Xmx8192m -server  org.apache.hadoop.hdfs.server.datanode.DataNode
+ 8497 be/4 hadoop      0.00 B/s    3.67 M/s  0.00 %  0.00 % java -Dproc_datanode -Xmx8192m -server  org.apache.hadoop.hdfs.server.datanode.DataNode
+    1 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % init
+    2 be/4 root        0.00 B/s    0.00 B/s  0.00 %  0.00 % [kthreadd]</code></pre>
+<h2 id="netstat-网络命令"><a href="#netstat-网络命令" class="headerlink" title="netstat - 网络命令"></a>netstat - 网络命令</h2><p>查看服务器的请求数可以用下面命令</p>
+<pre class=" language-shell"><code class="language-shell">netstat -na |wc -l
+netstat -anp | grep 3306 | wc -l # 统计3306端口的连接数
+netstat -ant|awk '/^tcp/ {++S[$NF]} END {for(a in S) print (a,S[a])}'  #统计TCP各个状态数量
+netstat -nat | awk '{print $6}' |sort|uniq -c|sort -rn  #统计TCP哪个状态连接数最多
+netstat -nat | grep 'ESTABLISHED' |awk -F : '{print $1}' |sort|uniq -c|sort -rn # 统计状态为ESTABLISHED的IP是哪个
+netstat -ant | awk '/tcp/ {print $6}'|sort |uniq -c |sort -nr #状态统计
+netstat -ant | grep "ESTABLISHED"|awk '/tcp/ {print $5}'|cut -d ":" -f1|sort |uniq -c |sort -nr |head -10 #前十位ESTABLISHED状态ip统计</code></pre>
+<p>Netstat是控制台命令,是一个监控TCP/IP网络的非常有用的工具。</p>
+<pre><code>Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address(当前地址)      Foreign Address(远程地址)    State      
+tcp        0      0 127.0.0.1:2111              0.0.0.0:*                   LISTEN              
+tcp        0      0 127.0.0.1:20122             0.0.0.0:*                   LISTEN      
+tcp        0      0 0.0.0.0:2012                0.0.0.0:*                   LISTEN      
+tcp        0      0 127.0.0.1:50355             127.0.0.1:62016             TIME_WAIT      
+tcp        0      0 180.101.26.19:39669         180.101.26.26:63751         TIME_WAIT   
+tcp        0      0 180.101.26.19:39663         180.101.26.26:63751         TIME_WAIT   
+tcp        0      0 157.0.125.19:25119          218.98.49.27:65381          ESTABLISHED </code></pre><h2 id="Arthas使用"><a href="#Arthas使用" class="headerlink" title="Arthas使用"></a>Arthas使用</h2><p>Arthas是阿里巴巴出品的一款Java应用诊断利器。支持多种维度去诊断问题。具体使用可以直接看官网，写得很详细。</p>
+<p>官方文档 ： <a href="https://arthas.aliyun.com/zh-cn/" target="_blank" rel="noopener">https://arthas.aliyun.com/zh-cn/</a></p>
+<h3 id="线上服务平均响应时间太长，怎么排查？"><a href="#线上服务平均响应时间太长，怎么排查？" class="headerlink" title="线上服务平均响应时间太长，怎么排查？"></a>线上服务平均响应时间太长，怎么排查？</h3><p>一般来说一个方法内部执行哪个方法耗时太长我们一般都是再代码上写</p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">long</span> start <span class="token operator">=</span> System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token function">doSome</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span><span class="token string">"doSome程序耗时 :"</span> <span class="token operator">+</span> <span class="token punctuation">(</span>System<span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> start<span class="token punctuation">)</span> <span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p>然而Arthas提供了trace命令帮助我们定位。假设我要定位一个Controller类中一个方法的耗时</p>
+<pre class=" language-shell"><code class="language-shell">trace --skipJDKMethod false com.xzy.springboot.springbootproject.controller.CommonController echo
+# com.xzy.springboot.springbootproject.controller.CommonController 类路径
+# echo 方法名</code></pre>
+<p>最终输出每个方法耗时</p>
+<pre class=" language-shell"><code class="language-shell">[arthas@16028]$ trace --skipJDKMethod false com.xzy.springboot.springbootproject.controller.CommonController echo
+Press Q or Ctrl+C to abort.
+Affect(class count: 1 , method count: 1) cost in 303 ms, listenerId: 1
+`---ts=2020-10-09 09:24:41;thread_name=http-nio-8080-exec-1;id=92;is_daemon=true;priority=5;TCCL=org.springframework.boot.web.embedded.tomcat.TomcatEmbeddedWebappClassLoader@4e93dcb9
+    `---[1.736869ms] com.xzy.springboot.springbootproject.controller.CommonController:echo()
+        `---[1.110086ms] org.slf4j.Logger:info() #14 </code></pre>
+<h2 id="JVM调优命令-jps"><a href="#JVM调优命令-jps" class="headerlink" title="JVM调优命令 - jps"></a>JVM调优命令 - jps</h2><p>可以列出本机所有java进程的pid.<br>一般使用 jps -v 就行了。 -v 表示展示出详细的参数信息</p>
+<p><img src="/2021/04/08/linux-top/4.png" alt="jps命令"></p>
+<h2 id="JVM调优命令-jstat"><a href="#JVM调优命令-jstat" class="headerlink" title="JVM调优命令 - jstat"></a>JVM调优命令 - jstat</h2><p>监控堆内存的用量和GC情况。<br>使用格式如下 : jstat -gc PID 1000 20 # 表示使用-gc的方式打印PID的情况，间隔1000ms，打印20次</p>
+<p><img src="/2021/04/08/linux-top/5.png" alt=" jstat -gc命令"></p>
+<p>-gc 对应输出结果详解</p>
+<ul>
+<li>S0C:年轻代中第一个survivor（幸存区）的容量（字节）</li>
+<li>S1C:年轻代中第二个survivor（幸存区）的容量(字节)</li>
+<li>S0U:年轻代中第一个survivor（幸存区）目前已使用空间(字节)</li>
+<li>S1U:年轻代中第二个survivor（幸存区）目前已使用空间(字节)</li>
+<li>EC:年轻代中Eden（伊甸园）的容量(字节)</li>
+<li>EU:年轻代中Eden（伊甸园）目前已使用空间(字节)</li>
+<li>OC:Old代的容量(字节)</li>
+<li>OU:Old代目前已使用空间(字节)</li>
+<li>MC:metaspace(元空间)的容量(字节)</li>
+<li>MU:metaspace(元空间)目前已使用空间(字节)</li>
+<li>YGC:从应用程序启动到采样时年轻代中gc次数</li>
+<li>YGCT:从应用程序启动到采样时年轻代中gc所用时间(s)</li>
+<li>FGC:从应用程序启动到采样时old代(全gc)gc次数</li>
+<li>FGCT:从应用程序启动到采样时old代(全gc)gc所用时间(s)</li>
+<li>GCT:从应用程序启动到采样时gc用的总时间(s)</li>
+</ul>
+<p>另外除了-gc外，jstat还可以输出其他信息，具体如下</p>
+<ul>
+<li>class:显示ClassLoad的相关信息；</li>
+<li>compiler:显示JIT编译的相关信息；</li>
+<li>gc:显示和gc相关的堆信息；</li>
+<li>gccapacity:显示各个代的容量以及使用情况；</li>
+<li>gcmetacapacity:显示metaspace的大小</li>
+<li>gcnew:显示新生代信息；</li>
+<li>gcnewcapacity:显示新生代大小和使用情况；</li>
+<li>gcold:显示老年代和永久代的信息；</li>
+<li>gcoldcapacity:显示老年代的大小；</li>
+<li>gcutil　　:显示垃圾收集信息；</li>
+<li>gccause:显示垃圾回收的相关信息（通-gcutil）,同时显示最后一次或当前正在发生的垃圾回收的诱因</li>
+</ul>
+<p>那到底什么情况下，GC会对程序产生影响呢？ 一般来说需要判断<font color="red">FGC过于频繁、YGC耗时过长、FGC耗时过长、YGC过于频繁</font></p>
+<p>命令详细可以参考：<a href="https://www.cnblogs.com/duanxz/archive/2012/11/03/2752166.html" target="_blank" rel="noopener">jdk工具之jstat命令(Java Virtual Machine Statistics Monitoring Tool)</a></p>
+<h2 id="JVM调优命令-jmap"><a href="#JVM调优命令-jmap" class="headerlink" title="JVM调优命令 - jmap"></a>JVM调优命令 - jmap</h2><p>jmap主要用来帮助我们查看堆内存情况，并支持导出成dump文件以便后续分析。<br><font color="red">导出dump文件会挂起JVM，所以一般再线上必须先切换机器后再执行</font></p>
+<pre class=" language-shell"><code class="language-shell">jmap -heap PID # 打印堆的使用情况
+jmap -histo:live PID | head -50 #打印每个class的实例数目,内存占用,类全名信息. 如果live子参数加上后,只统计活的对象数量. 一般可以通过这个命令查看哪个对象占用的内存不合理
+jmap -dump:live,format=b,file=/tmp/xxxx.hprof PID #导出存活对象的dump文件以便后面分析。live可以不加，加了表示存活对象</code></pre>
+<p>减少内存使用时一个重要目标，在堆分析上最简单的方法是利用堆直方图。通过堆直方图我们可以快速看到应用内的对象数目，同时不需要进行完整的堆转储（因为堆转储需要一段时间来分析，而且会消耗大量磁盘空间）。</p>
+<p><img src="/2021/04/08/linux-top/6.png" alt="存活对象的堆直方图"></p>
+<h2 id="JVM调优命令-jstack"><a href="#JVM调优命令-jstack" class="headerlink" title="JVM调优命令 - jstack"></a>JVM调优命令 - jstack</h2><p>jstack主要用来分析线程执行情况。可以生成某个时刻java进程中线程的快照帮助分析，比如，发现服务器的CPU的负载突然增高了、出现了死锁、死循环等。</p>
+<p>使用方法如下 :</p>
+<pre class=" language-properties"><code class="language-properties"><span class="token attr-name">jstack</span> <span class="token attr-value">PID</span>
+<span class="token attr-name">jstack</span> <span class="token attr-value">PID > /temp/PID.txt #将线程堆栈信息保存到文件</span></code></pre>
+<p><strong>在Java中线程的状态一共被分成6种</strong></p>
+<ul>
+<li><strong>初始状态</strong>：New，线程对象创建出来后，没有调用start方法，线程处于初始状态</li>
+<li><strong>运行状态</strong>：包含了就绪状态和运行状态<ul>
+<li>就绪状态：Ready，调用了Start方法，等待CPU分配资源</li>
+<li>运行状态：RUNNING，CPU分配资源给该线程，该线程处于运行状态</li>
+</ul>
+</li>
+<li><strong>阻塞状态</strong> BLOCKED</li>
+<li><strong>等待状态</strong> WAITING：线程手动调用了wait()方法，或者join()方法</li>
+<li><strong>超时等待状态</strong> TIMED_WAITING：与等待状态相同，都是主动进入等待，也是需要其他线程唤醒，但是区别在与超时等待，如果超过了等待时间，则自动唤醒</li>
+<li><strong>终止状态</strong> DIED：线程结束之后的状态</li>
+</ul>
+<p><strong>案例1:排查线上tomcat占用CPU使用率高的原因</strong></p>
+<p>CPU使用率高，CPU飙升一般都是程序运行有问题，我们可以通过查看占用CPU最高的线程看看到底执行了什么</p>
+<ol>
+<li>通过top命令查看当前使用CPU最高线程的是哪个进程，假设是tomcat，PID=10086</li>
+<li>通过top -Hp 10086 定位到是哪个线程占用的CPU最高，假设是线程4519</li>
+<li>算出4519的16进制，printf %x 4519 = 11a7</li>
+<li><code>jstack 1893 |grep -A 200 11a7</code> 通过jstack查看具体信息，分析出可能出现问题的代码块</li>
+</ol>
+<p><strong>案例2:排查是否出现了死锁</strong></p>
+<pre class=" language-shell"><code class="language-shell">jstack PID | grep 'deadlock' #判断PID是否出现了死锁</code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="清楚从程序角度，有哪些原因导致FGC"><a href="#清楚从程序角度，有哪些原因导致FGC" class="headerlink" title="清楚从程序角度，有哪些原因导致FGC"></a>清楚从程序角度，有哪些原因导致FGC</h3><ul>
+<li>大对象：系统一次性加载了过多数据到内存中（比如SQL查询未做分页），导致大对象进入了老年代。</li>
+<li>内存泄漏：频繁创建了大量对象，但是无法被回收（比如IO对象使用完后未调用close方法释放资源），先引发FGC，最后导致OOM.</li>
+<li>程序频繁生成一些长生命周期的对象，当这些对象的存活年龄超过分代年龄时便会进入老年代，最后引发FGC. （即本文中的案例）</li>
+<li>程序BUG导致动态生成了很多新类，使得 Metaspace 不断被占用，先引发FGC，最后导致OOM.</li>
+<li>代码中显式调用了gc方法，包括自己的代码甚至框架中的代码。</li>
+<li>JVM参数设置问题：包括总内存大小、新生代和老年代的大小、Eden区和S区的大小、元空间大小、垃圾回收算法等等。<h3 id="如何避免IO问题带来的系统故障"><a href="#如何避免IO问题带来的系统故障" class="headerlink" title="如何避免IO问题带来的系统故障"></a>如何避免IO问题带来的系统故障</h3></li>
+<li>对于磁盘文件访问的操作，可以采用线程池方式，并设置线程上线，从而避免整个JVM线程池污染，进而导致线程和CPU资源耗尽。</li>
+<li>对于网络请求，为了避免服务间调用带来的全链路故障，可以设置合理的超时时间，并且高并发场景设置限流，熔断机制。</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://www.cnblogs.com/Diyo/p/11411157.html" target="_blank" rel="noopener">https://www.cnblogs.com/Diyo/p/11411157.html</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Vw63MUA0Zt80cU8_mvu7QQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/Vw63MUA0Zt80cU8_mvu7QQ</a></li>
+</ul>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2021/04/08/linux-top/>http://yoursite.com/2021/04/08/linux-top/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-30T08:58:39+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Apr 30, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/linux/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>linux</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2021/04/08/sring-class/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>彻底理解class常量池、String常量池、运行时常量池</p>
+                <p class='content'>前言经常看网上博客，发现很多文章用了常量池，class常量池，运行时常量池，字符串常量池。傻傻分不清楚他们之间有什么区别。
+常量池和class常量池其实，常量池 = Class常量池。
+常量池,...</p>
+              </a>
+            
+            
+              <a class='next' href='/2021/04/08/linux-netstat/'>
+                <p class='title'>Linux命令之netstat与TCP详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>TCP传输控制协议（TCP，Transmission Control Protocol）是一种面向连接的、可靠的、基于字节流的传输层通信协议。本人是这样理解面向连接和可靠性的。
+面向连接指的客户...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop)',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#top命令详解"><span class="toc-text">top命令详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#各项指标详解"><span class="toc-text">各项指标详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#第一行：系统运行时间和平均负载"><span class="toc-text">第一行：系统运行时间和平均负载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第二行：任务信息"><span class="toc-text">第二行：任务信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第三行：CPU信息"><span class="toc-text">第三行：CPU信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#第四五行：内存信息"><span class="toc-text">第四五行：内存信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#各任务状态监控"><span class="toc-text">各任务状态监控</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#top-常用参数命令"><span class="toc-text">top 常用参数命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#top-常用交互命令"><span class="toc-text">top 常用交互命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#常用键盘"><span class="toc-text">常用键盘</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vmstat-监控整体CPU-内存-IO使用情况"><span class="toc-text">vmstat - 监控整体CPU,内存,IO使用情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#所谓的IO"><span class="toc-text">所谓的IO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#介绍"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输出参数介绍"><span class="toc-text">输出参数介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#注意点"><span class="toc-text">注意点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#iostat-监控系统设备的IO负载情况"><span class="toc-text">iostat -  监控系统设备的IO负载情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#介绍-1"><span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参数说明"><span class="toc-text">参数说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#free命令-–-查看内存使用"><span class="toc-text">free命令 – 查看内存使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#df命令-–-文件系统的磁盘空间使用情况"><span class="toc-text">df命令 – 文件系统的磁盘空间使用情况</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#iotop-–-精确到进程的IO监控"><span class="toc-text">iotop – 精确到进程的IO监控</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#netstat-网络命令"><span class="toc-text">netstat - 网络命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Arthas使用"><span class="toc-text">Arthas使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#线上服务平均响应时间太长，怎么排查？"><span class="toc-text">线上服务平均响应时间太长，怎么排查？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优命令-jps"><span class="toc-text">JVM调优命令 - jps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优命令-jstat"><span class="toc-text">JVM调优命令 - jstat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优命令-jmap"><span class="toc-text">JVM调优命令 - jmap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优命令-jstack"><span class="toc-text">JVM调优命令 - jstack</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#清楚从程序角度，有哪些原因导致FGC"><span class="toc-text">清楚从程序角度，有哪些原因导致FGC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何避免IO问题带来的系统故障"><span class="toc-text">如何避免IO问题带来的系统故障</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

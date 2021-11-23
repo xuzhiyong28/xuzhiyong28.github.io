@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>redis主从复制原理 - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="redis">
+  
+  
+    <meta name="description" content="redis主从复制原理">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2020/08/20/redis-master-slave/">
+      redis主从复制原理
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/redis/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>redis</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Aug 20, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h2 id="Redis主从复制配置"><a href="#Redis主从复制配置" class="headerlink" title="Redis主从复制配置"></a>Redis主从复制配置</h2><pre><code>127.0.0.1:6380&gt; SLAVEOF 127.0.0.1 6379
+#主从心跳ping的时间间隔。默认10
+repl-ping-replica-period
+#从节点超时时间，默认60
+#三种情况认为复制超时：
+#1）slave角度，如果在repl-timeout时间内没有收到master SYNC传输的rdb snapshot数据，
+#2）slave角度，在repl-timeout没有收到master发送的数据包或者ping。
+#3）master角度，在repl-timeout时间没有收到REPCONF ACK确认信息。
+repl-timeout
+#主节点保存操作日志的大小。默认1M 
+repl-backlog-size
+#主节点保存操作日志的时间。默认3600秒
+repl-backlog-ttl
+#这个参数分为3部分，第二部分涉及slave。表示主节点输出给从节点的缓存(output-buffer)大小。默认是：256M 64M 60秒。意思是：如果output-buffer&gt;256M则从节点需要重新全同步，如果256&gt;output-buffer&gt;64且持续时间60秒，则从节点需要重新全同步。
+client-output-buffer-limit</code></pre><h2 id="原理详解"><a href="#原理详解" class="headerlink" title="原理详解"></a>原理详解</h2><p>redis的复制功能分为<strong>完整重同步</strong>和<strong>部分重同步</strong>两个操作。</p>
+<ul>
+<li>完整重同步操作，将从服务器的数据库状态更新至主服务器当前所处的数据库状态，后续进行命令传播。</li>
+<li>部分重同步操作，用于处理断线后重复制情况：当从服务器在断线后重新连接主服务器时，<strong>如果条件允许，主服务器可以将主从服务器连接断开期间执行的写命令发送给从服务器，从服务器只要接收并执行这些写命令，就可以将数据库更新至主服务器当前所处的状态。</strong><a id="more"></a>
+<h3 id="完整同步"><a href="#完整同步" class="headerlink" title="完整同步"></a>完整同步</h3></li>
+</ul>
+<p>同步的过程包括如下：</p>
+<ol>
+<li>从服务器向主服务器发送PSYNC命令。</li>
+<li>收到SYNC后主服务器执行BGSAVE命令生成RDB文件，期间并使用一个缓冲区记录从现在开始执行的所有写命令。</li>
+<li>BGSAVE命令执行完毕后，主服务器会将BGSAVE命令生成的RDB文件发送给从服务器。</li>
+<li>从服务器接收并载入RDB文件，将状态更新与主服务器一致。</li>
+<li>之后正常运行就是将缓冲区记录通过命令传播传播给从服务器。</li>
+</ol>
+<p><img src="/2020/08/20/redis-master-slave/2.png" alt="完整同步过程"></p>
+<p>上面提到的缓冲区（<strong>replication buffer</strong>）用来存放三个时间内所有的master数据更新操作，分别是：</p>
+<ul>
+<li>master生成RDB文件期间内产生的更新操作</li>
+<li>master发送RDB文件给slave网络传输时间的更新操作</li>
+<li>slave load rdb文件把数据恢复到内存的时间的更新操作</li>
+</ul>
+<p>replication buffer<font color="red">对应于每个slave</font>，大小由<code>client-output-buffer-limit slave 256mb 64mb 60</code>确定。意思是如果该缓冲区的大小超过256M，或该缓冲区的大小超过64M，且持续了60s，主节点会马上断开从节点的连接。<font color="red">所以对于这个值不能设置太小，太小会导致主从复制断开</font>。</p>
+<h3 id="部分重同步"><a href="#部分重同步" class="headerlink" title="部分重同步"></a>部分重同步</h3><p>部分同步用于处理断线后的重新复制。功能由以下三个部分构成：</p>
+<ul>
+<li>主服务器的复制偏移量（replication offset）和从服务器的复制偏移量</li>
+<li>主服务器的复制积压缓冲区（replication backlog）</li>
+<li>服务器的运行ID（run ID）</li>
+</ul>
+<p><img src="/2020/08/20/redis-master-slave/3.png" alt="部分重同步"></p>
+<p>主从服务器各自维护着一个<strong>复制偏移量</strong>，主服务器每次向从服务器传播N个字节时，都会将自己的复制偏移量加N，从服务器每次接收到N个字节数据后，也会自己的复制偏移量加N。同时主服务器维护着一个<strong>复制积压缓冲区</strong>。当从服务器重新连上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：</p>
+<ul>
+<li>如果offset偏移量之后的数据（也即是偏移量offset+1开始的数据）仍然存在于复制积压缓冲区里面，那么主服务器将对从服务器执行<font color="red">部分重同步</font>操作。</li>
+<li>如果offset偏移量之后的数据已经不存在于复制积压缓冲区，那么主服务器将对从服务器执行<font color="red">完整重同步</font>操作，也就是发送SYNC命令，重头到尾生成快照然后发送给从服务器。</li>
+</ul>
+<h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h3><h4 id="SYNC命令"><a href="#SYNC命令" class="headerlink" title="SYNC命令"></a>SYNC命令</h4><p>SYNC命令是一个非常耗费资源的操作。每次执行SYNC主从服务器需要执行的操作如下：</p>
+<ul>
+<li>主服务器需要执行BGSAVE命令来生成RDB文件，这个生成操作会耗费主服务器大量的CPU、内存和磁盘I/O资源。</li>
+<li>主服务器需要将自己生成的RDB文件发送给从服务器，这个发送操作会耗费主从服务器大量的网络资源（带宽和流量）</li>
+<li>接收到RDB文件的从服务器需要载入主服务器发来的RDB文件，并且在载入期间，从<strong>服务器会因为阻塞而没办法处理命令请求</strong></li>
+</ul>
+<p><font color="red">SYNC是一个如此消耗资源的命令，所以Redis最好在真需要的时候才需要执行SYNC命令。</font></p>
+<h4 id="复制积压缓冲区"><a href="#复制积压缓冲区" class="headerlink" title="复制积压缓冲区"></a>复制积压缓冲区</h4><p>复制积压缓冲区是由主服务器维护的一个<font color="red">固定长度（fixed-size）先进先出（FIFO）队列</font>，默认大小为1MB。当入队元素的数量大于队列长度时，最先入队的元素会被弹出，而新元素会被放入队列。当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器（其实是写入到每个slave对应的replication buffer），还会将写命令入队到复制积压缓冲区里面。</p>
+<table>
+<thead>
+<tr>
+<th>偏移量</th>
+<th>…</th>
+<th>13512</th>
+<th>13513</th>
+<th>13514</th>
+<th>13515</th>
+<th>13516</th>
+<th>…</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>字节值</td>
+<td>…</td>
+<td>\r</td>
+<td>\n</td>
+<td>$</td>
+<td>S</td>
+<td>E</td>
+<td>…</td>
+</tr>
+</tbody></table>
+<p>复制积压缓冲区大小可以通过<strong>repl-backlog-size</strong>进行配置。</p>
+<pre class=" language-properties"><code class="language-properties">//支持单位：b、k、kb、m、mb、g、gb，单位不区分大小写，其中k、m、g间的计算倍数是1000，
+//而kb、mb和gb的计算倍数是1024
+<span class="token attr-name">repl-backlog-size</span> <span class="token attr-value">1mb</span>
+//环形缓冲复制队列存活时长（所有slaves不可用时，保留repl_backlog多长时间，单位：秒）
+<span class="token attr-name">repl-backlog-ttl</span> <span class="token attr-value">3600</span></code></pre>
+<p>由于复制积压缓冲区存的是字节，所以当你key-value很大值会占用这个队列。所以一般当key-value较大时需要更改这个默认值。</p>
+<p>复制积压缓冲区的最小大小可以根据公式second * write_size_per_second来估算。</p>
+<ul>
+<li>second为从服务器断线后重新连接上主服务器所需的平均时间（以秒计算）</li>
+<li>write_size_per_second则是主服务器平均每秒产生的写命令数据量（协议格式的写命令的长度总和）</li>
+</ul>
+<h4 id="服务器运行ID"><a href="#服务器运行ID" class="headerlink" title="服务器运行ID"></a>服务器运行ID</h4><p>实现部分重同步还需要用到服务器运行ID（run ID）。每个Redis服务器，<strong>不论主服务器还是从服务，都会有自己的运行ID</strong>。</p>
+<p>当从服务器对主服务器进行初次复制时，主服务器会将自己的运行ID传送给从服务器，而从服务器则会将这个运行ID保存起来（注意哦，是<strong>从服务器保存了主服务器的ID</strong>）。</p>
+<p>当从服务器断线并重新连上一个主服务器时，从服务器将向当前连接的主服务器发送之前保存的运行ID：</p>
+<ul>
+<li>如果从服务器保存的运行ID和当前连接的主服务器的运行ID相同，那么说明从服务器断线之前复制的就是当前连接的这个主服务器，主服务器可以继续尝试执行部分重同步操作；</li>
+<li>相反地，如果从服务器保存的运行ID和当前连接的主服务器的运行ID并不相同，那么说明从服务器断线之前复制的主服务器并不是当前连接的这个主服务器，主服务器将对从服务器执行完整重同步操作。</li>
+</ul>
+<h4 id="复制运维方法"><a href="#复制运维方法" class="headerlink" title="复制运维方法"></a>复制运维方法</h4><p><strong>如何判断主从同步是否正常</strong></p>
+<p>如果<code>master_repl_offset</code>减<code>offset</code>差不多，则表示主从复制正常。</p>
+<pre><code>192.168.1.110:9852&gt; info replication
+# Replication
+role:master
+connected_slaves:1
+#offset 表示 salve0的复制偏移量
+slave0:ip=192.168.1.120,port=9853,state=online,offset=375168999754,lag=1
+# master启动时生成的40位16进制的随机字符串，用来标识master节点
+master_replid:0ef80af291afbbb7e2f2d6fdbf150281ab1baa6f 
+master_replid2:0000000000000000000000000000000000000000
+#当前master复制偏移量
+master_repl_offset:375168999754      
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:67108864
+repl_backlog_first_byte_offset:375101890891
+repl_backlog_histlen:67108864</code></pre><h4 id="两个重要的缓冲区"><a href="#两个重要的缓冲区" class="headerlink" title="两个重要的缓冲区"></a>两个重要的缓冲区</h4><p>replication buffer，master<font color="red">为每个slave建立</font>的缓冲区，用来缓存master执行的命令。例如主库生成RDB和从库加载RDB这段时间增量的命令。他的特点是每个slave都有一个。<font color="red">所以，如果我们是一主多从的话，对内存的损耗也越大，所以控制从节点的数量，也可以控制缓存区对内存的开销</font>。</p>
+<p>replication backlog，复制积压缓冲区。master<font color="red">唯一一份</font>记录最近执行命令和命令对应的偏移量。结构是一个环形队列，后面的命令覆盖前面的命令。当slave由于网络抖动重新连接上master时，会传递自己的offset与replication backlog进行对比来确定执行全部同步还是部分同步。这个值默认是1M，我们需要根据主库写入的速率和主从同步传输的速率差值来适当调大replication backlog的配置。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>《Redis设计与实现》</li>
+<li><a href="https://www.cnblogs.com/lukexwang/p/4711977.html" target="_blank" rel="noopener">https://www.cnblogs.com/lukexwang/p/4711977.html</a></li>
+<li><a href="https://www.cnblogs.com/vansky/p/9293980.html" target="_blank" rel="noopener">https://www.cnblogs.com/vansky/p/9293980.html</a></li>
+<li><a href="https://blog.csdn.net/a1076067274/article/details/109294208" target="_blank" rel="noopener">https://blog.csdn.net/a1076067274/article/details/109294208</a></li>
+<li><a href="https://www.cnblogs.com/any-way/p/10411567.html" target="_blank" rel="noopener">https://www.cnblogs.com/any-way/p/10411567.html</a></li>
+</ul>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/08/20/redis-master-slave/>http://yoursite.com/2020/08/20/redis-master-slave/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-08T08:47:06+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Apr 8, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/redis/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>redis</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2020/08/26/redis-rdb-aop/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>redis持久化详解RDB,AOP</p>
+                <p class='content'>Redis两种持久化方案
+RDB方式，生成指定时间间隔内的 Redis 内存中数据快照，是一个二进制文件 dumpr.rdb。
+AOF方式，记录 Redis 除了查询以外的所有写命令，即对内存中...</p>
+              </a>
+            
+            
+              <a class='next' href='/2020/08/19/mysql-masterslave-solve/'>
+                <p class='title'>记一次MySQL主从同步延迟排查<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>问题分析和定位线上环境这几天在凌晨4点时报主从延迟。虽然我们项目对数据的时效性不是要求很高，但是出现了主从延迟肯定是哪个地方除了问题，为了保证稳定性需要排查一下问题原因。
+主从同步原理
+
+主库对...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'redis主从复制原理',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis主从复制配置"><span class="toc-text">Redis主从复制配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理详解"><span class="toc-text">原理详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#完整同步"><span class="toc-text">完整同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部分重同步"><span class="toc-text">部分重同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#知识点"><span class="toc-text">知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SYNC命令"><span class="toc-text">SYNC命令</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#复制积压缓冲区"><span class="toc-text">复制积压缓冲区</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务器运行ID"><span class="toc-text">服务器运行ID</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#复制运维方法"><span class="toc-text">复制运维方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#两个重要的缓冲区"><span class="toc-text">两个重要的缓冲区</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>JVM参数详解和调优 - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="java并发">
+  
+  
+    <meta name="description" content="JVM参数详解和调优">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2020/05/07/jvm-optimization/">
+      JVM参数详解和调优
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/java/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>java</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：May 7, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h2 id="JVM常用参数"><a href="#JVM常用参数" class="headerlink" title="JVM常用参数"></a>JVM常用参数</h2><h3 id="推和栈大小设置"><a href="#推和栈大小设置" class="headerlink" title="推和栈大小设置"></a>推和栈大小设置</h3><pre class=" language-shell"><code class="language-shell">-Xms1024M: 初始堆大小
+-Xmx1024M: 最大堆大小
+-Xmn512M:新生代的大小
+-XX:newSize:新生代初始化内存的大小(注意：该值需要小于-Xms的值)
+-XX:MaxnewSize:新生代可被分配的内存的最大上限(注意：该值需要小于-Xmx的值)
+-Xmn:年轻代的大小(eden + 2 survivor,设置了这就不用设置-XX:NewSize，-XX:MaxNewSize)
+-XX:NewRatio=n: 设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4
+-XX:SurvivorRatio=n: 年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5
+-Xss256K: 栈大小设置
+-XX:MetaspaceSize=n 元空间初始大小
+-XX:MaxMetaspaceSize=n 元空间最大大小</code></pre>
+<a id="more"></a>
+<p>典型设置</p>
+<pre class=" language-shell"><code class="language-shell">java -Xmx3550m -Xms3550m -Xss128k -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxTenuringThreshold=0
+#-XX:NewRatio=4:设置年轻代（包括Eden和两个Survivor区）与年老代的比值（除去持久代）。设置为4，则年轻代与年老代所占比值为1：4，年轻代占整个堆栈的1/5
+#-XX:SurvivorRatio=4：设置年轻代中Eden区与Survivor区的大小比值。设置为4，则两个Survivor区与一个Eden区的比值为2:4，一个Survivor区占整个年轻代的1/6
+#-XX:MaxTenuringThreshold=0： 设置垃圾最大年龄。如果设置为0的话，则年轻代对象不经过Survivor区，直接进入年老代。对于年老代比较多的应用，可以提高效率。(正常可以不设置)</code></pre>
+<h3 id="回收器"><a href="#回收器" class="headerlink" title="回收器"></a>回收器</h3><p>JVM垃圾回收器按照分类可以分成：串行收集器，并行收集器，并发收集器。</p>
+<ul>
+<li>串行收集器：一个GC线程进行回收，会暂停所有用户线程，不符合服务器环境。</li>
+<li>并行收集器：多个GC线程进行回收，会暂停所有用户线程，适用于大数据，科学计算处理场景。</li>
+<li>并发收集器(CMS)：用户线程和GC线程同事执行，不会暂停用户线程，适用于对响应时间要求高的场景。</li>
+</ul>
+<p>如何选择垃圾收集器，可以通过如下几点。</p>
+<p>1、单CPU小内存 : -XX:+UseSerialGC</p>
+<p>2、多CPU，需要大量运算：-XX:+UseParallelGC  -XX:+UseParallelOldGC</p>
+<p>3、多CPU，要求快速响应：-XX:+UseParNewGC  -XX:+UseConcMarkSweepGC</p>
+<p>在C/S架构中往往我们关注的是<strong>响应时间</strong>。并发收集器主要是保证系统的响应时间，减少垃圾收集时的停顿时间。所以我们一般使用的是并发收集器，也就是CMS。配置参考如下</p>
+<pre class=" language-shell"><code class="language-shell">-Xmx3550m -Xms3550m -Xmn2g -Xss128k -XX:ParallelGCThreads=20 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+UseCMSCompactAtFullCollection
+#-XX:+UseConcMarkSweepGC： 设置年老代为并发收集
+#-XX:+UseParNewGC: 设置年轻代为并行收集。
+#-XX:+UseCMSCompactAtFullCollection 打开对年老代的压缩。可能会影响性能，但是可以消除碎片</code></pre>
+<h3 id="日志和辅助设置"><a href="#日志和辅助设置" class="headerlink" title="日志和辅助设置"></a>日志和辅助设置</h3><p>日志相关参考另外一篇博客：<a href="https://xuzyblog.top/2019/02/18/gc-log/" target="_blank" rel="noopener">GC日志详解</a></p>
+<p>另外一些辅助类的配置，笔者项目中配置的一些优化。</p>
+<p>这里顺便说下 : <strong>-XX:+ 这种表示开启什么配置，-XX:- 表示关闭什么配置</strong></p>
+<pre class=" language-shell"><code class="language-shell">-XX:+DisableExplicitGC #加了这个配置后，再代码上使用System.gc()将不会生效，System.gc()会出发FullGC
+-XX:+UseCompressedOops #开启压缩指针，例如压缩指针对象头。开启后可以节省一定的内存空间
+-XX:+CMSParallelRemarkEnabled #降低标记停顿
+-XX:CMSInitiatingOccupancyFraction=70 #使用cms作为垃圾回收,使用70％后开始CMS收集</code></pre>
+<h2 id="JVM调优"><a href="#JVM调优" class="headerlink" title="JVM调优"></a>JVM调优</h2><h3 id="什么时候才需要调优？"><a href="#什么时候才需要调优？" class="headerlink" title="什么时候才需要调优？"></a>什么时候才需要调优？</h3><p><strong>如果各项参数设置合理，系统没有超时日志出现，GC频率不高，GC耗时不高，那么没有必要进行GC优化；如果GC时间超过1-3秒，或者频繁GC，则必须优化。</strong></p>
+<p>如果满足下列指标，则一般不需要GC优化（具体情况具体分析）</p>
+<ul>
+<li>Minor GC执行时间不到100ms</li>
+<li>Minor GC执行不频繁，约5秒一次</li>
+<li>Full GC执行时间不到1s</li>
+<li>Full GC执行频率不算频繁，不低于1分钟1次</li>
+</ul>
+<h3 id="调优目标"><a href="#调优目标" class="headerlink" title="调优目标"></a>调优目标</h3><ul>
+<li>GC的时间足够的小</li>
+<li>GC的次数足够的少</li>
+<li>发生Full GC的周期足够的长</li>
+</ul>
+<p>调优准则</p>
+<ul>
+<li>根据机器情况和服务需求，具体问题具体分析</li>
+<li>多数的Java应用不需要在服务器上进行GC优化</li>
+<li>减少使用全局变量和大对象 (代码层面)</li>
+<li>调整新生代的大小</li>
+<li>设置老年代的大小（老年代：新生代=2：1）</li>
+<li>选择合适的GC收集器</li>
+<li>设置合适线程堆栈大小</li>
+</ul>
+<p>例如线上排查Full GC次数频繁。这就要知道什么时候对象会放到老年代。</p>
+<ul>
+<li>YGC时，To Survivor区不足以存放存活的对象，对象会直接进入到老年代。这种情况可以适当加大Survivor区的大小。</li>
+<li>经过多次YGC后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中。这种情况属于对象存活太久，如果大对象在业务上不需要使用那么久最好能够用完即删。</li>
+<li>动态年龄判定规则，To Survivor区中相同年龄的对象，如果其大小之和占到了 To Survivor区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。这种情况也是可以适当更改Survivor大小。</li>
+</ul>
+<h3 id="如何确定新生代和老年代的比例？"><a href="#如何确定新生代和老年代的比例？" class="headerlink" title="如何确定新生代和老年代的比例？"></a>如何确定新生代和老年代的比例？</h3><ul>
+<li>IO交互性系统，互联网上目前大部分的服务都属于该类型，例如分布式 RPC、MQ、HTTP 网关服务等，对内存要求并不大，大部分对象在 TP9999 的时间内都会死亡， Young 区越大越好。</li>
+<li>内存计算性系统，主要是分布式数据计算 Hadoop，分布式存储 HBase、Cassandra，自建的分布式缓存等，对内存要求高，对象存活时间长，Old 区越大越好。</li>
+</ul>
+<h2 id="常见知识点"><a href="#常见知识点" class="headerlink" title="常见知识点"></a>常见知识点</h2><h3 id="空间分配担保"><a href="#空间分配担保" class="headerlink" title="空间分配担保"></a>空间分配担保</h3><p>空间担保指的是老年代进行空间分配担保。在发生Minor GC前，JVM会先检查<strong>老年代最大可用的连续空间是否大于新生代所有对象的总空间</strong>。</p>
+<ul>
+<li>如果大于，则此次<strong>Minor GC是安全的</strong>。</li>
+<li>如果小于，则虚拟机会查看<strong>HandlePromotionFailure</strong>设置值是否允许担保失败。如果HandlePromotionFailure=true，那么会继续检查老年代最大可用连续空间是否大于<strong>历次晋升到老年代的对象的平均大小</strong>，如果大于，则尝试进行一次Minor GC，但这次Minor GC依然是有风险的；如果小于或者HandlePromotionFailure=false，则改为进行一次Full GC。</li>
+</ul>
+<p><strong>为什么要进行空间担保？</strong></p>
+<p>是因为新生代采用<strong>复制收集算法</strong>，假如大量对象在Minor GC后仍然存活（最极端情况为内存回收后新生代中所有对象均存活），而Survivor空间是比较小的，这时就需要老年代进行分配担保，把Survivor无法容纳的对象放到老年代。<strong>老年代要进行空间分配担保，前提是老年代得有足够空间来容纳这些对象</strong>，但一共有多少对象在内存回收后存活下来是不可预知的，<strong>因此只好取之前每次垃圾回收后晋升到老年代的对象大小的平均值作为参考</strong>。使用这个平均值与老年代剩余空间进行比较，来决定是否进行Full GC来让老年代腾出更多空间。</p>
+<p><img src="/2020/05/07/jvm-optimization/1.png" alt="空间担保机制"></p>
+<h3 id="什么情况对象直接进老年代"><a href="#什么情况对象直接进老年代" class="headerlink" title="什么情况对象直接进老年代"></a>什么情况对象直接进老年代</h3><ul>
+<li>在执行YGC时，To Survivor区不足以存放存活的对象，对象会直接进入到老年代。</li>
+<li>长期存活的对象将进入老年代。经过多次YGC后，如果存活对象的年龄达到了设定阈值，则会晋升到老年代中，通过-XX：MaxTenuringThreshold = 15设置。</li>
+<li>大对象直接进入老年代，通过-XX：PretenureSizeThreshold参数设置，如果大于这个设定值则直接存入老年代，</li>
+<li>动态年龄判定规则，To Survivor区中相同年龄的对象，如果其大小之和占到了 To Survivor区一半以上的空间，那么大于此年龄的对象会直接进入老年代，而不需要达到默认的分代年龄。</li>
+</ul>
+<h3 id="什么情况下会触发FGC"><a href="#什么情况下会触发FGC" class="headerlink" title="什么情况下会触发FGC"></a>什么情况下会触发FGC</h3><ul>
+<li>当晋升到老年代的对象大于了老年代的剩余空间时，就会触发FGC（Major GC），<strong>FGC处理的区域同时包括新生代和老年代</strong>。</li>
+<li>老年代的内存使用率达到了一定阈值（可通过参数调整），直接触发FGC(-XX:CMSInitiatingOccupancyFraction=70 是指设定CMS在对内存占用率达到70%的时候开始GC）。</li>
+<li>空间分配担保：在YGC之前，会先检查老年代最大可用的连续空间是否大于新生代所有对象的总空间。如果小于，说明YGC是不安全的，则会查看参数 HandlePromotionFailure 是否被设置成了允许担保失败，如果不允许则直接触发Full GC；如果允许，那么会进一步检查老年代最大可用的连续空间是否大于历次晋升到老年代对象的平均大小，如果小于也会触发 Full GC。</li>
+<li>Metaspace（元空间）在空间不足时会进行扩容，当扩容到了-XX:MetaspaceSize 参数的指定值时，也会触发FGC。</li>
+<li>System.gc() 或者Runtime.gc() 被显式调用时，触发FGC。（有些第三方插件会有用这个函数）</li>
+</ul>
+<h3 id="三种内存回收机制优缺点"><a href="#三种内存回收机制优缺点" class="headerlink" title="三种内存回收机制优缺点"></a>三种内存回收机制优缺点</h3><p>对于 Java 的内存回收机制我们主要分为 3 种：</p>
+<ul>
+<li>标记-清除算法<ul>
+<li>不足：效率不高，容易产生内存碎片。</li>
+</ul>
+</li>
+<li>复制算法<ul>
+<li>效率高，复制成本大。</li>
+<li>不足：如果是 1：1 模型，占用内存。</li>
+<li>分配担保策略</li>
+</ul>
+</li>
+<li>标记-整理算法<ul>
+<li>因为老年代的对象生存率高，所以使用复制算法效率会很差，就提出了这个标记-整理算法。</li>
+</ul>
+</li>
+</ul>
+<h3 id="CMS老年代垃圾回收器详解"><a href="#CMS老年代垃圾回收器详解" class="headerlink" title="CMS老年代垃圾回收器详解"></a>CMS老年代垃圾回收器详解</h3><p>CMS是一款并发、使用*<font color="red">标记-清除</font>*算法的老年代垃圾回收器。针对老年代进行回收的GC。<font color="red">以获取最短回收停顿时间【也就是指Stop The World的停顿时间】</font>为目标，多数应用于互联网站或者B/S系统的服务器端上。</p>
+<p><strong>CMS四个过程</strong>：</p>
+<p>CMS基于<strong>标记-清除</strong>算法实现。</p>
+<ul>
+<li>初始标记(<font color="red">Stop The World</font>)。标记一下GC Roots能直接关联到的对象。这一步主要做两件事：</li>
+<li><ul>
+<li>从GcRoots直接可达的老年代对象</li>
+<li>遍历新生代对象，标记可达的老年代对象</li>
+</ul>
+</li>
+<li>并发标记。遍历初始标记阶段标记出来的存活对象，然后继续递归标记这些对象可达的对象。<strong>在运行期间可能发生新生代的对象晋升到老年代、或者是直接在老年代分配对象、或者更新老年代对象的引用关系等等，对于这些对象，都是需要进行重新标记的，否则有些对象就会被遗漏，发生漏标的情况。</strong>为了提高重新标记的效率，该阶段会把上述对象所在的Card(卡表)标识为Dirty(脏)，后续只需扫描这些Dirty Card的对象，避免扫描整个老年代。</li>
+<li>并发预清理。<em>CMSPrecleaningEnabled</em>控制是否需要并发预清理，默认启用。<strong>该阶段要尽最大的努力去处理那些在并发阶段被应用线程更新的老年代对象，这样在暂停的重新标记阶段就可以少处理一些，暂停时间也会相应的降低。</strong></li>
+<li>重新标记。为了修正并发标记期间因用户程序继续动作而导致标记产生变动的那一部分对象的标记记录 — <font color="red">Stop The World</font></li>
+<li>并发清除。</li>
+</ul>
+<p><strong>优缺点</strong></p>
+<ul>
+<li>并发收集、低停顿。</li>
+<li>CMS收集器对处理器资源非常敏感。在并发阶段，它虽然不会导致用户线程停顿，但却会因为占用了一部分线程（或者说处理器的算能力）而导致应用程序变慢，降低总吞吐量。</li>
+<li>CMS收集器无法处理浮动垃圾（因为CMS是支持并发的原因，所以允许在过程中用户线程也在运行，会导致判断不准确。 例如可能在判断完成之后在清除之前这个对像已经变成了垃圾对象，所以有可能本该此垃圾被回收但是没有被回收，只能等待下一次GC再将该对象回收）。</li>
+</ul>
+<p><strong>几个优化的参数</strong></p>
+<ul>
+<li>-XX:+UseCMSInitiatingOccupancyOnly 和 -XX：CMSInitiatingOccupancyFraction的值来用来设置CMS收集器老年代占用百分之多少后执行FullGC，降低内存回收频率，获取更好的性能。</li>
+<li>-XX:+UseCMSCompactAtFullCollection默认开启，要进行Full GC的时候进行内存碎片整理。</li>
+<li>-XX:CMSFullGCsBeforeCompaction 每隔多少次不压缩的Full GC后，执行一次带压缩的Full GC。</li>
+<li>CMSScavengeBeforeRemark 如果开启这个参数，会在进入重新标记阶段之前强制触发一次minor gc。</li>
+<li>CMSMaxAbortablePrecleanTime = 5 表示并发预清理阶段持续5秒还没等到minor gc就中断并发预清理阶段。</li>
+</ul>
+<p><strong>CMS并发模式失败（Concurrent mode failure）和晋升失败</strong></p>
+<ul>
+<li>并发模式失败，CMS的目标就是在回收老年代对象的时候不要停止全部应用线程，在并发周期执行期间，用户的线程依然在运行，如果这时候如果应用线程向老年代请求分配的空间超过预留的空间（担保失败），就回触发concurrent mode failure，然后CMS的并发周期就会被一次Full GC代替。</li>
+<li>晋升失败，新生代做minor gc的时候，需要CMS的担保机制确认老年代是否有足够的空间容纳要晋升的对象，担保机制发现不够，则报concurrent mode failure，如果担保机制判断是够的，但是实际上由于碎片问题导致无法分配，就会报晋升失败。</li>
+<li>永久代空间（或Java8的元空间）耗尽，默认情况下,CMS不会对永久代进行收集，一旦永久代空间耗尽，就回触发Full GC。</li>
+</ul>
+<p>针对并发模式失败的调优 ：</p>
+<ul>
+<li>想办法增大老年代的空间，增加整个堆的大小，或者减少年轻代的大小。</li>
+<li>以更高的频率执行后台的回收线程，即提高CMS并发周期发生的频率，例如调低<em>CMSInitiatingOccupancyFraction</em>的值。引用《Java性能权威指南》（<strong>对特定的应用程序，该标志的更优值可以根据 GC 日志中 CMS 周期首次启动失败时的值得到。具体方法是，在垃圾回收日志中寻找并发模式失效，找到后再反向查找 CMS 周期最近的启动记录，然后根据日志来计算这时候的老年代空间占用值，然后设置一个比该值更小的值。</strong>）</li>
+<li>增多回收线程的个数CMS默认的垃圾收集线程数是<em>（CPU个数 + 3）/4</em>。-XX:ParallelCMSThreads用来设置线程数量。</li>
+</ul>
+<h3 id="JVM动态年龄判断"><a href="#JVM动态年龄判断" class="headerlink" title="JVM动态年龄判断"></a>JVM动态年龄判断</h3><p>-XX:MaxTenuringThreshold=3，该参数主要是控制新生代需要经历多少次GC晋升到老年代中的最大阈值。但是不一定是这个阈值才晋升到老年代。因为有动态年龄判断(<strong>Survivor空间中相同年龄所有对象大小的总和大于Survivor空间的一半，年龄大于或等于该年龄的对象就可以直接进入老年代，无须等到MaxTenuringThreshold中要求的年龄</strong>)</p>
+<h3 id="垃圾回收图解"><a href="#垃圾回收图解" class="headerlink" title="垃圾回收图解"></a>垃圾回收图解</h3><p><img src="/2020/05/07/jvm-optimization/3.png" alt="垃圾回收过程"></p>
+<h3 id="JVM内存模型"><a href="#JVM内存模型" class="headerlink" title="JVM内存模型"></a>JVM内存模型</h3><p><img src="/2020/05/07/jvm-optimization/4.png" alt="jvm内存模型"></p>
+<h3 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h3><p><img src alt>)<img src="/2020/05/07/jvm-optimization/5.png" alt="5"></p>
+<h3 id="JAVA内存对象布局"><a href="#JAVA内存对象布局" class="headerlink" title="JAVA内存对象布局"></a>JAVA内存对象布局</h3><p><img src="/2020/05/07/jvm-optimization/6.png" alt="JAVA内存对象布局"></p>
+<pre class=" language-java"><code class="language-java"><span class="token keyword">package</span> xzy<span class="token punctuation">;</span>
+<span class="token keyword">import</span> org<span class="token punctuation">.</span>openjdk<span class="token punctuation">.</span>jol<span class="token punctuation">.</span>info<span class="token punctuation">.</span>ClassLayout<span class="token punctuation">;</span>
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        Object obj <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>ClassLayout<span class="token punctuation">.</span><span class="token function">parseInstance</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toPrintable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//==========================================无指针压缩=========================</span>
+# <span class="token operator">-</span>XX<span class="token operator">:</span><span class="token operator">-</span>UseCompressedOops
+java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object object internals<span class="token operator">:</span>
+ OFFSET  SIZE   TYPE DESCRIPTION                               VALUE
+      <span class="token number">0</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">01</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000001</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+      <span class="token number">4</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">00</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+      <span class="token number">8</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           <span class="token number">00</span> 1c <span class="token number">95</span> <span class="token function">1e</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00011100</span> <span class="token number">10010101</span> <span class="token number">00011110</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">513088512</span><span class="token punctuation">)</span>
+     <span class="token number">12</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           <span class="token number">00</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+Instance size<span class="token operator">:</span> <span class="token number">16</span> bytes
+Space losses<span class="token operator">:</span> <span class="token number">0</span> bytes internal <span class="token operator">+</span> <span class="token number">0</span> bytes external <span class="token operator">=</span> <span class="token number">0</span> bytes total
+<span class="token comment" spellcheck="true">//==========================================指针压缩=========================</span>
+java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object object internals<span class="token operator">:</span>
+ OFFSET  SIZE   TYPE DESCRIPTION                               VALUE
+      <span class="token number">0</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">01</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000001</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+      <span class="token number">4</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">00</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+      <span class="token number">8</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           e5 <span class="token number">01</span> <span class="token number">00</span> <span class="token function">f8</span> <span class="token punctuation">(</span><span class="token number">11100101</span> <span class="token number">00000001</span> <span class="token number">00000000</span> <span class="token number">11111000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">134217243</span><span class="token punctuation">)</span>
+     <span class="token number">12</span>     <span class="token function">4</span>        <span class="token punctuation">(</span>loss due to the next object alignment<span class="token punctuation">)</span>对其填充
+Instance size<span class="token operator">:</span> <span class="token number">16</span> bytes
+Space losses<span class="token operator">:</span> <span class="token number">0</span> bytes internal <span class="token operator">+</span> <span class="token number">4</span> bytes external <span class="token operator">=</span> <span class="token number">4</span> bytes total
+
+
+<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OtherTest</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span>String<span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span><span class="token punctuation">{</span>
+        Object<span class="token punctuation">[</span><span class="token punctuation">]</span> obj <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Object</span><span class="token punctuation">[</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        System<span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>ClassLayout<span class="token punctuation">.</span><span class="token function">parseInstance</span><span class="token punctuation">(</span>obj<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toPrintable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">//===============================无指针压缩数组===========================</span>
+<span class="token punctuation">[</span>Ljava<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object<span class="token punctuation">;</span> object internals<span class="token operator">:</span>
+ OFFSET  SIZE               TYPE DESCRIPTION                               VALUE
+      <span class="token number">0</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">01</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000001</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+      <span class="token number">4</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">00</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+      <span class="token number">8</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           <span class="token number">60</span> c7 b1 <span class="token function">1e</span> <span class="token punctuation">(</span><span class="token number">01100000</span> <span class="token number">11000111</span> <span class="token number">10110001</span> <span class="token number">00011110</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">514967392</span><span class="token punctuation">)</span>
+     <span class="token number">12</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           <span class="token number">00</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+     <span class="token number">16</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           0a <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00001010</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span>
+     <span class="token number">20</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>alignment<span class="token operator">/</span>padding gap<span class="token punctuation">)</span>对齐填充                  
+     <span class="token number">24</span>    <span class="token number">80</span>   java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object Object<span class="token punctuation">;</span><span class="token punctuation">.</span>&lt;elements<span class="token operator">></span>数组长度<span class="token punctuation">(</span><span class="token number">8</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">)</span>                        N<span class="token operator">/</span>A
+Instance size<span class="token operator">:</span> <span class="token number">104</span> bytes
+Space losses<span class="token operator">:</span> <span class="token number">4</span> bytes internal <span class="token operator">+</span> <span class="token number">0</span> bytes external <span class="token operator">=</span> <span class="token number">4</span> bytes total
+<span class="token comment" spellcheck="true">//===========================指针压缩数组==============================</span>
+ <span class="token punctuation">[</span>Ljava<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object<span class="token punctuation">;</span> object internals<span class="token operator">:</span>
+ OFFSET  SIZE               TYPE DESCRIPTION                               VALUE
+      <span class="token number">0</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">01</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000001</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+      <span class="token number">4</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对象头                           <span class="token number">00</span> <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">)</span>
+      <span class="token number">8</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>Class <span class="token class-name">Pointer</span>                           3c <span class="token number">23</span> <span class="token number">00</span> <span class="token function">f8</span> <span class="token punctuation">(</span><span class="token number">00111100</span> <span class="token number">00100011</span> <span class="token number">00000000</span> <span class="token number">11111000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token operator">-</span><span class="token number">134208708</span><span class="token punctuation">)</span>
+     <span class="token number">12</span>     <span class="token function">4</span>                    <span class="token punctuation">(</span>object header<span class="token punctuation">)</span>对齐填充                           0a <span class="token number">00</span> <span class="token number">00</span> <span class="token function">00</span> <span class="token punctuation">(</span><span class="token number">00001010</span> <span class="token number">00000000</span> <span class="token number">00000000</span> <span class="token number">00000000</span><span class="token punctuation">)</span> <span class="token punctuation">(</span><span class="token number">10</span><span class="token punctuation">)</span>
+     <span class="token number">16</span>    <span class="token number">40</span>   java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>Object Object<span class="token punctuation">;</span><span class="token punctuation">.</span>&lt;elements<span class="token operator">></span>数组长度<span class="token punctuation">(</span><span class="token number">4</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">)</span>                        N<span class="token operator">/</span>A
+Instance size<span class="token operator">:</span> <span class="token number">56</span> bytes
+Space losses<span class="token operator">:</span> <span class="token number">0</span> bytes internal <span class="token operator">+</span> <span class="token number">0</span> bytes external <span class="token operator">=</span> <span class="token number">0</span> bytes total</code></pre>
+<h3 id="三色标记法"><a href="#三色标记法" class="headerlink" title="三色标记法"></a>三色标记法</h3><p>实现并发标记的算法就是三色标记法，三色标记法最大的特点就是可以异步执行，从而可以以中断时间极少的代价或者完全没有中断来进行整个GC。</p>
+<ul>
+<li>白色：尚未被GC访问过的对象，如果全部标记已完成依旧为白色的，称为不可达对象，既垃圾对象。</li>
+<li>黑色：本对象已经被GC访问过，且本对象的子引用对象也已经被访问过了。</li>
+<li>灰色：本对象已访问过，但是本对象的子引用对象还没有被访问过，全部访问完会变成黑色，属于中间态。</li>
+</ul>
+<p><strong>标记过程</strong></p>
+<ol>
+<li>在GC并发标记刚开始时，所以对象均为白色集合。</li>
+<li>将所有GCRoots直接引用的对象标记为灰色集合。</li>
+<li>判断若灰色集合中的对象不存在子引用，则将其放入黑色集合，若存在子引用对象，则将其所有的子引用对象放入灰色集合，当前对象放入黑色集合。</li>
+</ol>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/05/07/jvm-optimization/>http://yoursite.com/2020/05/07/jvm-optimization/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-08T08:47:06+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Apr 8, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/java%E5%B9%B6%E5%8F%91/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>java并发</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2020/05/10/spring-forbean/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spring循环依赖详解</p>
+                <p class='content'>什么是循环依赖所谓的循环依赖是指，A 依赖 B，B 又依赖 A，它们之间形成了循环依赖。或者是 A 依赖 B，B 依赖 C，C 又依赖 A，形成了循环依赖。更或者是自己依赖自己。
+
+
+Sprin...</p>
+              </a>
+            
+            
+              <a class='next' href='/2020/01/26/mysql-count/'>
+                <p class='title'>MySQL之count(*)、count(1)、count(字段)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>正文count() 是一个聚合函数，对于返回的结果集，一行行地判断，如果 count 函数的参数不是 NULL，累计值就加 1，否则不加。最后返回累计值。
+
+InnoDB下的countcount...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'JVM参数详解和调优',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM常用参数"><span class="toc-text">JVM常用参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推和栈大小设置"><span class="toc-text">推和栈大小设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回收器"><span class="toc-text">回收器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#日志和辅助设置"><span class="toc-text">日志和辅助设置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM调优"><span class="toc-text">JVM调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么时候才需要调优？"><span class="toc-text">什么时候才需要调优？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调优目标"><span class="toc-text">调优目标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如何确定新生代和老年代的比例？"><span class="toc-text">如何确定新生代和老年代的比例？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见知识点"><span class="toc-text">常见知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#空间分配担保"><span class="toc-text">空间分配担保</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况对象直接进老年代"><span class="toc-text">什么情况对象直接进老年代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么情况下会触发FGC"><span class="toc-text">什么情况下会触发FGC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三种内存回收机制优缺点"><span class="toc-text">三种内存回收机制优缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CMS老年代垃圾回收器详解"><span class="toc-text">CMS老年代垃圾回收器详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM动态年龄判断"><span class="toc-text">JVM动态年龄判断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾回收图解"><span class="toc-text">垃圾回收图解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JVM内存模型"><span class="toc-text">JVM内存模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#垃圾收集器"><span class="toc-text">垃圾收集器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#JAVA内存对象布局"><span class="toc-text">JAVA内存对象布局</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#三色标记法"><span class="toc-text">三色标记法</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

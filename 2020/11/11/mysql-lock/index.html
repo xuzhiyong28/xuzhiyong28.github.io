@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>MySQL中InnoDB锁，死锁详解 - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="mysql">
+  
+  
+    <meta name="description" content="MySQL中InnoDB锁，死锁详解">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2020/11/11/mysql-lock/">
+      MySQL中InnoDB锁，死锁详解
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/mysql/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>mysql</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Nov 11, 2020</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h3 id="为什么有锁"><a href="#为什么有锁" class="headerlink" title="为什么有锁"></a>为什么有锁</h3><p>Mysql锁主要是为了解决多事务并发带来的问题。多事务并发分成以下三种情况：</p>
+<ul>
+<li>读读，两个事务都只有读操作，不加锁。</li>
+<li>写写，多个未提交事务在对同一个记录做修改操作时，需要让操作排队，这就是用锁实现的。</li>
+<li>读写，Innodb中读操作利用多版本控制并发（MVCC），写操作使用锁来控制。</li>
+</ul>
+<p>InnoDB锁官方文档地址 ：<a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html#innodb-shared-exclusive-locks" target="_blank" rel="noopener">InnoDB Locking Doc</a>。锁作为MySQL一个很重要的知识点，虽然有隐式加锁解锁的存在开发人员很少涉及到，但了解锁对开发尤为重要，不然遇到死锁问题都不知道哪里出现问题了。</p>
+<h3 id="锁类型与上锁方式"><a href="#锁类型与上锁方式" class="headerlink" title="锁类型与上锁方式"></a>锁类型与上锁方式</h3><p>在MySQL中，锁按照类型划分可以分成 ：表锁，行锁（本文重点），页锁。</p>
+<p>在MySQL中，锁按照种类可以划分成：共享锁（S）和排他锁（X）。</p>
+<p><img src="/2020/11/11/mysql-lock/2.png" alt></p>
+<a id="more"></a>
+
+<p>这里说一下上面的意向共享锁和意向排他锁。其实这两个应该算是表级锁。为啥会有这两个东西呢？为了<font color="red"><strong>为了允许行锁和表锁共存，实现多粒度锁机制</strong></font>。引用MySQL官方文档对意向锁的解释”Intention locks are table-level locks that indicate which type of lock (shared or exclusive) a transaction requires later for a row in a table.”。翻译过来大概是：意向锁是表级锁，指示事务稍后需要为表中的行使用哪种类型的锁（共享或独占）。举个列子，假设一张表的某些行已经被人加了X锁，现在另一个事务需要对这张表加X锁，此时需要判断这个表上的记录是否有一些被人加过X锁了，如果加过了就不允许加表X锁了，如果没有意向锁的话需要逐行遍历判断是否加过行X锁。所以，</p>
+<ul>
+<li>在事务可以获取表中某一行的共享锁之前，它必须首先获取表上的IS锁。</li>
+<li>在事务可以获得表中一行的排他锁之前，它必须首先获得表上的IX锁。</li>
+</ul>
+<p><strong>意向锁是MySQL自动帮我们加的，我们不需要操心，只需要了解下就行。</strong></p>
+<h3 id="行锁"><a href="#行锁" class="headerlink" title="行锁"></a>行锁</h3><p>下面介绍行锁的几个种类：Record Locks（记录锁），Gap Locks（间隙锁），Next-Key Locks（记录锁+间隙锁组合），Insert Intention Locks（插入意向锁）。</p>
+<p>先创建一个表，用来下面分析</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> HERO<span class="token punctuation">(</span>
+id <span class="token keyword">INT</span><span class="token punctuation">,</span> 
+name VARCAHR<span class="token punctuation">(</span><span class="token number">100</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span><span class="token punctuation">,</span>
+<span class="token keyword">KEY</span> <span class="token punctuation">`</span>INDEX_NAME<span class="token punctuation">`</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>name<span class="token punctuation">`</span><span class="token punctuation">)</span> <span class="token keyword">USING</span> BIREE
+<span class="token punctuation">)</span> <span class="token keyword">Engine</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span></code></pre>
+<h4 id="Record-Locks（记录锁）"><a href="#Record-Locks（记录锁）" class="headerlink" title="Record Locks（记录锁）"></a>Record Locks（记录锁）</h4><p>单条索引记录上加锁，有S锁和X锁之分。<strong>record lock锁住的永远是索引，而非记录本身，即使该表上没有任何索引，那么innodb会在后台创建一个隐藏的聚集主键索引，那么锁住的就是这个隐藏的聚集主键索引。所以说当一条sql没有走任何索引时，那么将会在每一条聚集索引后面加X锁，这个类似于表锁</strong>，但原理上和表锁应该是完全不同的。</p>
+<ul>
+<li><p>当⼀个事务获取了⼀条记录的S记录锁后，其他事务也可以继续获取该记录的S记录锁，但不可以继续获取X记录锁。</p>
+</li>
+<li><p>当⼀个事务获取了⼀条记录的X记录锁后，其他事务既不可以继续获取该记录的S记录锁 ，也不可以继续获取X型正经记录锁 。</p>
+</li>
+</ul>
+<p><img src="/2020/11/11/mysql-lock/3.png" alt="Record Locks加锁"></p>
+<h4 id="Gap-Locks（间隙锁）"><a href="#Gap-Locks（间隙锁）" class="headerlink" title="Gap Locks（间隙锁）"></a>Gap Locks（间隙锁）</h4><p>这种锁作用在索引记录之间。他是为<font color="red">防止其他事务插入间隙（包括防止insert方式插入新数据到间隙，以及update方式将其他行变更到此间隙）</font>。Gap锁可以有效的防止”幻读“（因为这些间隙都被上了锁，其他事务不可能再插入数据到这些间隙中，于是当前事务在连续进行”当前读“时，每次读到的都是相同的记录）。Gap锁<font color="red">只作用在隔离级别为RR（不可重复读）的数据库</font>上，但是不意味着隔离等级为RC（已提交读）级别的不会使用，<font color="red">在RC级别，在进行外键约束检测和唯一键约束检测的时候，会使用到Gap锁</font>。</p>
+<p><img src="/2020/11/11/mysql-lock/4.png" alt="Gap Locks"></p>
+<p><strong>什么情况下会加Gap锁？</strong></p>
+<ul>
+<li>RR隔离级别下，Gap锁会用在非唯一索引或者不走索引的当前读中，也就是说除了唯一索引的唯一搜索外，都会获取gap锁或next-key锁。<a href="https://www.cnblogs.com/crazylqy/p/7821481.html?spm=a2c6h.12873639.0.0.47a21bf4qroWrl" target="_blank" rel="noopener">初步理解MySQL的gap锁</a></li>
+<li>RC隔离级别，在进行外键约束检测和唯一键约束检测的时候，会使用到Gap锁。<a href="https://cloud.tencent.com/developer/article/1678599" target="_blank" rel="noopener">RC隔离级别下的间隙锁案例</a></li>
+</ul>
+<p>举例说明，例如还是上面那个图，ID是主键索引，name是普通索引。</p>
+<pre class=" language-SQL"><code class="language-SQL">-- 精确查询主键索引，只加X锁，不加Gap锁
+UPDATE `HERO` SET name = 'xxx' WHERE ID = '3';
+-- 会在5，7，,9上加X锁。在(3,5),(5,7),(7,9),(9,+∞)上加Gap锁
+UPDATE `HERO` SET name = 'xxx' WHERE ID > '3';
+-- 没命中，在(1,3)加Gap锁。
+UPDATE `HERO` SET name = 'xxx' WHERE ID = '2';</code></pre>
+<h4 id="NextKey-Locks"><a href="#NextKey-Locks" class="headerlink" title="NextKey Locks"></a>NextKey Locks</h4><p>本质上就是Gap锁和Record锁的结合，锁住索引外还要锁住索引的间隙。再具体一些就是，一个record锁，加上，位于此索引记录前的第一个间隙处的间隙锁。举个简单的例子就是，如果现在有一个索引包含三个值1，3，5，则next-key lock锁，可能锁住的范围就有(-∞,1],(1,3],(3,5],(5,+∞]。<font color="red">同样在next-key lock一般作用在RR隔离等级的数据库，但是当出现在insert时候，检测到唯一键冲突的时候，会在冲突所在唯一索引出和之前的间隙处加Next-key lock</font>。</p>
+<h4 id="Insert-Intention-Locks"><a href="#Insert-Intention-Locks" class="headerlink" title="Insert Intention Locks"></a>Insert Intention Locks</h4><p>这个锁是在数据插入之前会加此锁。它是一种轻量的Gap锁，同时也是意向排他锁的一种。它的存在使得多个事务在写入不同数据到统一索引间隙的时候，不会发生锁等待（<font color="red">例如一个间隙已经加了Gap锁了，事务B，C同时往这个间隙加Insert Intention Lock是不会互相阻塞的，但是Gap跟Insert Intention Locks会阻塞，必须等到Gap释放后才能加Insert Intention Locks</font>）。另外由于它是一种意向插入锁，所以当排他锁已经处于间隙上的时候，根据锁的兼容矩阵，可以知道，<strong><em>意向插入锁必须等待此间隙上的排它锁释放，才能获取。</em></strong></p>
+<h3 id="死锁案例分析"><a href="#死锁案例分析" class="headerlink" title="死锁案例分析"></a>死锁案例分析</h3><h4 id="背景分析"><a href="#背景分析" class="headerlink" title="背景分析"></a>背景分析</h4><p>我们数据库中发生死锁的表是具有”<strong><font color="red">多列组合构建的主键索引</font></strong>“，且数据库的隔离级别多RC。由于业务原因，经常会出现对同一行数据进行字段的反复修改的场景。为了简化代码我们使用了insert on duplicate key update语句来解决，这个语句的意思是首先先执行插入，如果检测到唯一键冲突时，仅更新特定（非索引）字段。为了优化入库的效率，我们将原来执行insert on duplicate key update语句进行切分采用多事务的方式，结果发生了”Deadlock found when trying to get lock“死锁问题。</p>
+<pre class=" language-sql"><code class="language-sql"><span class="token comment" spellcheck="true">--- 表结构----</span>
+<span class="token keyword">CREATE</span> <span class="token keyword">TABLE</span> <span class="token punctuation">`</span>flow_data<span class="token punctuation">`</span> <span class="token punctuation">(</span>
+  <span class="token punctuation">`</span>time<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">8</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>domain<span class="token punctuation">`</span> <span class="token keyword">varchar</span><span class="token punctuation">(</span><span class="token number">256</span><span class="token punctuation">)</span> <span class="token operator">NOT</span> <span class="token boolean">NULL</span> <span class="token keyword">DEFAULT</span> <span class="token string">''</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>v1<span class="token punctuation">`</span> <span class="token keyword">bigint</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token keyword">DEFAULT</span> <span class="token string">'0'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>v2<span class="token punctuation">`</span> <span class="token keyword">bigint</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token keyword">DEFAULT</span> <span class="token string">'0'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>v3<span class="token punctuation">`</span> <span class="token keyword">bigint</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token keyword">DEFAULT</span> <span class="token string">'0'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">`</span>v4<span class="token punctuation">`</span> <span class="token keyword">bigint</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">)</span> <span class="token keyword">DEFAULT</span> <span class="token string">'0'</span><span class="token punctuation">,</span>
+  <span class="token keyword">PRIMARY</span> <span class="token keyword">KEY</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>time<span class="token punctuation">`</span><span class="token punctuation">,</span><span class="token punctuation">`</span>domain<span class="token punctuation">`</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token keyword">KEY</span> <span class="token punctuation">`</span>index_domain<span class="token punctuation">`</span> <span class="token punctuation">(</span><span class="token punctuation">`</span>domain<span class="token punctuation">`</span><span class="token punctuation">)</span> <span class="token keyword">USING</span> <span class="token keyword">BTREE</span>
+<span class="token punctuation">)</span> <span class="token keyword">ENGINE</span><span class="token operator">=</span><span class="token keyword">InnoDB</span> <span class="token keyword">DEFAULT</span> <span class="token keyword">CHARSET</span><span class="token operator">=</span>utf8<span class="token punctuation">;</span>
+
+<span class="token comment" spellcheck="true">--- 对应死锁的语句----</span>
+<span class="token keyword">INSERT</span> <span class="token keyword">INTO</span> flow_data <span class="token punctuation">(</span>time<span class="token punctuation">,</span> domain<span class="token punctuation">,</span> v1<span class="token punctuation">,</span> v2<span class="token punctuation">,</span> v3<span class="token punctuation">,</span> v4<span class="token punctuation">)</span> <span class="token keyword">VALUES</span>
+  <span class="token punctuation">(</span><span class="token string">'20201111'</span><span class="token punctuation">,</span><span class="token string">'a.com'</span><span class="token punctuation">,</span><span class="token number">26420278</span><span class="token punctuation">,</span><span class="token number">27235006</span><span class="token punctuation">,</span><span class="token number">26189728</span><span class="token punctuation">,</span><span class="token number">29158467</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">(</span><span class="token string">'20201111'</span><span class="token punctuation">,</span><span class="token string">'b.com'</span><span class="token punctuation">,</span><span class="token number">26420278</span><span class="token punctuation">,</span><span class="token number">27235006</span><span class="token punctuation">,</span><span class="token number">26189728</span><span class="token punctuation">,</span><span class="token number">29158467</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token punctuation">(</span><span class="token string">'20201111'</span><span class="token punctuation">,</span><span class="token string">'c.com'</span><span class="token punctuation">,</span><span class="token number">26420278</span><span class="token punctuation">,</span><span class="token number">27235006</span><span class="token punctuation">,</span><span class="token number">26189728</span><span class="token punctuation">,</span><span class="token number">29158467</span><span class="token punctuation">)</span> 
+<span class="token keyword">ON</span> <span class="token keyword">DUPLICATE KEY</span> <span class="token keyword">UPDATE</span> 
+  v1<span class="token operator">=</span><span class="token keyword">VALUES</span><span class="token punctuation">(</span>v1<span class="token punctuation">)</span><span class="token punctuation">,</span>v2 <span class="token operator">=</span><span class="token keyword">VALUES</span><span class="token punctuation">(</span>v2<span class="token punctuation">)</span><span class="token punctuation">,</span>v3<span class="token operator">=</span><span class="token keyword">VALUES</span><span class="token punctuation">(</span>v3<span class="token punctuation">)</span><span class="token punctuation">,</span>v4 <span class="token operator">=</span><span class="token keyword">VALUES</span><span class="token punctuation">(</span>v4<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+<p><img src="/2020/11/11/mysql-lock/6.png" alt></p>
+<h4 id="问题现象"><a href="#问题现象" class="headerlink" title="问题现象"></a>问题现象</h4><p><img src="/2020/11/11/mysql-lock/7.png" alt></p>
+<p>我们分析下死锁信息，</p>
+<p>事务1正在等待别的事务的锁释放，这个锁是”lock_mode X locks gap before rec insert intention waiting“，直接翻译过来就是<font color="red">插入意向锁在等待排他gap锁的释放</font>。</p>
+<p>事务2目前持有一个X锁，并且也在等别的事务的锁的释放，”lock_mode X locks gap before rec insert intention waiting”。</p>
+<h4 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h4><p>上面的死锁问题刚开始很疑惑，主要有几点</p>
+<ul>
+<li>为什么在RC隔离级别下会用了Gap锁？</li>
+<li>insert on duplicate key update语句是否在内部有导致了什么检查才会加锁？</li>
+</ul>
+<p>带着疑问，重新好好的复习了一下MySQL的锁知识和官方文档，也全网找了相关的问题。得出一下几个要点。</p>
+<ul>
+<li>insert on duplicate key update 语句在内部会<font color="red">检测是否发生唯一键的冲突</font>，这个不难理解，例如原来有个domian=a.com，如果原来表里面没有a.com，那就INSERT；如果已经有了这个domain（为啥能知道有了这个domain，因为唯一键冲突），就UPDATE。</li>
+<li>在RC级别，在<font color="red">进行外键约束检测和唯一键约束检测</font>的时候，会使用到Gap锁。</li>
+<li>同样在next-key lock一般作用在RR隔离等级的数据库，但是当出现在insert时候，<font color="red">检测到唯一键冲突</font>的时候，会在冲突所在唯一索引出和之前的间隙处加Next-key lock。</li>
+<li><font color="red">意向插入锁必须等待此间隙上的排它锁释放，才能获取</font>。</li>
+</ul>
+<p>所以得出死锁结论：<font color="red">本质上就是两个事务同时获取到了不同间隙的X Next-key锁，而这个两个事务又同时想要向对方已经获取了next-key锁的间隙内插入新的数据，于是乎死锁出现了</font>。</p>
+<p><img src="/2020/11/11/mysql-lock/8.png" alt></p>
+<h4 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h4><p>查找了网上的几种解决方法，包括如下：</p>
+<ul>
+<li>不用insert on duplicate key update语句，但是业务需要，这个不能换，最终这个没有采纳。</li>
+<li>笔者用的Mysql5.7,网上说Mysql5.6不会有这个问题，但是降级数据库是大隐患，也不采纳。</li>
+<li>insert on duplicate key update语句每次的批次少点，减少发生死锁的概率。这个确实可以，但是治标不治本。</li>
+<li>死锁后重试。</li>
+</ul>
+<p>最终笔者采用的是对domain先进行排序后再分批次 + 死锁后重试，用了这个方法后就没再出现过死锁。</p>
+<p>这里为啥排序后可以解决，因为导致这个问题的原因是每个事务的doamin都是乱序的，那么多事务执行就容易出现上面的问题。InnoDB的索引是按照规则进行排序的，那么将所有domian排序后再分批次，那么就不会出现。且为了保险也做了死锁重试来兜底。</p>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2020/11/11/mysql-lock/>http://yoursite.com/2020/11/11/mysql-lock/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-08T08:47:06+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Apr 8, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/mysql/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>mysql</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2020/12/02/kafka-messge-complete/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Kafka如何保证消息100%投递（四）</p>
+                <p class='content'>Kafka数据丢失原因Kafka存在数据丢失问题，主要存在在Broker，Producer。
+Broker刷盘机制Broker丢失消息是由于Kafka本身的原因造成的，kafka为了得到更高的性...</p>
+              </a>
+            
+            
+              <a class='next' href='/2020/10/30/blockingqueue/'>
+                <p class='title'>阻塞队列(BlockingQueue)详解(带图解)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>BlockingQueue接口Java中的BlockingQueue接口是一个线程安全的存取队列。继承Queue（队列）接口，再此基础上新定义了阻塞方法。
+
+
+
+
+
+抛出异常
+返回特殊值
+一直阻...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'MySQL中InnoDB锁，死锁详解',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#为什么有锁"><span class="toc-text">为什么有锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#锁类型与上锁方式"><span class="toc-text">锁类型与上锁方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#行锁"><span class="toc-text">行锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Record-Locks（记录锁）"><span class="toc-text">Record Locks（记录锁）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Gap-Locks（间隙锁）"><span class="toc-text">Gap Locks（间隙锁）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NextKey-Locks"><span class="toc-text">NextKey Locks</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Insert-Intention-Locks"><span class="toc-text">Insert Intention Locks</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#死锁案例分析"><span class="toc-text">死锁案例分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#背景分析"><span class="toc-text">背景分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题现象"><span class="toc-text">问题现象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#问题分析"><span class="toc-text">问题分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#解决方法"><span class="toc-text">解决方法</span></a></li></ol></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html>
+<head hexo-theme='https://volantis.js.org/#2.6.6'>
+  <meta charset="utf-8">
+  <!-- SEO相关 -->
+  
+    
+  
+  <!-- 渲染优化 -->
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- 页面元数据 -->
+  
+    <title>Linux命令之netstat与TCP详解 - 咕噜咕噜的博客</title>
+  
+    <meta name="keywords" content="linux,网络">
+  
+  
+    <meta name="description" content="Linux命令之netstat与TCP详解">
+  
+
+  <!-- feed -->
+  
+
+  <!-- import meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.13/css/all.min.css">
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+
+  
+
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css">
+  
+
+  
+
+  <!-- import link -->
+  
+
+  
+    
+      
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.18.1/styles/solarized-light.css">
+
+    
+  
+  
+    
+<link rel="stylesheet" href="/css/style.css">
+
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+<link rel="stylesheet" href="/css/prism.css" type="text/css"></head>
+
+<body>
+  <script src="https://cdn.jsdelivr.net/gh/zyoushuo/Blog/hexo/js/sakura.js"></script>
+  
+  <div id="loading-bar-wrapper">
+  <div id="loading-bar"></div>
+</div>
+<header class="l_header shadow blur">
+  <div class='container'>
+  <div class='wrapper'>
+    <div class='nav-sub'>
+      <p class="title"></p>
+      <ul class='switcher nav-list-h'>
+        <li><a class="s-comment fas fa-comments fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+          <li><a class="s-toc fas fa-list fa-fw" target="_self" href='javascript:void(0)'></a></li>
+        
+      </ul>
+    </div>
+		<div class="nav-main">
+      
+        
+        <a class="title flat-box" target="_self" href='/'>
+          
+          
+          
+          
+            VOLANTIS <b><sup style='color:#3AA757'>2.6.6</sup></b>
+          
+        </a>
+      
+
+			<div class='menu navigation'>
+				<ul class='nav-list-h'>
+          
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+          
+            
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+          
+				</ul>
+			</div>
+
+      <div class="m_search">
+        <form name="searchform" class="form u-search-form">
+          <i class="icon fas fa-search fa-fw"></i>
+          <input type="text" class="input u-search-input" placeholder="Search..." />
+        </form>
+      </div>
+
+			<ul class='switcher nav-list-h'>
+				
+					<li><a class="s-search fas fa-search fa-fw" target="_self" href='javascript:void(0)'></a></li>
+				
+				<li>
+          <a class="s-menu fas fa-bars fa-fw" target="_self" href='javascript:void(0)'></a>
+          <ul class="menu-phone list-v navigation white-box">
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/
+                  
+                  
+                  
+                    id="home"
+                  >
+                  <i class='fas fa-rss fa-fw'></i>博客
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/categories/
+                  
+                  
+                  
+                    id="categories"
+                  >
+                  <i class='fas fa-folder-open fa-fw'></i>分类
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/tags/
+                  
+                  
+                  
+                    id="tags"
+                  >
+                  <i class='fas fa-tags fa-fw'></i>标签
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/archives/
+                  
+                  
+                  
+                    id="archives"
+                  >
+                  <i class='fas fa-archive fa-fw'></i>归档
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/friends/
+                  
+                  
+                  
+                    id="friends"
+                  >
+                  <i class='fas fa-link fa-fw'></i>友链
+                </a>
+                
+              </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="flat-box" href=/about/
+                  
+                  
+                  
+                    id="about"
+                  >
+                  <i class='fas fa-info-circle fa-fw'></i>关于
+                </a>
+                
+              </li>
+            
+          
+            
+          </ul>
+        </li>
+			</ul>
+		</div>
+	</div>
+  </div>
+</header>
+
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      
+
+<div class='l_main'>
+  
+
+  
+    <article id="post" class="post white-box reveal shadow article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class='meta'>
+    
+      
+      
+      <div class="meta" id="header-meta">
+        
+          
+  <h1 class="title">
+    <a href="/2021/04/08/linux-netstat/">
+      Linux命令之netstat与TCP详解
+    </a>
+  </h1>
+
+
+        
+        <div class='new-meta-box'>
+          
+            
+          
+            
+              
+<div class='new-meta-item author'>
+  <a href="https://xuzhiyong28.github.io" target="_blank" rel="nofollow noopener">
+    <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2592725124,834309066&fm=15&gp=0.jpg">
+    <p>咕噜。咕噜</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+  
+  <div class='new-meta-item category'>
+    <a href='/categories/linux/' rel="nofollow">
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <p>linux</p>
+    </a>
+  </div>
+
+
+            
+          
+            
+              <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>发布于：Apr 8, 2021</p>
+  </a>
+</div>
+
+            
+          
+            
+              
+
+            
+          
+        </div>
+        
+          <hr>
+        
+      </div>
+    
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          
+          <h2 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h2><p>传输控制协议（<em>TCP</em>，Transmission Control Protocol）是一种<font color="red">面向连接的</font>、<font color="red">可靠的</font>、<font color="red">基于字节流</font>的传输层通信协议。本人是这样理解面向连接和可靠性的。</p>
+<p>面向连接指的客户端/服务器在使用TCP进行数据传输时必须先建立一个TCP连接。连接的手段就是进行三次握手，关闭时需要四次挥手。</p>
+<p>可靠性指的是保证发送的数据<font color="red">无差错，无重复，按顺序，不丢失</font>。可靠性的保证主要通过如下手段实现：</p>
+<ul>
+<li>序列号，ACK信号：发送方按照顺序给要发送的数据包的每个字节都标上编号。接收方接收到发送方的数据包之后，回传一个ACK信号，标识下一个需求的数据包初始字节编号。（可以保证顺序）</li>
+<li>超时重发：在等待接收方回传的ACK信号超时后，发送方重发数据包。一旦开始重传，下一次等待的时间间隔指数增长，重发一定次数后还是收不到ACK信号，将强制终止连接。</li>
+<li>TCP的连接管理：建立连接的三次握手和断开连接的四次挥手。（保证安全）</li>
+<li>以段为单位发送数据包：在建立TCP连接的同时，两端协商发送数据包的单位，称为“最大消息长度”：MSS。</li>
+<li>滑动窗口：以段为单位发送数据包，每发送一个数据包需要等待一个ACK信号，当数据包往返时间越长效率越低。滑动窗口中窗口前端为已发送但为收到ACK的数据，后端为待发送数据。发送端一次发送多个数据，接收端回传收到的连续数据的ACK信号，缓存缺失数据之后的数据包(保持顺序)。发送端当收到ACK信号时，窗口向前依次移动，直到遇到有数据未确认时停止。一段时间后启动超时重传，接收端若收到缺失数据，则和缓存数据一起发送ACK信号，否则，抛弃缓存数据。</li>
+<li>流量控制：TCP首部有一个字段来通知窗口的大小，接收端通过设置来主动控制传输流量。</li>
+<li>拥塞控制：发送端通过拥塞窗口主动控制传输流量。慢启动：防止双方通信刚开始就传送大量数据包，发送端拥塞窗口初始设置为1MSS，每接受一个ACK信号，窗口扩大为两倍。发送数据时，取拥塞窗口和滑动窗口的较小值。同时设定一个慢启动阈值，当拥塞窗口大小超过阈值时，改为线性增长，直到网络拥塞。拥塞时将慢启动阈值设置为当前窗口的的一半，并将拥塞窗口的值设置为1，然后再次重复操作。</li>
+</ul>
+<h2 id="TCP三次握手和四次挥手"><a href="#TCP三次握手和四次挥手" class="headerlink" title="TCP三次握手和四次挥手"></a>TCP三次握手和四次挥手</h2><p>一个正常的TCP连接，都会有三个阶段:</p>
+<ul>
+<li>TCP三次握手。</li>
+<li>数据传送。</li>
+<li>TCP四次挥手。</li>
+</ul>
+<p><img src="/2021/04/08/linux-netstat/1.png" alt="三次握手"></p>
+<h3 id="三次握手"><a href="#三次握手" class="headerlink" title="三次握手"></a>三次握手</h3><p><img src="/2021/04/08/linux-netstat/2.png" alt="三次握手与状态"></p>
+<p><strong>三次握手说明：</strong></p>
+<ol>
+<li>客户端发送TCP连接的请求报文，其中SYN=1表示建立TCP连接，seq表示序列号，x为随机序列号。客户端发送后将自己的状态设置成<code>SYN_SENT</code>状态。</li>
+<li>服务单回复客户都按发送的TCP请求报文，seq=y表示序列号，y由服务端生成的随机数,SYN=1表示建立TCP连接（服务端也回复这个，表示我同意建立连接了），而且会产生ack字段，ack字段数值是在客户端发送过来的序列号seq的基础上加1进行回复，以便客户端收到信息时，知晓自己的TCP建立请求已得到验证，这里的ack加1可以理解为是确认和谁建立连接。</li>
+<li>客户端收到服务端发送的TCP建立验证请求后，会使自己的序列号加1表示，并且再次回复ACK验证请求，在服务端发过来的seq上加1进行回复。（SYN=1，ACK=y+1，seq=x+1）。</li>
+</ol>
+<p>上面的SYN，seq，ack我们可以缕一缕意思。</p>
+<ul>
+<li>其中SYN表示是要建立TCP连接，所以值都是为1。</li>
+<li>seq表示发送的序列号，ack表示报文到达的确认。所以我们可以看到客户端假设发了seq=100，那么服务端确认后就发ack=100+1表示我确认了。然后服务端回复时也发了一个seq=200（这里200是图中的y），客户端确认后发送ack=200+1。</li>
+<li>seq和ack的作用是保证传输可靠性，顺序性。</li>
+</ul>
+<h3 id="四次挥手"><a href="#四次挥手" class="headerlink" title="四次挥手"></a>四次挥手</h3><p><img src="/2021/04/08/linux-netstat/3.png" alt="四次挥手与状态"></p>
+<ol>
+<li>客户端发送TCP断开请求的报文，其中FIN=1表示要断开连接的请求，seq表示序列号，x是随机生成的。</li>
+<li>服务端收到请求后回复客户端，ack表示回复确认，seq=y随机序列号。</li>
+<li>第二步服务端回复完客户端后并不是一下子就断开，服务端需要保障所有传输到客户端的数据是否已经传输完毕，如果完毕了然后发送FIN=1表示我同意断开了，然后seq=y就是发送自己这边的随机序列号。</li>
+<li>客户端收到服务端的TCP断开请求后，会回复服务端的断开请求，包含随机生成的seq字段和ACK字段，ACK字段会在服务端的TCP断开请求的seq基础上加1，从而完成服务端请求的验证回复。</li>
+</ol>
+<h3 id="TCP的11种状态"><a href="#TCP的11种状态" class="headerlink" title="TCP的11种状态"></a>TCP的11种状态</h3><p><img src="/2021/04/08/linux-netstat/4.png" alt></p>
+<ol>
+<li>一开始，建立连接之前服务器和客户端的状态都为CLOSED。</li>
+<li>服务器创建socket后开始监听，变为LISTEN状态。</li>
+<li>客户端请求建立连接，向服务器发送SYN报文，客户端的状态变味SYN_SENT。</li>
+<li>服务器收到客户端的报文后向客户端发送ACK和SYN报文，此时服务器的状态变为SYN_RCVD。</li>
+<li>然后，客户端收到ACK、SYN，就向服务器发送ACK，客户端状态变为ESTABLISHED。</li>
+<li>服务器端收到客户端的ACK后变为ESTABLISHED。此时3次握手完成，连接建立。</li>
+</ol>
+<p><img src="/2021/04/08/linux-netstat/5.png" alt></p>
+<p>由于TCP连接是全双工的，断开连接会比建立连接麻烦一点点。 </p>
+<ol>
+<li>客户端先向服务器发送FIN报文，请求断开连接，其状态变为FIN_WAIT1； </li>
+<li>服务器收到FIN后向客户端发送ACK，服务器的状态变成CLOSE_WAIT； </li>
+<li>客户端收到ACK后就进入FIN_WAIT2状态，此时连接已经断开了一半了。如果服务器还有数据要发送给客户端，就会继续发送； </li>
+<li>直到发完数据，就会发送FIN报文，此时服务器进入LAST_ACK状态； </li>
+<li>客户端收到服务器的FIN后，马上发送ACK给服务器，此时客户端进入TIME_WAIT状态； </li>
+<li>再过了2MSL长的时间后进入CLOSED状态。服务器收到客户端的ACK就进入CLOSED状态。<br>至此，还有一个状态没有出来：CLOSING状态。 </li>
+</ol>
+<p><strong>状态解释</strong></p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LISTEN</td>
+<td>等待从任何远端TCP 和端口的连接请求</td>
+</tr>
+<tr>
+<td>SYN_SENT</td>
+<td>发送完一个连接请求后等待一个匹配的连接请求</td>
+</tr>
+<tr>
+<td>SYN_RECEIVED</td>
+<td>发送连接请求并且接收到匹配的连接请求以后等待连接请求确认</td>
+</tr>
+<tr>
+<td>ESTABLISHED</td>
+<td>连接完成，连接的数据传输阶段的正常状态</td>
+</tr>
+<tr>
+<td>FIN_WAIT_1</td>
+<td>等待远端TCP的连接终止请求，或者等待之前发送的连接终止请求的确认</td>
+</tr>
+<tr>
+<td>FIN_WAIT_2</td>
+<td>等待远端TCP的连接终止请求</td>
+</tr>
+<tr>
+<td>CLOSE_WAIT</td>
+<td>等待本地用户的连接终止请求</td>
+</tr>
+<tr>
+<td>CLOSING</td>
+<td>等待远端TCP的连接终止请求确认</td>
+</tr>
+<tr>
+<td>LAST_ACK</td>
+<td>等待先前发送给远端TCP的连接终止请求的确认</td>
+</tr>
+<tr>
+<td>TIME_WAIT</td>
+<td>等待足够的时间过去以确保远端TCP 接收到它的连接终止请求的确认</td>
+</tr>
+</tbody></table>
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><p>参考：<a href="https://juejin.cn/post/6900439208641921038" target="_blank" rel="noopener">https://juejin.cn/post/6900439208641921038</a></p>
+<p><strong>为什么TCP协议要三次握手来确立连接，而不是两次，也不是4次</strong></p>
+<p>首先要理解TCP是面向连接的，所以他需要通过握手来建立连接。TCP也是可靠性的，他通过什么来保证可靠性呢？序列号，通过序列号来保证消息的有序性， 三次握手的过程即是通信双方相互告知序列号起始值， 并确认对方已经收到了序列号起始值的必经步骤，那为什么不是两次？</p>
+<p><a href="https://blog.csdn.net/lengxiao1993/article/details/82771768" target="_blank" rel="noopener">https://blog.csdn.net/lengxiao1993/article/details/82771768</a></p>
+<p><strong>两次握手过程</strong></p>
+<ol>
+<li>A发送同步信号SYN + sequence</li>
+<li>B收到A的消息后，发送同步信号 SYN +  sequence + ACK（表示对A同步信号的确认）</li>
+</ol>
+<p>到此，如果只有两次，A能确定收到B的同步信号，但是B没法确定A是否收到自己发送的同步信号。这样可能造成的问题是，假如A发送了第一个连接请求后由于网络问题滞留，到了某个时间才到达B，此时这个报文是无效的，但是由于只有两次握手，B同意连接后发送ACK给A，A对于这个失效的报文不会理睬，导致B端一直等待浪费资源。</p>
+<p><strong>TCP报文结构</strong></p>
+<p><img src="/2021/04/08/linux-netstat/6.png" alt></p>
+<p>其中，</p>
+<ul>
+<li>源端口和目的端口。</li>
+<li>位序号（seq）和确认号（ack）这个就是TCP通信时发送的，确认号而是和序列号配合使用的，应答某次请求时，则返回一个确认号，它的值等于对方请求序列号加1。</li>
+<li>6个标志位分别是，URG：这是条紧急信息，ACK:应答消息，PSH:缓冲区尚未填满，RST:重置连接，SYN:建立连接消息标志，FIN：连接关闭通知信息。</li>
+<li>滑动窗口大小，用来告知发送端接受端的缓存大小，以此控制发送端发送数据的速率，从而达到流量控制。窗口大小时一个16bit字段，因而窗口大小最大为65535。</li>
+</ul>
+<p><strong>TCP为什么说是可靠连接的</strong></p>
+<p>TCP的连接是基于三次握手，而断开则是四次挥手。为了保障数据不丢失及错误（可靠性），它有报文校验、ACK应答、超时重传(发送方)、失序数据重传（接收方）、丢弃重复数据、流量控制（滑动窗口）和拥塞控制等机制。</p>
+<p><strong>挥手时主动断开方状态在TIME_WAIT后为什么要等2MSL后才断开</strong></p>
+<ol>
+<li>TIME_WAIT的作用是为了保证最后一次挥手的ACK报文能送达给对方，如果ACK丢失，对方会超时重传FIN，主动关闭端会再次响应ACK过去；如果没有TIME_WAIT状态，直接关闭，对方重传的FIN报文则被响应一个RST报文，此RST会被动关闭端被解析成错误。</li>
+<li>MSL指的是”报文最大生存时间”，等待这个时间使本次连接所产生的报文段都从网络上消失，保证下一次的连接不会出现这种旧的连接请求的报文段。</li>
+</ol>
+<p><strong>TIME_WAIT和CLOSE_WAIT的区别</strong></p>
+<p>CLOSE_WAIT是被动关闭形成的，当对方发送FIN后，自己回应ACK后进入CLOSE_WAIT状态，随后检查是否存在未传输数据，如果没有则发起第三次挥手，发送FIN报文给对方，进入LAST_ACK状态并等待对方ACK报文到来。</p>
+<p>TIME_WAIT是主动关闭连接方式形成的；处于FIN_WAIT_2状态时，收到对方FIN报文后进入TIME_WAIT状态；之后再等待两个MSL(Maximum Segment Lifetime:报文最大生存时间)。</p>
+<p><strong>TCP和UDP的区别</strong></p>
+<ol>
+<li>udp是无连接的，tcp是面向连接的。</li>
+<li>udp是不可靠传输，tcp是可靠传输。</li>
+<li>udp是面向报文传输，tcp是面向字节流传输。</li>
+<li>udp不会发生粘包拆包，tcp会发生。</li>
+</ol>
+<p><strong>TCP的粘包拆包是怎么回事？如何解决？</strong></p>
+<p>网络通信采用的套接字(socket)技术，其实现实际是由系统内核提供一片连续缓存(流缓冲)来实现应用层程序与网卡接口之间的中转功能。多个数据包被连续存储于连续的缓存中，每个数据包的大小是不规定的。在对数据包进行读取时采用某一估测值大小（滑动窗口）来进行数据读出。例如缓冲里面目前有pag1=100字节，pag2=200字节，而我们采用估测值大小300字节的去读取的时候会将pag1,pag2都读取出来就发生了粘包。拆包同理，且拆包的话还有可能是大于MSS（最大报文长度），TCP在传输前将进行拆包了。</p>
+<p>解决方法:</p>
+<ol>
+<li>在数据尾部增加特殊字符进行分割</li>
+<li>将数据定为固定大小，少于固定大小的用填充数据填充</li>
+<li>将数据分为两部分，一部分是头部，一部分是内容体。其中头部结构大小固定，且有一个字段声明内容体的大小</li>
+</ol>
+<p><a href="https://zhuanlan.zhihu.com/p/90057929" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/90057929</a></p>
+<p><strong>Linux系统支持的最大TCP连接是多少</strong></p>
+<p><a href="https://zhuanlan.zhihu.com/p/138263151" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/138263151</a></p>
+<p><a href="https://blog.csdn.net/sqlquan/article/details/111561959" target="_blank" rel="noopener">https://blog.csdn.net/sqlquan/article/details/111561959</a></p>
+<p><strong>nagle算法有了解吗</strong></p>
+<h2 id="netstat"><a href="#netstat" class="headerlink" title="netstat"></a>netstat</h2><p>netstat命令用于显示与IP、TCP、UDP和ICMP协议相关的统计数据，一般用于检验本机各端口的网络连接情况。netstat是在内核中访问网络及相关信息的程序，它能提供TCP连接，TCP和UDP监听，进程内存管理的相关报告。</p>
+<p>这个命令的参数太多，一般来说我们都是用它来查TCP连接的，然后看连接的状态对比对。</p>
+<pre class=" language-shell"><code class="language-shell">[root@Master1 ~]# netstat -ant #t表示只有展示TCP协议
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address               Foreign Address             State      
+tcp        0      0 0.0.0.0:63501               0.0.0.0:*                   LISTEN    
+tcp        1      0 127.0.0.1:44176             127.0.0.1:60047             CLOSE_WAIT  
+tcp        0      0 10.8.198.151:60884          10.8.2.30:61235             TIME_WAIT   
+tcp        0      0 10.8.198.151:55672          10.8.2.27:61235             TIME_WAIT   
+tcp        0      0 10.8.198.151:60882          10.8.2.30:61235             TIME_WAIT   
+tcp        0      0 10.8.198.151:63501          10.8.133.245:59893          ESTABLISHED 
+tcp        0      0 10.8.198.151:60976          10.8.2.30:61235             TIME_WAIT    
+tcp        0      0 ::ffff:127.0.0.1:9600       :::*                        LISTEN      
+tcp        0      0 :::63501                    :::*                        LISTEN          
+tcp        0      0 ::ffff:10.8.198.151:60061   ::ffff:10.8.198.135:63751   ESTABLISHED 
+tcp        0      0 ::ffff:10.8.198.151:60050   ::ffff:10.8.198.135:63751   ESTABLISHED 
+tcp        1      0 ::1:60047                   ::1:43724                   CLOSE_WAIT  
+tcp        0      0 ::ffff:10.8.198.151:45024   ::ffff:10.8.198.135:63751   ESTABLISHED 
+tcp        0      0 ::ffff:10.8.198.151:43592   ::ffff:10.8.215.65:34710    TIME_WAIT  
+#Local Address - 源IP/端口
+#Foreign Address - 目标IP/端口
+#State 状态 - 对应上面说的TCP11个状态</code></pre>
+<p>netstat命令有很多参数，这里就不一一说了。这个命令能帮助我们了解到具体的TCP的连接情况，例如我们可以通过如下命令知道当前服务器连接MySQL的状态。</p>
+<pre><code>netstat -ant | grep 3306</code></pre><h2 id="tcpdump"><a href="#tcpdump" class="headerlink" title="tcpdump"></a>tcpdump</h2><p>用来抓包tcp协议的命令</p>
+<pre class=" language-shell"><code class="language-shell">tcpdump -n port 3306 #监控端口3306的TCP情况抓包 -n不把网络地址转换为名字
+# 发生了 3次握手
+11:38:15.679863 IP 172.18.0.5.38822 > 172.18.0.3.3306: Flags [S], seq 4065722321, win 29200, options [mss 1460,sackOK,TS val 2997352 ecr 0,nop,wscale 7], length 0
+11:38:15.679923 IP 172.18.0.3.3306 > 172.18.0.5.38822: Flags [S.], seq 780487619, ack 4065722322, win 28960, options [mss 1460,sackOK,TS val 2997352 ecr 2997352,nop,wscale 7], length 0
+11:38:15.679936 IP 172.18.0.5.38822 > 172.18.0.3.3306: Flags [.], ack 1, win 229, options [nop,nop,TS val 2997352 ecr 2997352], length 0</code></pre>
+<pre class=" language-shell"><code class="language-shell"># 监控端口3306的TCP情况并且截获所有10.8.152.162 的主机收到的和发出的所有的数据包
+tcpdump -n port 3306 and host 10.8.152.162 
+# 截获主机210.27.48.1 和主机210.27.48.2 或210.27.48.3的通信
+tcpdump host 210.27.48.1 and \ (210.27.48.2 or 210.27.48.3 \) 
+# 果想要获取主机210.27.48.1接收或发出的telnet包
+tcpdump tcp port 23 and host 210.27.48.1</code></pre>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://juejin.cn/post/6844903734300901390" target="_blank" rel="noopener">https://juejin.cn/post/6844903734300901390</a></li>
+<li><a href="https://www.cnblogs.com/ggjucheng/archive/2012/01/14/2322659.html" target="_blank" rel="noopener">Linux tcpdump命令详解</a></li>
+<li><a href="https://www.cnblogs.com/mq0036/p/11187138.html" target="_blank" rel="noopener">wireshark抓包新手使用教程</a></li>
+</ul>
+
+          
+            <div class='article_footer'>
+              
+                
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+
+
+  
+
+  
+    
+    
+
+<section class="widget copyright  desktop mobile">
+  <div class='content'>
+    
+      <blockquote>
+        
+          
+            <p>本文作者：咕噜。咕噜</p>
+
+          
+        
+          
+            <p>感谢阅读。每天进步一点点。。。。 </p>
+
+          
+        
+          
+            <p>本文永久链接是：<a href=http://yoursite.com/2021/04/08/linux-netstat/>http://yoursite.com/2021/04/08/linux-netstat/</a></p>
+          
+        
+      </blockquote>
+    
+  </div>
+</section>
+
+  
+
+  
+    
+    
+
+<section class="widget qrcode  desktop mobile">
+  
+
+  <div class='content article-entry'>
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_blob.png'
+        
+          height='64px'
+        ></div>
+      
+    
+      
+        <div class='fancybox'><img src='https://cdn.jsdelivr.net/gh/xuzhiyong28/tuchuang/img/http_jianshu.png'
+        
+          height='64px'
+        ></div>
+      
+    
+  </div>
+</section>
+
+  
+
+
+              
+            </div>
+          
+        </div>
+        
+          
+
+
+  <section class='meta' id="footer-meta">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-04-08T08:47:06+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Apr 8, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/linux/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>linux</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/%E7%BD%91%E7%BB%9C/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>网络</p></a></div>
+
+
+        
+      
+        
+          
+
+        
+      
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+          <div class="prev-next">
+            
+              <a class='prev' href='/2021/04/08/linux-top/'>
+                <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Linux故障排查命令使用(top、iostat、vmstat、netstat、free、df、iotop)</p>
+                <p class='content'>top命令详解各项指标详解
+第一行：系统运行时间和平均负载top - 14:46:47 up 909 days,  3:15,  1 user,  load average: 1.80, 1.5...</p>
+              </a>
+            
+            
+              <a class='next' href='/2021/02/10/influxdb-1/'>
+                <p class='title'>influxdb学习(一)<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+                <p class='content'>核心概念&gt; insert cpu_usage,host=server01,location=cn-sz user=23.0,system=57.0
+&gt; select * from c...</p>
+              </a>
+            
+          </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box reveal comments shadow">
+    <section class="article typo">
+      <p ct><i class='fas fa-comments'></i> 评论</p>
+      
+      
+      
+      
+      
+      
+        <section id="comments">
+          <div id="valine_container" class="valine_thread">
+            <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+          </div>
+        </section>
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: 'Linux命令之netstat与TCP详解',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class='l_side'>
+  
+  
+
+  
+    
+    
+
+
+  <section class="widget toc-wrapper shadow desktop mobile">
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>本文目录</span>
+    
+  </header>
+
+
+    <div class='content'>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP"><span class="toc-text">TCP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP三次握手和四次挥手"><span class="toc-text">TCP三次握手和四次挥手</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#三次握手"><span class="toc-text">三次握手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四次挥手"><span class="toc-text">四次挥手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP的11种状态"><span class="toc-text">TCP的11种状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常见问题"><span class="toc-text">常见问题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#netstat"><span class="toc-text">netstat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcpdump"><span class="toc-text">tcpdump</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+  
+  <footer class="clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='340px'
+      server='netease'
+      type='playlist'
+      id='2682558306'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+              <a href="/atom.xml"
+                class="social fas fa-rss flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="mailto:jip0574@qq.com"
+                class="social fas fa-envelope flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://github.com/xuzhiyong28"
+                class="social fab fa-github flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+            
+              <a href="https://music.163.com/#/user/home?id=272192685"
+                class="social fas fa-headphones-alt flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer">
+              </a>
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        Use
+        <a href="https://volantis.js.org/" target="_blank" class="codename">Volantis</a>
+        as theme, total visits
+          <span id="busuanzi_value_site_pv"><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+          times
+        
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="https://xaoxuu.com" target="_blank" rel="noopener">Copyright © 2017-2020 Mr. X</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.4/dist/jquery.min.js"></script>
+
+
+  <script>
+    
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/" || "/";
+    if (!ROOT.endsWith('/')) ROOT += '/';
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/instant_page.js" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      ScrollReveal().reveal('.l_main .reveal', {
+        distance: '8px',
+        duration: '800',
+        interval: '100',
+        scale: '1'
+      });
+    });
+  </script>
+
+
+  
+<script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script defer src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+  
+  
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/jquery-backstretch@2.1.18/jquery.backstretch.min.js"></script>
+
+    <script type="text/javascript">
+      $(function(){
+        var imgs=["https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/41F215B9-261F-48B4-80B5-4E86E165259E.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/BBC19066-E176-47C2-9D22-48C81EE5DF6B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B18FCBB3-67FD-48CC-B4F3-457BA145F17A.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/35F12181-F0E9-45BD-B134-37E4B4A660CF.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/00E0F0ED-9F1C-407A-9AA6-545649D919F4.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/67239FBB-E15D-4F4F-8EE8-0F1C9F3C4E7C.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/B951AE18-D431-417F-B3FE-A382403FF21B.jpeg", "https://cdn.jsdelivr.net/gh/xaoxuu/cdn-wallpaper/abstract/2884F904-F1F3-479E-AE27-5EBC291B63B0.jpeg"];
+        if ('true' == 'true') {
+          function shuffle(arr){
+            /*From countercurrent-time*/
+            var n = arr.length;
+            while(n--) {
+              var index = Math.floor(Math.random() * n);
+              var temp = arr[index];
+              arr[index] = arr[n];
+              arr[n] = temp;
+            }
+          }
+          shuffle(imgs);
+        }
+        if ('.cover') {
+          $('.cover').backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        } else {
+          $.backstretch(
+            imgs,
+          {
+            duration: "20000",
+            fade: "1500"
+          });
+        }
+      });
+    </script>
+  
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js"></script>
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js"></script>
+
+  
+
+
+
+
+
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4/dist/Valine.min.js"></script>
+
+  
+  <script>
+  var GUEST_INFO = ['nick','mail','link'];
+  var meta = 'nick,mail,link'.split(',').filter(function(item){
+    return GUEST_INFO.indexOf(item) > -1
+  });
+  var REQUIRED_FIELDS = ['nick','mail','link'];
+  var requiredFields = 'nick,mail'.split(',').filter(function(item){
+    return REQUIRED_FIELDS.indexOf(item) > -1
+  });
+  var valine = new Valine();
+  function emoji(path, idx, ext) {
+      return path + "/" + path + "-" + idx + "." + ext;
+  }
+  var emojiMaps = {};
+  for (var i = 1; i <= 54; i++) {
+    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
+  }
+  for (var i = 1; i <= 101; i++) {
+    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
+  }
+  for (var i = 1; i <= 116; i++) {
+    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
+  }
+  for (var i = 1; i <= 125; i++) {
+    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
+  }
+  for (var i = 1; i <= 4; i++) {
+    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
+  }
+  valine.init({
+    el: '#valine_container',
+    meta: meta,
+    
+    appId: "dogUA2FSKGTo029M1SEwGROT-MdYXbMMI",
+    appKey: "u0NdtQ8nvHoMdJPSYqm1LRxE",
+    placeholder: "快来评论吧~",
+    pageSize:'10',
+    avatar:'robohash',
+    lang:'zh-cn',
+    visitor: 'true',
+    highlight: 'true',
+    mathJax: 'false',
+    enableQQ: 'true',
+    requiredFields: requiredFields,
+    emojiCDN: 'https://cdn.jsdelivr.net/gh/xaoxuu/cdn-assets/emoji/valine/',
+    emojiMaps: emojiMaps
+  })
+  </script>
+
+
+
+
+
+  
+<script src="/js/app.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2.6.5/js/search.js"></script>
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+    
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+
+    <script>hljs.initHighlightingOnLoad();</script>
+  
+
+
+
+<!-- 复制 -->
+
+  <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-check-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-check-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('fa-copy');
+        $icon.addClass('fa-times-circle');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('fa-times-circle');
+          $icon.addClass('fa-copy');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  function pjax_fancybox() {
+    $(".article-entry").find("img").not('.inline').not('a img').each(function () { //渲染 fancybox
+      var element = document.createElement("a"); // a 标签
+      $(element).attr("pjax-fancybox", "");  // 过滤 pjax
+      $(element).attr("href", $(this).attr("src"));
+      if ($(this).attr("data-original")) {
+        $(element).attr("href", $(this).attr("data-original"));
+      }
+      $(element).attr("data-fancybox", "images");
+      var caption = "";   // 描述信息
+      if ($(this).attr('alt')) {  // 标准 markdown 描述信息
+        $(element).attr('data-caption', $(this).attr('alt'));
+        caption = $(this).attr('alt');
+      }
+      var div = document.createElement("div");
+      $(div).addClass("fancybox");
+      $(this).wrap(div); // 最外层套 div ，其实主要作用还是 class 样式
+      var span = document.createElement("span");
+      $(span).addClass("image-caption");
+      $(span).text(caption); // 加描述
+      $(this).after(span);  // 再套一层描述
+      $(this).wrap(element);  // 最后套 a 标签
+    })
+    $(".article-entry").find("img").fancybox({
+      selector: '[data-fancybox="images"]',
+      hash: false,
+      loop: false,
+      closeClick: true,
+      helpers: {
+        overlay: {closeClick: true}
+      },
+      buttons: [
+        "zoom",
+        "close"
+      ]
+    });
+  };
+  $(function () {
+    pjax_fancybox();
+  });
+</script>
+
+
+
+
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
